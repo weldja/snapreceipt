@@ -1509,11 +1509,13 @@ async function runOCR(b64) {
     const labels = { high: '✓ High confidence', medium: '~ Review fields below', low: '⚠ Low confidence — check fields' };
     el('confidenceBadge').innerHTML = `<div class="confidence-badge ${conf}">${labels[conf] || conf}</div>`;
 
+    el('confirmSection').style.display = 'flex';
     el('confirmSection').classList.add('active');
     el('saveBar').style.display = 'flex';
-    // Scroll confirm fields into view on mobile
-    setTimeout(() => el('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    if (!data.merchant) el('cfMerchant').focus();
+    // Force reflow then scroll
+    el('confirmSection').offsetHeight;
+    el('scanScreen').querySelector('.scan-body').scrollTop = 9999;
+    toast(data.merchant ? `Found: ${data.merchant}` : '⚠ Check fields below');
 
   } catch (err) {
     console.error('OCR error:', err);
