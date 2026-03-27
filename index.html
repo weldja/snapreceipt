@@ -1511,8 +1511,8 @@ async function runOCR(b64) {
 
     el('confirmSection').classList.add('active');
     el('saveBar').style.display = 'flex';
-
-    // Focus merchant if empty
+    // Scroll confirm fields into view on mobile
+    setTimeout(() => el('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     if (!data.merchant) el('cfMerchant').focus();
 
   } catch (err) {
@@ -1520,6 +1520,7 @@ async function runOCR(b64) {
     el('confidenceBadge').innerHTML = `<div class="confidence-badge low">⚠ Could not read receipt — enter details manually</div>`;
     el('confirmSection').classList.add('active');
     el('saveBar').style.display = 'flex';
+    setTimeout(() => el('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     el('cfMerchant').focus();
   } finally {
     el('ocrLoading').classList.remove('active');
