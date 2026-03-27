@@ -1248,7 +1248,7 @@ window.doReset = async () => {
   if (!email) return setMsg(msg, 'err', 'Please enter your email.');
   btn.disabled = true; btn.textContent = 'Sending…';
   const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://snap.readlog.co.uk'
+    redirectTo: 'https://snapreceipt.co.uk'
   });
   if (error) setMsg(msg, 'err', error.message);
   else       setMsg(msg, 'ok',  'Reset link sent! Check your email.');
