@@ -1456,6 +1456,9 @@ window.onImageSelected = async (input) => {
   const file = input.files[0];
   if (!file) return;
 
+  // Show immediate feedback so user knows something is happening
+  toast('Processing image…');
+
   // Convert to JPEG via canvas (handles HEIC, WebP, etc.)
   const b64 = await fileToJpegB64(file);
   _imageB64 = b64;
@@ -1659,18 +1662,31 @@ async function fileToJpegB64(file) {
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX = 1600;
-        let w = img.width, h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else       { w = Math.round(w * MAX / h); h = MAX; }
+        try {
+          const canvas = document.createElement('canvas');
+          // 1200px max — balances quality vs payload size on mobile
+          const MAX = 1200;
+          let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else       { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { resolve(e.target.result); return; }
+          ctx.drawImage(img, 0, 0, w, h);
+          // Lower quality on mobile to reduce payload
+          const quality = w > 800 ? 0.75 : 0.85;
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } catch(err) {
+          console.warn('Canvas error, using raw:', err);
+          resolve(e.target.result); // fallback to raw
         }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.85));
       };
-      img.onerror = () => resolve(e.target.result); // fallback raw
+      img.onerror = () => {
+        console.warn('Image load error, using raw data');
+        resolve(e.target.result);
+      };
       img.src = e.target.result;
     };
     reader.onerror = reject;
