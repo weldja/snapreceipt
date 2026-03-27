@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>SnapReceipt — Scan & Log Receipts Instantly</title>
+  <meta name="description" content="The fastest way to scan receipts and log expenses. AI extracts merchant, amount and date instantly. Built for UK freelancers."/>
+  <meta name="theme-color" content="#0ea5e9" media="(prefers-color-scheme: light)"/>
+  <meta name="theme-color" content="#0c1117" media="(prefers-color-scheme: dark)"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
+  <link rel="canonical" href="https://snapreceipt.co.uk/"/>
+
+  <style>
+/* ─────────────────────────────────────────────────────────
+   DESIGN TOKENS — light & dark via prefers-color-scheme
+───────────────────────────────────────────────────────── */
+:root {
+  --bg:          #ffffff;
+  --bg-2:        #f4f6f8;
+  --bg-3:        #e8ecf0;
+  --border:      #d1d9e0;
+  --border-strong:#b0bec8;
+  --text:        #0d1117;
+  --text-2:      #4a5568;
+  --text-3:      #8a9ab0;
+  --accent:      #0ea5e9;
+  --accent-dark: #0284c7;
+  --accent-pale: #e0f2fe;
+  --green:       #10b981;
+  --green-pale:  #d1fae5;
+  --amber:       #f59e0b;
+  --amber-pale:  #fef3c7;
+  --red:         #ef4444;
+  --red-pale:    #fee2e2;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg:   0 12px 40px rgba(0,0,0,.14);
+  --r:           10px;
+  --r-lg:        16px;
+  --font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #0c1117;
+    --bg-2:        #161b22;
+    --bg-3:        #21262d;
+    --border:      #30363d;
+    --border-strong:#484f58;
+    --text:        #e6edf3;
+    --text-2:      #8b949e;
+    --text-3:      #484f58;
+    --accent:      #38bdf8;
+    --accent-dark: #0ea5e9;
+    --accent-pale: rgba(56,189,248,.12);
+    --green:       #3fb950;
+    --green-pale:  rgba(63,185,80,.12);
+    --amber:       #d29922;
+    --amber-pale:  rgba(210,153,34,.12);
+    --red:         #f85149;
+    --red-pale:    rgba(248,81,73,.12);
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+    --shadow-md:   0 4px 16px rgba(0,0,0,.4);
+    --shadow-lg:   0 12px 40px rgba(0,0,0,.6);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   RESET + BASE
+───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: var(--font);
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  min-height: 100vh;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+button { font-family: var(--font); cursor: pointer; }
+input, textarea, select { font-family: var(--font); }
+img { display: block; max-width: 100%; }
+
+/* ─────────────────────────────────────────────────────────
+   APP SHELL — three screens, only one visible at a time
+───────────────────────────────────────────────────────── */
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100dvh;
+  min-height: 100vh;
+}
+.screen.active { display: flex; }
+
+/* ─────────────────────────────────────────────────────────
+   AUTH SCREEN
+───────────────────────────────────────────────────────── */
+#authScreen {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.auth-logo-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.auth-logo-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+.auth-logo-tag {
+  font-size: .75rem;
+  color: var(--text-2);
+  margin-top: 1px;
+}
+
+.auth-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -.02em;
+}
+
+.auth-sub {
+  font-size: .9rem;
+  color: var(--text-2);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.auth-tabs {
+  display: flex;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 3px;
+  gap: 3px;
+  margin-bottom: 22px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: none;
+  border-radius: 7px;
+  font-size: .88rem;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: all .15s;
+}
+
+.auth-tab.active {
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-field { margin-bottom: 14px; }
+
+.form-label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .15s, background .15s;
+  -webkit-appearance: none;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  background: var(--bg);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: none;
+  border-radius: var(--r);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(.97); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 13px 20px;
+}
+
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  padding: 11px 18px;
+}
+
+.btn-secondary:hover { background: var(--bg-3); border-color: var(--border-strong); }
+
+.btn-danger {
+  background: var(--red-pale);
+  color: var(--red);
+  border: 1.5px solid var(--red);
+  padding: 11px 18px;
+}
+
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+.btn-full { width: 100%; }
+
+.btn-sm { padding: 8px 14px; font-size: .85rem; }
+
+.auth-msg {
+  font-size: .85rem;
+  padding: 10px 13px;
+  border-radius: var(--r);
+  margin-top: 12px;
+  display: none;
+  line-height: 1.4;
+}
+
+.auth-msg.ok  { display: block; background: var(--green-pale); color: var(--green); }
+.auth-msg.err { display: block; background: var(--red-pale);   color: var(--red);   }
+
+.auth-footer-link {
+  text-align: center;
+  margin-top: 14px;
+  font-size: .82rem;
+  color: var(--text-2);
+}
+
+.auth-footer-link button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   HOME SCREEN
+───────────────────────────────────────────────────────── */
+#homeScreen {
+  background: var(--bg);
+}
+
+.home-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+.home-logo-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+}
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--bg-2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-icon:hover { background: var(--bg-3); }
+
+/* Scan FAB */
+.scan-fab {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom, 24px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 32px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: 0 4px 20px rgba(14,165,233,.45);
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.scan-fab:hover  { background: var(--accent-dark); box-shadow: 0 6px 24px rgba(14,165,233,.55); }
+.scan-fab:active { transform: translateX(-50%) scale(.96); }
+
+/* Summary strip */
+.summary-strip {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.summary-strip::-webkit-scrollbar { display: none; }
+
+.summary-item {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px 16px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.summary-item:last-child { border-right: none; }
+
+.summary-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.summary-val.accent { color: var(--accent); }
+
+.summary-key {
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* Receipt list */
+.receipt-list {
+  flex: 1;
+  padding: 12px 12px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.receipt-item {
+  background: var(--bg-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.receipt-item:hover  { border-color: var(--accent); background: var(--bg); }
+.receipt-item:active { transform: scale(.99); }
+
+.receipt-thumb {
+  width: 44px;
+  height: 56px;
+  border-radius: 7px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: var(--text-3);
+  overflow: hidden;
+}
+
+.receipt-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.receipt-info { flex: 1; min-width: 0; }
+
+.receipt-merchant {
+  font-size: .97rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.receipt-date {
+  font-size: .78rem;
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.receipt-amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.receipt-currency {
+  font-size: .7rem;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+/* Empty state */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 120px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  opacity: .4;
+}
+
+.empty-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -.01em;
+}
+
+.empty-sub {
+  font-size: .88rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  max-width: 260px;
+}
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ─────────────────────────────────────────────────────────
+   SCAN / CONFIRM SCREEN
+   Single screen: camera → OCR results → confirm → save
+───────────────────────────────────────────────────────── */
+#scanScreen {
+  background: var(--bg);
+}
+
+.scan-header {
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.scan-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.scan-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Capture area */
+.capture-area {
+  border: 2px dashed var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-2);
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .15s, background .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.capture-area:hover, .capture-area.dragover {
+  border-color: var(--accent);
+  background: var(--accent-pale);
+}
+
+.capture-area input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.capture-icon { font-size: 2.2rem; line-height: 1; }
+.capture-title { font-size: .95rem; font-weight: 600; color: var(--text); }
+.capture-sub   { font-size: .8rem; color: var(--text-2); }
+
+.capture-preview {
+  display: none;
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  border-radius: calc(var(--r-lg) - 2px);
+}
+
+.capture-preview.visible { display: block; }
+
+.capture-retake {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 3;
+  display: none;
+}
+
+.capture-retake.visible { display: block; }
+
+/* OCR state */
+.ocr-loading {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+}
+
+.ocr-loading.active { display: flex; }
+
+.ocr-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ocr-loading-text {
+  font-size: .9rem;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+/* Confirm fields */
+.confirm-section {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.confirm-section.active { display: flex; }
+
+.confidence-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  width: fit-content;
+}
+
+.confidence-badge.high   { background: var(--green-pale); color: var(--green); }
+.confidence-badge.medium { background: var(--amber-pale); color: var(--amber); }
+.confidence-badge.low    { background: var(--red-pale);   color: var(--red);   }
+
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+
+.field-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.amount-wrap { position: relative; }
+.amount-prefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: var(--text-2);
+  font-size: .95rem;
+  pointer-events: none;
+}
+.form-input.indented { padding-left: 26px; }
+
+/* Save bar */
+.save-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   DETAIL SHEET (slide up overlay)
+───────────────────────────────────────────────────────── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,.45);
+  display: none;
+  align-items: flex-end;
+}
+
+.sheet-overlay.open { display: flex; }
+
+.sheet {
+  background: var(--bg);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-height: 85dvh;
+  max-height: 85vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 12px auto 20px;
+}
+
+.sheet-body { padding: 0 20px 20px; }
+
+.sheet-merchant {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -.02em;
+}
+
+.sheet-amount {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.03em;
+  margin-bottom: 16px;
+}
+
+.sheet-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sheet-meta-item {}
+
+.sheet-meta-label {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  margin-bottom: 3px;
+}
+
+.sheet-meta-val {
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sheet-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  background: var(--bg-2);
+}
+
+.sheet-ocr {
+  font-size: .8rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.sheet-ocr.visible { display: block; }
+
+.sheet-actions { display: flex; gap: 10px; }
+
+/* ─────────────────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: max(80px, calc(env(safe-area-inset-bottom, 0px) + 80px));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: .88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ─────────────────────────────────────────────────────────
+   MENU SHEET
+───────────────────────────────────────────────────────── */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 20px;
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-item:hover { background: var(--bg-2); }
+.menu-item .mi-icon { font-size: 1.15rem; width: 22px; text-align: center; flex-shrink: 0; }
+.menu-item.danger { color: var(--red); }
+.menu-divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+/* ─────────────────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+
+@media (min-width: 480px) {
+  .scan-body { max-width: 480px; margin: 0 auto; width: 100%; }
+  .save-bar  { max-width: 480px; margin: 0 auto; width: 100%; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="authScreen" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🧾</div>
+      <div>
+        <div class="auth-logo-name">SnapReceipt</div>
+        <div class="auth-logo-tag">Scan → Log → Done</div>
+      </div>
+    </div>
+
+    <h1 class="auth-heading">Sign in to continue</h1>
+    <p class="auth-sub">Your receipts are stored securely to your account.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabSignin"  onclick="authTab('signin')">Sign in</button>
+      <button class="auth-tab"        id="tabSignup"  onclick="authTab('signup')">Create account</button>
+      <button class="auth-tab"        id="tabReset"   onclick="authTab('reset')">Reset</button>
+    </div>
+
+    <!-- Sign in -->
+    <div id="formSignin">
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="siEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="siPass"  type="password" placeholder="Your password" autocomplete="current-password"/>
+      </div>
+      <button class="btn btn-primary btn-full" id="btnSignin" onclick="doSignin()">Sign in →</button>
+      <div class="auth-msg" id="siMsg"></div>
+      <div class="auth-footer-link">
+        <button onclick="authTab('reset')">Forgot password?</button>
+      </div>
+    </div>
+
+    <!-- Sign up -->
+    <div id="formSignup" class="hidden">
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="suPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/>
+      </div>
+      <button class="btn btn-primary btn-full" id="btnSignup" onclick="doSignup()">Create account →</button>
+      <div class="auth-msg" id="suMsg"></div>
+    </div>
+
+    <!-- Reset -->
+    <div id="formReset" class="hidden">
+      <p style="font-size:.88rem;color:var(--text-2);margin-bottom:16px;line-height:1.5">
+        Enter your email and we'll send a reset link.
+      </p>
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="rstEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <button class="btn btn-primary btn-full" id="btnReset" onclick="doReset()">Send reset link →</button>
+      <div class="auth-msg" id="rstMsg"></div>
+      <div class="auth-footer-link">
+        <button onclick="authTab('signin')">← Back to sign in</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     HOME SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="homeScreen" class="screen">
+  <header class="home-header">
+    <div class="home-logo">
+      <div class="home-logo-icon">🧾</div>
+      SnapReceipt
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" title="Export CSV" onclick="exportCSV()">⬇</button>
+      <button class="btn-icon" title="Menu" onclick="openMenu()">⋯</button>
+    </div>
+  </header>
+
+  <!-- Summary -->
+  <div class="summary-strip" id="summaryStrip">
+    <div class="summary-item">
+      <div class="summary-val" id="sumTotal">0</div>
+      <div class="summary-key">Receipts</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-val accent" id="sumMonth">£0.00</div>
+      <div class="summary-key">This month</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-val accent" id="sumYear">£0.00</div>
+      <div class="summary-key">This tax year</div>
+    </div>
+  </div>
+
+  <!-- Receipt list / empty state -->
+  <div id="receiptList" class="receipt-list"></div>
+
+  <!-- Scan FAB -->
+  <button class="scan-fab" onclick="openScan()">
+    <span>📷</span> Scan Receipt
+  </button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     SCAN / CONFIRM SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="scanScreen" class="screen">
+  <header class="scan-header">
+    <button class="btn btn-secondary btn-sm" onclick="goHome()">← Back</button>
+    <span class="scan-title" id="scanTitle">Scan Receipt</span>
+    <div style="width:64px"></div><!-- spacer -->
+  </header>
+
+  <div class="scan-body">
+    <!-- Capture -->
+    <div>
+      <div class="capture-area" id="captureArea">
+        <!-- Primary: camera capture (iOS + Android) -->
+        <input type="file" id="captureInput"
+          accept="image/*,image/heic,image/heif"
+          capture="environment"
+          onchange="onImageSelected(this)"/>
+        <img class="capture-preview" id="capturePreview" alt="Receipt"/>
+        <button class="capture-retake" id="captureRetake" onclick="retakePhoto(event)">Retake ✕</button>
+        <span class="capture-icon">📷</span>
+        <span class="capture-title">Take photo</span>
+        <span class="capture-sub">or <label for="galleryInput" style="color:var(--accent);cursor:pointer;text-decoration:underline">choose from gallery</label></span>
+        <!-- Secondary: gallery picker (no capture constraint) -->
+        <input type="file" id="galleryInput"
+          accept="image/*,image/heic,image/heif"
+          style="display:none"
+          onchange="onImageSelected(this)"/>
+      </div>
+    </div>
+
+    <!-- OCR loading -->
+    <div class="ocr-loading" id="ocrLoading">
+      <div class="ocr-spinner"></div>
+      <div class="ocr-loading-text">Reading receipt…</div>
+    </div>
+
+    <!-- Confirm fields -->
+    <div class="confirm-section" id="confirmSection">
+      <div id="confidenceBadge"></div>
+
+      <div class="field-group">
+        <label class="field-label">Merchant / Supplier *</label>
+        <input class="form-input" id="cfMerchant" placeholder="e.g. Tesco, Screwfix, AWS"/>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Total Amount *</label>
+          <div class="amount-wrap">
+            <span class="amount-prefix">£</span>
+            <input class="form-input indented" id="cfAmount" type="number"
+              placeholder="0.00" step="0.01" min="0" inputmode="decimal"/>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Currency</label>
+          <select class="form-input" id="cfCurrency">
+            <option value="GBP" selected>GBP £</option>
+            <option value="USD">USD $</option>
+            <option value="EUR">EUR €</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Date</label>
+        <input class="form-input" id="cfDate" type="date"/>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Notes <span style="font-weight:400;text-transform:none;font-size:.78rem">(optional)</span></label>
+        <input class="form-input" id="cfNotes" placeholder="Business purpose, project, etc."/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save bar -->
+  <div class="save-bar" id="saveBar" style="display:none">
+    <button class="btn btn-secondary" style="flex:0 0 auto" onclick="goHome()">Cancel</button>
+    <button class="btn btn-primary btn-full" id="btnSave" onclick="saveReceipt()">
+      Save Receipt
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     DETAIL SHEET
+════════════════════════════════════════════════════════ -->
+<div class="sheet-overlay" id="detailSheet" onclick="closeDetail(event)">
+  <div class="sheet" id="detailSheetInner">
+    <div class="sheet-handle"></div>
+    <div class="sheet-body" id="detailBody"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     MENU SHEET
+════════════════════════════════════════════════════════ -->
+<div class="sheet-overlay" id="menuSheet" onclick="closeMenu(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <button class="menu-item" onclick="openScan();closeMenuNow()">
+      <span class="mi-icon">📷</span> Scan new receipt
+    </button>
+    <button class="menu-item" onclick="exportCSV();closeMenuNow()">
+      <span class="mi-icon">⬇</span> Export CSV
+    </button>
+    <div class="menu-divider"></div>
+    <button class="menu-item" id="menuUserBtn" style="cursor:default;color:var(--text-2);font-size:.85rem">
+      <span class="mi-icon">👤</span> <span id="menuEmail">—</span>
+    </button>
+    <button class="menu-item danger" onclick="doSignout()">
+      <span class="mi-icon">→</span> Sign out
+    </button>
+  </div>
+</div>
+
+
+<!-- Reset password modal (triggered by email link) -->
+<div class="sheet-overlay" id="newPassSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-body">
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px">Set new password</div>
+      <p style="font-size:.88rem;color:var(--text-2);margin-bottom:20px;line-height:1.5">Choose a new password for your account.</p>
+      <div class="form-field">
+        <label class="form-label">New password</label>
+        <input class="form-input" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Confirm password</label>
+        <input class="form-input" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/>
+      </div>
+      <div class="auth-msg" id="npMsg"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:8px" id="btnNewPass" onclick="doSetPassword()">
+        Update password →
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     APP LOGIC
+════════════════════════════════════════════════════════ -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+/* ─── CONFIG — fill in before deploying ───────────────────
+   Supabase: Dashboard → Settings → API
+   Worker:   your new Cloudflare Worker URL               */
+const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3a2Fzd2x6enF6aml1dWp5dXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQwNDUsImV4cCI6MjA5MDE0MDA0NX0.DpM1H4LXGl9gdci9Qrzjam2yqScZy10M1VLE1-0XnO8';
+const WORKER_URL        = 'snapreceipt.james-weld.workers.dev';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ─── STATE ──────────────────────────────────────────────── */
+let _user      = null;
+let _receipts  = [];
+let _imageB64  = null;   // base64 of scanned image (for save)
+let _editId    = null;   // non-null when editing existing receipt
+let _detailId  = null;
+
+/* ─── AUTH STATE ─────────────────────────────────────────── */
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('newPassSheet').classList.add('open');
+    return;
+  }
+  _user = session?.user ?? null;
+  if (_user) {
+    document.getElementById('menuEmail').textContent = _user.email || '';
+    show('homeScreen');
+    loadReceipts();
+  } else {
+    show('authScreen');
+    _receipts = [];
+  }
+});
+
+/* ─── AUTH FUNCTIONS ─────────────────────────────────────── */
+window.authTab = (tab) => {
+  ['signin','signup','reset'].forEach(t => {
+    document.getElementById('form' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('hidden', t !== tab);
+    document.getElementById('tab'  + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+  });
+};
+
+window.doSignin = async () => {
+  const email = v('siEmail'), pass = v('siPass');
+  const msg = el('siMsg'), btn = el('btnSignin');
+  msg.className = 'auth-msg';
+  if (!email || !pass) return setMsg(msg, 'err', 'Please fill in both fields.');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) setMsg(msg, 'err', friendlyErr(error));
+  btn.disabled = false; btn.textContent = 'Sign in →';
+};
+
+window.doSignup = async () => {
+  const email = v('suEmail'), pass = v('suPass');
+  const msg = el('suMsg'), btn = el('btnSignup');
+  msg.className = 'auth-msg';
+  if (!email || !pass) return setMsg(msg, 'err', 'Please fill in both fields.');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  const { error } = await sb.auth.signUp({ email, password: pass });
+  if (error) setMsg(msg, 'err', friendlyErr(error));
+  else       setMsg(msg, 'ok',  'Account created! Check your email to confirm.');
+  btn.disabled = false; btn.textContent = 'Create account →';
+};
+
+window.doReset = async () => {
+  const email = v('rstEmail');
+  const msg = el('rstMsg'), btn = el('btnReset');
+  msg.className = 'auth-msg';
+  if (!email) return setMsg(msg, 'err', 'Please enter your email.');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://snap.readlog.co.uk'
+  });
+  if (error) setMsg(msg, 'err', error.message);
+  else       setMsg(msg, 'ok',  'Reset link sent! Check your email.');
+  btn.disabled = false; btn.textContent = 'Send reset link →';
+};
+
+window.doSetPassword = async () => {
+  const pass = v('npPass'), confirm = v('npConfirm');
+  const msg = el('npMsg'), btn = el('btnNewPass');
+  msg.className = 'auth-msg';
+  if (!pass || pass.length < 6) return setMsg(msg, 'err', 'Password must be at least 6 characters.');
+  if (pass !== confirm)         return setMsg(msg, 'err', 'Passwords do not match.');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await sb.auth.updateUser({ password: pass });
+  if (error) { setMsg(msg, 'err', error.message); }
+  else {
+    setMsg(msg, 'ok', 'Password updated! You are now signed in.');
+    setTimeout(() => document.getElementById('newPassSheet').classList.remove('open'), 1800);
+  }
+  btn.disabled = false; btn.textContent = 'Update password →';
+};
+
+window.doSignout = async () => {
+  closeMenuNow();
+  await sb.auth.signOut();
+};
+
+/* ─── LOAD RECEIPTS ──────────────────────────────────────── */
+async function loadReceipts() {
+  if (!_user) return;
+  renderList(null); // show skeletons
+  const { data, error } = await sb
+    .from('receipts')
+    .select('id, merchant, amount, currency, date, image_url, ocr_raw, created_at')
+    .eq('user_id', _user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { toast('Error loading receipts'); return; }
+  _receipts = data || [];
+  renderList(_receipts);
+  updateSummary();
+}
+
+/* ─── RENDER LIST ────────────────────────────────────────── */
+function renderList(receipts) {
+  const list = el('receiptList');
+
+  if (receipts === null) {
+    // Skeleton
+    list.innerHTML = [1,2,3].map(() => `
+      <div class="receipt-item" style="pointer-events:none">
+        <div class="receipt-thumb"><div class="skeleton" style="width:100%;height:100%;border-radius:7px"></div></div>
+        <div class="receipt-info">
+          <div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:4px"></div>
+          <div class="skeleton" style="height:11px;width:45%;border-radius:4px"></div>
+        </div>
+        <div class="skeleton" style="height:18px;width:52px;border-radius:4px"></div>
+      </div>`).join('');
+    return;
+  }
+
+  if (!receipts.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🧾</div>
+        <div class="empty-title">No receipts yet</div>
+        <div class="empty-sub">Tap the button below to scan your first receipt and start logging expenses.</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = receipts.map(r => {
+    const thumbHtml = r.image_url
+      ? `<div class="receipt-thumb"><img src="${r.image_url}" alt="" loading="lazy"/></div>`
+      : `<div class="receipt-thumb">🧾</div>`;
+    return `
+      <div class="receipt-item" onclick="openDetail('${r.id}')">
+        ${thumbHtml}
+        <div class="receipt-info">
+          <div class="receipt-merchant">${esc(r.merchant || 'Unknown merchant')}</div>
+          <div class="receipt-date">${fmtDate(r.date || r.created_at)}</div>
+        </div>
+        <div>
+          <div class="receipt-amount">${fmtAmount(r.amount, r.currency)}</div>
+          <div class="receipt-currency">${r.currency || 'GBP'}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateSummary() {
+  el('sumTotal').textContent = _receipts.length;
+
+  const now = new Date();
+  const thisMonth = _receipts.filter(r => {
+    const d = new Date(r.date || r.created_at);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const taxStart = now.getMonth() >= 3
+    ? new Date(now.getFullYear(), 3, 6)
+    : new Date(now.getFullYear() - 1, 3, 6);
+  const taxYear = _receipts.filter(r => new Date(r.date || r.created_at) >= taxStart);
+
+  el('sumMonth').textContent = '£' + sum(thisMonth).toFixed(2);
+  el('sumYear').textContent  = '£' + sum(taxYear).toFixed(2);
+}
+
+function sum(rs) {
+  return rs.reduce((s, r) => s + parseFloat(r.amount || 0), 0);
+}
+
+/* ─── DETAIL SHEET ───────────────────────────────────────── */
+window.openDetail = (id) => {
+  _detailId = id;
+  const r = _receipts.find(x => x.id === id);
+  if (!r) return;
+  const imgHtml = r.image_url
+    ? `<img class="sheet-img" src="${r.image_url}" alt="Receipt"/>`
+    : '';
+  const ocrHtml = r.ocr_raw
+    ? `<div style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Raw OCR text</div>
+       <div class="sheet-ocr visible">${esc(r.ocr_raw)}</div>`
+    : '';
+  el('detailBody').innerHTML = `
+    <div class="sheet-merchant">${esc(r.merchant || 'Unknown')}</div>
+    <div class="sheet-amount">${fmtAmount(r.amount, r.currency)}</div>
+    ${imgHtml}
+    <div class="sheet-meta">
+      <div class="sheet-meta-item">
+        <div class="sheet-meta-label">Date</div>
+        <div class="sheet-meta-val">${fmtDate(r.date || r.created_at)}</div>
+      </div>
+      <div class="sheet-meta-item">
+        <div class="sheet-meta-label">Currency</div>
+        <div class="sheet-meta-val">${r.currency || 'GBP'}</div>
+      </div>
+      <div class="sheet-meta-item">
+        <div class="sheet-meta-label">Added</div>
+        <div class="sheet-meta-val">${fmtDate(r.created_at)}</div>
+      </div>
+    </div>
+    ${ocrHtml}
+    <div class="sheet-actions">
+      <button class="btn btn-danger btn-sm" onclick="deleteReceipt('${r.id}')">Delete</button>
+      <button class="btn btn-secondary btn-sm" style="flex:1" onclick="closeDetail()">Close</button>
+    </div>`;
+  el('detailSheet').classList.add('open');
+};
+
+window.closeDetail = (e) => {
+  if (e && e.target !== el('detailSheet')) return;
+  el('detailSheet').classList.remove('open');
+};
+
+window.deleteReceipt = async (id) => {
+  if (!confirm('Delete this receipt?')) return;
+  await sb.from('receipts').delete().eq('id', id);
+  _receipts = _receipts.filter(r => r.id !== id);
+  renderList(_receipts);
+  updateSummary();
+  el('detailSheet').classList.remove('open');
+  toast('Receipt deleted');
+};
+
+/* ─── SCAN FLOW ──────────────────────────────────────────── */
+window.openScan = () => {
+  _imageB64 = null;
+  _editId   = null;
+  // Reset UI
+  el('capturePreview').classList.remove('visible');
+  el('captureRetake').classList.remove('visible');
+  el('captureInput').value = ''; el('galleryInput').value = '';
+  el('captureArea').querySelector('.capture-icon').style.display  = '';
+  el('captureArea').querySelector('.capture-title').style.display = '';
+  el('captureArea').querySelector('.capture-sub').style.display   = '';
+  el('ocrLoading').classList.remove('active');
+  el('confirmSection').classList.remove('active');
+  el('saveBar').style.display = 'none';
+  el('scanTitle').textContent = 'Scan Receipt';
+  // Clear fields
+  ['cfMerchant','cfAmount','cfNotes'].forEach(id => el(id).value = '');
+  el('cfDate').value     = today();
+  el('cfCurrency').value = 'GBP';
+  el('confidenceBadge').innerHTML = '';
+  show('scanScreen');
+};
+
+window.goHome = () => show('homeScreen');
+
+window.retakePhoto = (e) => {
+  e.stopPropagation();
+  _imageB64 = null;
+  el('capturePreview').classList.remove('visible');
+  el('captureRetake').classList.remove('visible');
+  el('captureInput').value  = '';
+  el('galleryInput').value  = '';
+  el('captureArea').querySelector('.capture-icon').style.display  = '';
+  el('captureArea').querySelector('.capture-title').style.display = '';
+  el('captureArea').querySelector('.capture-sub').style.display   = '';
+  el('confirmSection').classList.remove('active');
+  el('saveBar').style.display = 'none';
+};
+
+window.onImageSelected = async (input) => {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Convert to JPEG via canvas (handles HEIC, WebP, etc.)
+  const b64 = await fileToJpegB64(file);
+  _imageB64 = b64;
+
+  // Show preview
+  el('capturePreview').src = b64;
+  el('capturePreview').classList.add('visible');
+  el('captureRetake').classList.add('visible');
+  el('captureArea').querySelector('.capture-icon').style.display  = 'none';
+  el('captureArea').querySelector('.capture-title').style.display = 'none';
+  el('captureArea').querySelector('.capture-sub').style.display   = 'none';
+
+  // Start OCR immediately
+  await runOCR(b64);
+};
+
+async function runOCR(b64) {
+  el('ocrLoading').classList.add('active');
+  el('confirmSection').classList.remove('active');
+  el('saveBar').style.display = 'none';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Not signed in');
+
+    const raw = b64.split(',')[1]; // strip data:image/jpeg;base64,
+    const res = await fetch(WORKER_URL, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ imageBase64: raw, mediaType: 'image/jpeg' }),
+    });
+
+    if (!res.ok) throw new Error(`Worker error ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // Populate fields
+    el('cfMerchant').value = data.merchant || '';
+    el('cfAmount').value   = data.amount   || '';
+    el('cfDate').value     = data.date     ? isoDate(data.date) : today();
+    if (data.currency) el('cfCurrency').value = data.currency;
+
+    // Confidence badge
+    const conf = (data.confidence || 'low').toLowerCase();
+    const labels = { high: '✓ High confidence', medium: '~ Review fields below', low: '⚠ Low confidence — check fields' };
+    el('confidenceBadge').innerHTML = `<div class="confidence-badge ${conf}">${labels[conf] || conf}</div>`;
+
+    el('confirmSection').classList.add('active');
+    el('saveBar').style.display = 'flex';
+
+    // Focus merchant if empty
+    if (!data.merchant) el('cfMerchant').focus();
+
+  } catch (err) {
+    console.error('OCR error:', err);
+    el('confidenceBadge').innerHTML = `<div class="confidence-badge low">⚠ Could not read receipt — enter details manually</div>`;
+    el('confirmSection').classList.add('active');
+    el('saveBar').style.display = 'flex';
+    el('cfMerchant').focus();
+  } finally {
+    el('ocrLoading').classList.remove('active');
+  }
+}
+
+window.saveReceipt = async () => {
+  const merchant = el('cfMerchant').value.trim();
+  const amount   = parseFloat(el('cfAmount').value) || 0;
+  const date     = el('cfDate').value;
+
+  if (!merchant) { toast('Please enter a merchant name'); el('cfMerchant').focus(); return; }
+  if (!amount)   { toast('Please enter an amount');        el('cfAmount').focus();   return; }
+
+  const btn = el('btnSave');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  try {
+    const row = {
+      user_id:   _user.id,
+      merchant,
+      amount,
+      currency:  el('cfCurrency').value || 'GBP',
+      date:      date || null,
+      image_url: _imageB64 || null,
+      ocr_raw:   null, // stored in worker if needed
+    };
+
+    const { data, error } = await sb.from('receipts').insert(row).select().single();
+    if (error) throw error;
+
+    _receipts.unshift(data);
+    renderList(_receipts);
+    updateSummary();
+    toast('Receipt saved ✓');
+    show('homeScreen');
+
+  } catch (e) {
+    console.error(e);
+    toast('Error saving — please try again');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Receipt';
+  }
+};
+
+/* ─── EXPORT CSV ─────────────────────────────────────────── */
+window.exportCSV = () => {
+  if (!_receipts.length) { toast('No receipts to export'); return; }
+  const headers = ['Date', 'Merchant', 'Amount', 'Currency', 'Added'];
+  const rows = _receipts.map(r => [
+    r.date || '',
+    `"${(r.merchant || '').replace(/"/g, '""')}"`,
+    (r.amount || 0).toFixed(2),
+    r.currency || 'GBP',
+    new Date(r.created_at).toISOString().slice(0, 10),
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `snapreceipt-${today()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported ✓');
+};
+
+/* ─── MENU ───────────────────────────────────────────────── */
+window.openMenu    = () => el('menuSheet').classList.add('open');
+window.closeMenu   = (e) => { if (e.target === el('menuSheet')) closeMenuNow(); };
+window.closeMenuNow = () => el('menuSheet').classList.remove('open');
+
+/* ─── HELPERS ────────────────────────────────────────────── */
+function show(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  el(screenId).classList.add('active');
+}
+
+function el(id) { return document.getElementById(id); }
+function v(id)  { return el(id).value.trim(); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }); }
+  catch { return d; }
+}
+
+function fmtAmount(amount, currency) {
+  const n = parseFloat(amount || 0);
+  const sym = { GBP:'£', USD:'$', EUR:'€' }[currency] || '';
+  return sym + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function isoDate(s) {
+  // Try to parse various date formats into YYYY-MM-DD
+  if (!s) return today();
+  // If already ISO
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  // UK format DD/MM/YYYY or DD-MM-YYYY
+  const uk = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (uk) {
+    const [, d, m, y] = uk;
+    const year = y.length === 2 ? '20' + y : y;
+    return `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+  try { return new Date(s).toISOString().slice(0,10); }
+  catch { return today(); }
+}
+
+function setMsg(el, type, text) {
+  el.className = 'auth-msg ' + type;
+  el.textContent = text;
+}
+
+function friendlyErr(e) {
+  const m = e.message || '';
+  if (m.includes('already registered') || m.includes('already exists')) return 'That email is already registered.';
+  if (m.includes('Invalid login') || m.includes('invalid_credentials'))  return 'Email or password is incorrect.';
+  if (m.includes('Password should')) return 'Password must be at least 6 characters.';
+  if (m.includes('Email not confirmed'))  return 'Please confirm your email first.';
+  return m || 'Something went wrong.';
+}
+
+let _toastTimer;
+function toast(msg) {
+  const t = el('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+window.toast = toast;
+
+async function fileToJpegB64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1600;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => resolve(e.target.result); // fallback raw
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+</script>
+
+<!-- FILE INTEGRITY CHECK — file is complete if you see </html> below -->
+<script>function closeMobileMenu(){}</script>
+
+</body>
+</html>
