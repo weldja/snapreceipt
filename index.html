@@ -314,13 +314,14 @@ img { display: block; max-width: 100%; }
   top: 0;
   z-index: 50;
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   padding: 0 16px;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
 }
 
 .home-logo {
@@ -347,21 +348,23 @@ img { display: block; max-width: 100%; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 
 .btn-icon {
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: var(--bg-2);
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-3);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: background .15s;
   -webkit-tap-highlight-color: transparent;
+  color: var(--text);
+  font-weight: 600;
 }
 
-.btn-icon:hover { background: var(--bg-3); }
+.btn-icon:hover { background: var(--border); }
 
 /* Scan FAB */
 .scan-fab {
@@ -425,8 +428,8 @@ img { display: block; max-width: 100%; }
 
 .summary-key {
   font-size: .68rem;
-  font-weight: 600;
-  color: var(--text-3);
+  font-weight: 700;
+  color: var(--text-2);
   text-transform: uppercase;
   letter-spacing: .06em;
 }
@@ -557,9 +560,10 @@ img { display: block; max-width: 100%; }
 ───────────────────────────────────────────────────────── */
 #scanScreen {
   background: var(--bg);
+  display: flex;
+  flex-direction: column;
   height: 100dvh;
   height: 100vh;
-  overflow: hidden; /* contain layout */
 }
 
 .scan-header {
@@ -580,15 +584,13 @@ img { display: block; max-width: 100%; }
 
 .scan-body {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
-  padding: 20px 16px 24px;
+  overscroll-behavior: contain;
+  padding: 20px 16px 120px; /* large bottom pad so save bar never covers content */
   display: flex;
   flex-direction: column;
   gap: 16px;
-  /* Explicit height so scroll works on iOS/Android */
-  height: calc(100dvh - 56px - 70px);
-  height: calc(100vh - 56px - 70px);
 }
 
 /* Capture area */
@@ -733,19 +735,21 @@ img { display: block; max-width: 100%; }
 }
 .form-input.indented { padding-left: 26px; }
 
-/* Save bar */
+/* Save bar — fixed at bottom so scroll is never blocked */
 .save-bar {
-  position: relative;
+  position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   background: var(--bg);
-  border-top: 1px solid var(--border);
-  padding: 12px 16px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  border-top: 2px solid var(--border);
+  padding: 10px 16px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
   display: flex;
   gap: 10px;
-  flex-shrink: 0;
-  min-height: 70px;
   align-items: center;
+  z-index: 50;
+  box-shadow: 0 -2px 12px rgba(0,0,0,.08);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -909,8 +913,8 @@ img { display: block; max-width: 100%; }
 .text-center { text-align: center; }
 
 @media (min-width: 480px) {
-  .scan-body { max-width: 480px; margin: 0 auto; width: 100%; height: auto; flex: 1; }
-  .save-bar  { max-width: 480px; margin: 0 auto; width: 100%; }
+  .scan-body { max-width: 480px; margin: 0 auto; width: 100%; }
+  .save-bar  { max-width: 480px; left: 50%; transform: translateX(-50%); right: auto; width: 480px; }
 }
   </style>
 </head>
@@ -1433,9 +1437,8 @@ window.openScan = () => {
   el('captureArea').querySelector('.capture-title').style.display = '';
   el('captureArea').querySelector('.capture-sub').style.display   = '';
   el('ocrLoading').classList.remove('active');
-  el('confirmSection').classList.remove('active');
-  el('confirmSection').style.display = '';
-  el('saveBar').style.display = 'none';
+  el('confirmSection').style.cssText = 'display:none';
+  el('saveBar').style.cssText = 'display:none';
   el('scanTitle').textContent = 'Scan Receipt';
   // Clear fields
   ['cfMerchant','cfAmount','cfNotes'].forEach(id => el(id).value = '');
@@ -1457,9 +1460,8 @@ window.retakePhoto = (e) => {
   el('captureArea').querySelector('.capture-icon').style.display  = '';
   el('captureArea').querySelector('.capture-title').style.display = '';
   el('captureArea').querySelector('.capture-sub').style.display   = '';
-  el('confirmSection').classList.remove('active');
-  el('confirmSection').style.display = '';
-  el('saveBar').style.display = 'none';
+  el('confirmSection').style.cssText = 'display:none';
+  el('saveBar').style.cssText = 'display:none';
 };
 
 window.onImageSelected = async (input) => {
@@ -1486,15 +1488,16 @@ window.onImageSelected = async (input) => {
 };
 
 async function runOCR(b64) {
+  // Show spinner, hide confirm
   el('ocrLoading').classList.add('active');
-  el('confirmSection').classList.remove('active');
-  el('saveBar').style.display = 'none';
+  el('confirmSection').style.cssText = 'display:none';
+  el('saveBar').style.cssText = 'display:none';
 
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) throw new Error('Not signed in');
 
-    const raw = b64.split(',')[1]; // strip data:image/jpeg;base64,
+    const raw = b64.includes(',') ? b64.split(',')[1] : b64;
     const res = await fetch(WORKER_URL, {
       method:  'POST',
       headers: {
@@ -1508,41 +1511,42 @@ async function runOCR(b64) {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    // Populate fields
+    // Fill fields
     el('cfMerchant').value = data.merchant || '';
     el('cfAmount').value   = data.amount   || '';
-    el('cfDate').value     = data.date     ? isoDate(data.date) : today();
+    el('cfDate').value     = data.date ? isoDate(data.date) : today();
     if (data.currency) el('cfCurrency').value = data.currency;
 
-    // Confidence badge
-    const conf = (data.confidence || 'low').toLowerCase();
-    const labels = { high: '✓ High confidence', medium: '~ Review fields below', low: '⚠ Low confidence — check fields' };
-    el('confidenceBadge').innerHTML = `<div class="confidence-badge ${conf}">${labels[conf] || conf}</div>`;
+    // Confidence
+    const conf = (data.confidence || 'medium').toLowerCase();
+    const labels = { high:'✓ High confidence', medium:'~ Review fields below', low:'⚠ Low confidence — check fields' };
+    el('confidenceBadge').innerHTML = `<div class="confidence-badge ${conf}">${labels[conf]||conf}</div>`;
 
-    el('confirmSection').style.display = 'flex';
-    el('confirmSection').classList.add('active');
-    el('saveBar').style.display = 'flex';
-    // Scroll to confirm section — works on iOS and Android
-    requestAnimationFrame(() => {
-      const body = el('scanScreen').querySelector('.scan-body');
-      body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
-    });
-    toast(data.merchant ? `✓ ${data.merchant} — review & save` : '⚠ Check fields below');
+    showConfirm();
+    toast(data.merchant ? `✓ ${data.merchant}` : '✓ Done — review fields below');
 
   } catch (err) {
     console.error('OCR error:', err);
-    el('confidenceBadge').innerHTML = `<div class="confidence-badge low">⚠ Could not read receipt — enter details manually</div>`;
-    el('confirmSection').style.display = 'flex';
-    el('confirmSection').classList.add('active');
-    el('saveBar').style.display = 'flex';
-    requestAnimationFrame(() => {
-      const body = el('scanScreen').querySelector('.scan-body');
-      body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
-    });
-    el('cfMerchant').focus();
+    el('confidenceBadge').innerHTML = `<div class="confidence-badge low">⚠ Could not read receipt — fill in manually</div>`;
+    showConfirm();
+    toast('Could not read receipt — please fill in manually');
   } finally {
     el('ocrLoading').classList.remove('active');
   }
+}
+
+function showConfirm() {
+  // Force the confirm section visible with inline style (beats any CSS specificity issues)
+  const cs = el('confirmSection');
+  cs.style.cssText = 'display:flex !important; flex-direction:column; gap:14px;';
+  el('saveBar').style.cssText = 'display:flex !important;';
+  // Scroll the scan-body to show confirm fields
+  setTimeout(() => {
+    try {
+      const body = document.querySelector('#scanScreen .scan-body');
+      if (body) body.scrollTop = body.scrollHeight;
+    } catch(e) {}
+  }, 80);
 }
 
 window.saveReceipt = async () => {
