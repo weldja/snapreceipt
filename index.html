@@ -435,16 +435,25 @@ function _initFileInputs() {
 document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
 
 // Intercept browser back button — go to home instead of leaving app
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', (e) => {
+  // Ignore popstate events fired when camera/file picker returns on Android
+  // Only navigate home if we explicitly pushed a 'scan' state AND no file is being processed
   const scanActive = g('scanScreen').classList.contains('active');
   if (scanActive) {
+    // If OCR is running or confirm fields are shown, ignore — camera just returned
+    const ocrActive = g('ocrBar').classList.contains('active');
+    const fieldsShown = g('confirmFields').style.display && g('confirmFields').style.display !== 'none';
+    const hasPhoto = g('czHasPhoto').style.display !== 'none';
+    if (ocrActive || fieldsShown || hasPhoto) {
+      // Camera returned — push state again to restore and do nothing
+      history.pushState({snap:'scan'}, '');
+      return;
+    }
     goHome();
     return;
   }
-  // Any other back — push state again to stay in app
   history.pushState({snap:'home'}, '');
 });
-// Seed initial history entry so there's always something to pop back to
 history.replaceState({snap:'home'}, '');
 
 sb.auth.onAuthStateChange((event, session) => {
