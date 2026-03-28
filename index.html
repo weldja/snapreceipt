@@ -434,13 +434,6 @@ function _initFileInputs() {
     });
   });
 }
-// Init immediately if DOM ready, else wait
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _initFileInputs);
-} else {
-  _initFileInputs();
-}
-
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
   const scanActive = g('scanScreen').classList.contains('active');
@@ -661,8 +654,13 @@ window.openScan = () => {
   g('cfMerchant').value=''; g('cfAmount').value='';
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
   show('scanScreen');
-  // Push a history entry so browser back button goes to home, not away
   history.pushState({snap:'scan'}, '');
+  // Attach file input listeners now that elements are in the DOM
+  // Guard flag so we only attach once
+  if (!window._fileInputsInit) {
+    window._fileInputsInit = true;
+    _initFileInputs();
+  }
 };
 
 window.goHome = () => { show('homeScreen'); _debouncedLoad(); };
