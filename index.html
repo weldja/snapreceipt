@@ -289,13 +289,18 @@ img{display:block;max-width:100%}
     <div id="czEmpty">
       <div style="display:flex;gap:10px">
 
-        <!-- Single upload area — file picker on mobile includes camera option -->
-        <div class="scan-upload-area" id="cameraArea" style="flex:1">
-          <input type="file" id="captureInput" accept="image/*"/>
+        <div class="scan-upload-area" id="cameraArea">
+          <input type="file" id="captureInput" accept="image/*" capture="environment"/>
           <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:2rem">📷</div>
-            <div style="font-size:.9rem;font-weight:700;color:#111">Tap to scan receipt</div>
-            <div style="font-size:.76rem;color:#888">Camera or gallery</div>
+            <div style="font-size:1.5rem">📸</div>
+            <div style="font-size:.85rem;font-weight:700;color:#111">Camera</div>
+          </div>
+        </div>
+        <div class="scan-upload-area" id="galleryArea">
+          <input type="file" id="galleryInput" accept="image/*"/>
+          <div class="scan-upload-inner" style="pointer-events:none">
+            <div style="font-size:1.5rem">🖼</div>
+            <div style="font-size:.85rem;font-weight:700;color:#111">Gallery</div>
           </div>
         </div>
 
@@ -311,6 +316,12 @@ img{display:block;max-width:100%}
       </div>
       <button id="czRetake" onclick="retake(event)" style="margin-top:8px;background:none;border:1.5px solid #ccc;border-radius:20px;padding:6px 14px;font-size:.8rem;font-weight:600;color:#555;cursor:pointer">↩ Retake</button>
     </div>
+    <!-- DEBUG PANEL — remove after fixing -->
+    <div id="debugPanel" style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px;font-size:.75rem;font-family:monospace;max-height:120px;overflow-y:auto;display:none">
+      <strong>Debug log:</strong><br/>
+      <div id="debugLog"></div>
+    </div>
+
     <div class="ocr-bar" id="ocrBar">
       <div class="ocr-spin"></div>
       <div class="ocr-bar-text">Reading receipt…</div>
@@ -407,27 +418,40 @@ let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 // Reset value before each open so iOS always fires even if same file selected
 // This is exactly the pattern used in weldswine which works on all mobile browsers
 function _initFileInputs() {
-  const captureEl  = document.getElementById('captureInput');
-  const galleryEl  = document.getElementById('galleryInput');
-  const cameraArea = document.getElementById('cameraArea');
-  const galArea    = document.getElementById('galleryArea');
+  const captureEl = document.getElementById('captureInput');
+  const galleryEl = document.getElementById('galleryInput');
 
-  // Reset value on touchstart/mousedown — must happen BEFORE the click
-  // so iOS always fires change even if same photo selected again
-  ['touchstart','mousedown'].forEach(evt => {
-    if(cameraArea) cameraArea.addEventListener(evt, () => { try{ captureEl.value=''; }catch(e){} }, {passive:true});
-    if(galArea)    galArea.addEventListener(evt,    () => { try{ galleryEl.value=''; }catch(e){} }, {passive:true});
-  });
+  function dbg(msg) {
+    const p = document.getElementById('debugPanel');
+    const l = document.getElementById('debugLog');
+    if (p && l) {
+      p.style.display = 'block';
+      l.innerHTML += new Date().toLocaleTimeString() + ': ' + msg + '<br>';
+      p.scrollTop = p.scrollHeight;
+    }
+  }
 
-  // Both 'change' AND 'input' — iOS Safari sometimes only fires one of them
-  ['change','input'].forEach(evt => {
-    if(captureEl) captureEl.addEventListener(evt, e => {
-      if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
-    });
-    if(galleryEl) galleryEl.addEventListener(evt, e => {
-      if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
-    });
-  });
+  function handleFile(input) {
+    dbg('handleFile: files=' + (input && input.files ? input.files.length : 'null'));
+    if (input && input.files && input.files[0]) {
+      window.onFileSelected(input);
+    }
+  }
+
+  if (captureEl) {
+    dbg('listeners attached to captureInput');
+    captureEl.addEventListener('change', () => { dbg('captureInput CHANGE fired'); handleFile(captureEl); });
+    captureEl.addEventListener('input',  () => { dbg('captureInput INPUT fired');  handleFile(captureEl); });
+    captureEl.addEventListener('click',  () => { dbg('captureInput CLICK — reset'); captureEl.value = ''; });
+  } else {
+    dbg('ERROR: captureInput not found!');
+  }
+  if (galleryEl) {
+    dbg('listeners attached to galleryInput');
+    galleryEl.addEventListener('change', () => { dbg('galleryInput CHANGE fired'); handleFile(galleryEl); });
+    galleryEl.addEventListener('input',  () => { dbg('galleryInput INPUT fired');  handleFile(galleryEl); });
+    galleryEl.addEventListener('click',  () => { dbg('galleryInput CLICK — reset'); galleryEl.value = ''; });
+  }
 }
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
@@ -677,7 +701,9 @@ window.retake = (e) => {
 
 window.onFileSelected = async (input) => {
   const file = input.files[0];
-  if (!file) return;
+  if (!file) { document.getElementById('debugLog') && (document.getElementById('debugLog').innerHTML += 'onFileSelected: NO FILE<br>'); return; }
+  const dbgEl = document.getElementById('debugLog');
+  if(dbgEl) dbgEl.innerHTML += 'onFileSelected: ' + file.name + ' ' + file.size + 'b<br>';
 
   // Show processing state immediately
   g('czEmpty').style.display = 'none';
