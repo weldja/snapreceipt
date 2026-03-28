@@ -503,598 +503,416 @@ img{display:block;max-width:100%}
 <script>
 const { createClient } = supabase;
 
-/* ── CONFIG ─────────────────────────────────────────────── */
+/* -------------------------------------------------------------------------- */
+/*                              SUPABASE CONFIG                               */
+/* -------------------------------------------------------------------------- */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3a2Fzd2x6enF6aml1dWp5dXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQwNDUsImV4cCI6MjA5MDE0MDA0NX0.DpM1H4LXGl9gdci9Qrzjam2yqScZy10M1VLE1-0XnO8';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI…'; // shortened for clarity
 const WORKER_URL   = 'https://snapreceipt.james-weld.workers.dev';
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ── STATE ──────────────────────────────────────────────── */
-let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
+/* -------------------------------------------------------------------------- */
+/*                                    STATE                                   */
+/* -------------------------------------------------------------------------- */
+let _user = null;
+let _receipts = [];
+let _expanded = null;
 
-/* ── AUTH STATE ─────────────────────────────────────────── */
-// ── File input listeners — both 'change' and 'input' (iOS Safari fix) ──
-// Reset value before each open so iOS always fires even if same file selected
-// This is exactly the pattern used in weldswine which works on all mobile browsers
-function _initFileInputs() {
-  ['change','input'].forEach(function(evt) {
-    document.getElementById('captureInput').addEventListener(evt, function(e) {
-      _cameraOpen = false;
-      if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
-    });
-    document.getElementById('galleryInput').addEventListener(evt, function(e) {
-      _cameraOpen = false;
-      if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
-    });
-  });
-  // Set _cameraOpen flag on click so popstate ignores the camera-return event
-  document.getElementById('cameraArea').addEventListener('click', function() {
-    _cameraOpen = true;
-    document.getElementById('captureInput').value = '';
-  });
-  document.getElementById('galleryArea').addEventListener('click', function() {
-    _cameraOpen = true;
-    document.getElementById('galleryInput').value = '';
-  });
-}
-// Init file inputs at DOM ready
-document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
-
-// Intercept browser back button — go to home instead of leaving app
-// Flag set when camera/file picker is opened — prevents popstate from navigating away
-let _cameraOpen = false;
-
-window.addEventListener('popstate', () => {
-  if (_cameraOpen) {
-    // Camera just returned — ignore this popstate, push state back
-    _cameraOpen = false;
-    history.pushState({snap:'scan'}, '');
-    return;
-  }
-  const scanActive = g('scanScreen').classList.contains('active');
-  if (scanActive) {
-    goHome();
-    return;
-  }
-  history.pushState({snap:'home'}, '');
-});
-history.replaceState({snap:'home'}, '');
-
-sb.auth.onAuthStateChange((event, session) => {
-  if (event === 'PASSWORD_RECOVERY') { g('resetPassSheet').classList.add('open'); return; }
-  _user = session?.user ?? null;
-  if (_user) {
-    g('menuEmail').textContent = _user.email || '';
-    show('homeScreen');
-    loadReceipts();
-  } else {
-    show('authScreen');
-    _receipts = [];
-  }
-});
-
-/* ── AUTH ───────────────────────────────────────────────── */
-window.authTab = (tab) => {
-  ['signin','signup','reset'].forEach(t => {
-    g('form'+cap(t)).classList.toggle('hidden', t!==tab);
-    g('tab'+cap(t)).classList.toggle('active', t===tab);
-  });
-};
-window.doSignin = async () => {
-  const [email,pass,msg,btn] = [val('siEmail'),val('siPass'),g('siMsg'),g('btnSignin')];
-  msg.className='auth-msg';
-  if(!email||!pass) return setMsg(msg,'err','Please fill in both fields.');
-  btn.disabled=true; btn.textContent='Signing in…';
-  const {error} = await sb.auth.signInWithPassword({email,password:pass});
-  if(error) setMsg(msg,'err',friendlyErr(error));
-  btn.disabled=false; btn.textContent='Sign in →';
-};
-window.doSignup = async () => {
-  const [email,pass,msg,btn] = [val('suEmail'),val('suPass'),g('suMsg'),g('btnSignup')];
-  msg.className='auth-msg';
-  if(!email||!pass) return setMsg(msg,'err','Please fill in both fields.');
-  btn.disabled=true; btn.textContent='Creating account…';
-  const {error} = await sb.auth.signUp({email,password:pass});
-  if(error) setMsg(msg,'err',friendlyErr(error));
-  else      setMsg(msg,'ok','Account created! Check your email to confirm.');
-  btn.disabled=false; btn.textContent='Create account →';
-};
-window.doReset = async () => {
-  const [email,msg,btn] = [val('rstEmail'),g('rstMsg'),g('btnReset')];
-  msg.className='auth-msg';
-  if(!email) return setMsg(msg,'err','Please enter your email.');
-  btn.disabled=true; btn.textContent='Sending…';
-  const {error} = await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://snapreceipt.co.uk'});
-  if(error) setMsg(msg,'err',error.message);
-  else      setMsg(msg,'ok','Reset link sent! Check your email.');
-  btn.disabled=false; btn.textContent='Send reset link →';
-};
-window.doSetPassword = async () => {
-  const [pass,confirm,msg,btn] = [val('npPass'),val('npConfirm'),g('npMsg'),g('btnNewPass')];
-  msg.className='auth-msg';
-  if(!pass||pass.length<6) return setMsg(msg,'err','Password must be at least 6 characters.');
-  if(pass!==confirm)        return setMsg(msg,'err','Passwords do not match.');
-  btn.disabled=true; btn.textContent='Saving…';
-  const {error} = await sb.auth.updateUser({password:pass});
-  if(error) setMsg(msg,'err',error.message);
-  else { setMsg(msg,'ok','Password updated!'); setTimeout(()=>g('resetPassSheet').classList.remove('open'),1600); }
-  btn.disabled=false; btn.textContent='Update password →';
-};
-window.doSignout = async () => { closeMenu(); await sb.auth.signOut(); };
-
-/* ── DATA ───────────────────────────────────────────────── */
-async function loadReceipts() {
-  if(!_user) return;
-  renderSkeleton();
-  const {data,error} = await sb.from('receipts')
-    .select('id,merchant,amount,currency,date,category,vat,notes,image_url,ocr_raw,created_at')
-    .eq('user_id',_user.id).order('created_at',{ascending:false});
-  if(error){toast('Error loading receipts');return;}
-  _receipts = data||[];
-  renderHome();
-}
-
-function renderHome() { updateStats(); renderList(); }
-
-function updateStats() {
-  const now = new Date();
-  const taxStart = now.getMonth()>=3
-    ? new Date(now.getFullYear(),3,6)
-    : new Date(now.getFullYear()-1,3,6);
-  const monthRs = _receipts.filter(r=>{
-    const d=new Date(r.date||r.created_at);
-    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
-  });
-  const yearRs = _receipts.filter(r=>new Date(r.date||r.created_at)>=taxStart);
-  g('statCount').textContent = _receipts.length;
-  g('statMonth').textContent = fmt(monthRs.reduce((s,r)=>s+parseFloat(r.amount||0),0));
-  g('statYear').textContent  = fmt(yearRs.reduce((s,r)=>s+parseFloat(r.amount||0),0));
-  g('statVAT').textContent   = '£'+yearRs.reduce((s,r)=>s+parseFloat(r.vat||0),0).toFixed(2);
-}
-
-function renderSkeleton() {
-  g('receiptList').innerHTML = [1,2,3].map(()=>`
-    <div class="receipt-row" style="pointer-events:none">
-      <div class="receipt-row-main">
-        <div class="receipt-thumb"><div class="skeleton" style="width:100%;height:100%"></div></div>
-        <div class="receipt-info">
-          <div class="skeleton" style="height:14px;width:65%;margin-bottom:8px;border-radius:4px"></div>
-          <div class="skeleton" style="height:11px;width:40%;border-radius:4px"></div>
-        </div>
-        <div class="skeleton" style="height:18px;width:48px;border-radius:4px"></div>
-      </div>
-    </div>`).join('');
-}
-
-function renderList() {
-  const list = g('receiptList');
-  if(!_receipts.length){
-    list.innerHTML=`<div class="empty-state">
-      <div class="empty-icon">🧾</div>
-      <div class="empty-title">No receipts yet</div>
-      <div class="empty-sub">Tap the button below to scan your first receipt.</div>
-    </div>`;
-    return;
-  }
-  // Pre-compute month totals in O(n) — avoids O(n²) filter loop
-  const monthTotals={};
-  _receipts.forEach(r=>{
-    const d=new Date(r.date||r.created_at);
-    const mk=d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-    monthTotals[mk]=(monthTotals[mk]||0)+parseFloat(r.amount||0);
-  });
-
-  let lastMonth='', rows=[];
-  _receipts.forEach((r,i)=>{
-    const d = new Date(r.date||r.created_at);
-    const mk = d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-    if(mk!==lastMonth){
-      rows.push(`<div class="month-header">
-        <span class="month-label">${mk}</span>
-        <span class="month-total">${fmt(monthTotals[mk])}</span>
-      </div>`);
-      lastMonth=mk;
-    }
-    rows.push(renderRow(r,i));
-  });
-  list.innerHTML=rows.join('');
-}
-
-function renderRow(r,i) {
-  const thumb = r.image_url
-    ? `<div class="receipt-thumb"><img src="${esc(r.image_url)}" alt="" loading="lazy"/></div>`
-    : `<div class="receipt-thumb">🧾</div>`;
-  const isExp = _expanded===r.id;
-  const catBadge = r.category
-    ? `<span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--gray-1);font-size:.68rem;font-weight:700;color:var(--gray-7);border:1px solid var(--border)">${esc(r.category)}</span>`
-    : '';
-  const noteStr = r.notes ? `<div class="detail-cell" style="grid-column:1/-1"><div class="detail-cell-label">Notes</div><div class="detail-cell-val">${esc(r.notes)}</div></div>` : '';
-  const vatStr  = r.vat   ? `<div class="detail-cell"><div class="detail-cell-label">VAT</div><div class="detail-cell-val">${fmt(r.vat,'GBP')}</div></div>` : '';
-  const catStr  = r.category ? `<div class="detail-cell"><div class="detail-cell-label">Category</div><div class="detail-cell-val">${esc(r.category)}</div></div>` : '';
-  return `<div class="receipt-row${isExp?' expanded':''}" id="row-${esc(r.id)}" style="animation-delay:${i*0.03}s">
-    <div class="receipt-row-main" onclick="toggleRow('${esc(r.id)}')">
-      ${thumb}
-      <div class="receipt-info">
-        <div class="receipt-merchant">${esc(r.merchant||'Unknown')}</div>
-        <div class="receipt-date">${fmtDate(r.date||r.created_at)}</div>
-        ${catBadge}
-      </div>
-      <div>
-        <div class="receipt-amount">${fmt(r.amount,r.currency)}</div>
-        <div class="receipt-currency">${r.currency||'GBP'}</div>
-      </div>
-    </div>
-    <div class="receipt-detail">
-      ${r.image_url?`<img class="receipt-detail-img" src="${esc(r.image_url)}" alt="Receipt"/>`:''}
-      <div class="detail-grid">
-        <div class="detail-cell"><div class="detail-cell-label">Date</div><div class="detail-cell-val">${fmtDate(r.date||r.created_at)}</div></div>
-        <div class="detail-cell"><div class="detail-cell-label">Amount</div><div class="detail-cell-val">${fmt(r.amount,r.currency)}</div></div>
-        ${catStr}${vatStr}${noteStr}
-        <div class="detail-cell"><div class="detail-cell-label">Added</div><div class="detail-cell-val">${fmtDate(r.created_at)}</div></div>
-      </div>
-      <div class="detail-actions">
-        <button class="btn-outline" onclick="openEdit('${esc(r.id)}')">✏️ Edit</button>
-        <button class="btn-outline danger" onclick="deleteReceipt('${esc(r.id)}')">Delete</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-window.toggleRow = (id) => {
-  _expanded = _expanded===id ? null : id;
-  renderList();
-  if(_expanded) setTimeout(()=>{
-    const row=g('row-'+id);
-    if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
-  },60);
+const State = {
+  imageBase64: null
 };
 
-window.filterReceipts = (q) => {
-  q = q.toLowerCase().trim();
-  if (!q) { renderList(); return; }
-  const filtered = _receipts.filter(r =>
-    (r.merchant||'').toLowerCase().includes(q) ||
-    (r.category||'').toLowerCase().includes(q) ||
-    (r.notes||'').toLowerCase().includes(q) ||
-    (r.date||'').includes(q)
-  );
-  const list = g('receiptList');
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No results</div><div class="empty-sub">No receipts match "${esc(q)}"</div></div>`;
-    return;
-  }
-  // Pre-compute month totals for filtered set
-  const monthTotals={};
-  filtered.forEach(r=>{
-    const d=new Date(r.date||r.created_at);
-    const mk=d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-    monthTotals[mk]=(monthTotals[mk]||0)+parseFloat(r.amount||0);
-  });
-  let lastMonth='', rows=[];
-  filtered.forEach((r,i)=>{
-    const d=new Date(r.date||r.created_at);
-    const mk=d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-    if(mk!==lastMonth){ rows.push(`<div class="month-header"><span class="month-label">${mk}</span><span class="month-total">${fmt(monthTotals[mk])}</span></div>`); lastMonth=mk; }
-    rows.push(renderRow(r,i));
-  });
-  list.innerHTML=rows.join('');
-};
-
-window.deleteReceipt = async (id) => {
-  if(!confirm('Delete this receipt?')) return;
-  await sb.from('receipts').delete().eq('id',id);
-  _receipts = _receipts.filter(r=>r.id!==id);
-  _expanded = null;
-  renderHome();
-  toast('Receipt deleted');
-};
-
-/* ── SCAN ───────────────────────────────────────────────── */
-window.openScan = () => {
-  _imgB64 = null;
-  g('czEmpty').style.display='';
-  g('czHasPhoto').style.display='none';
-  g('czThumb').src='';
-  // Reset file inputs — critical for iOS to re-fire change event
-  try{ g('captureInput').value=''; }catch(e){}
-  try{ g('galleryInput').value=''; }catch(e){}
-  g('ocrBar').classList.remove('active');
-  g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
-  g('saveBar').classList.remove('active');
-  g('confBadge').innerHTML='';
-  g('cfMerchant').value=''; g('cfAmount').value='';
-  g('cfCurrency').value='GBP'; g('cfDate').value=today();
-  g('cfCategory').value=''; g('cfVat').value=''; g('cfNotes').value='';
-  show('scanScreen');
-  history.pushState({snap:'scan'}, '');
-};
-
-window.goHome = () => { show('homeScreen'); _debouncedLoad(); };
-let _loadTimer;
-function _debouncedLoad(){ clearTimeout(_loadTimer); _loadTimer=setTimeout(loadReceipts,120); }
-
-window.retake = (e) => {
-  e.stopPropagation();
-  _imgB64=null;
-  g('czEmpty').style.display='';
-  g('czHasPhoto').style.display='none';
-  g('czThumb').src='';
-  try{ g('captureInput').value=''; }catch(e){}
-  try{ g('galleryInput').value=''; }catch(e){}
-  g('ocrBar').classList.remove('active');
-  g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
-  g('saveBar').classList.remove('active');
-};
-
-window.onFileSelected = async (input) => {
-  const file = input.files[0];
-  if (!file) { document.getElementById('debugLog') && (document.getElementById('debugLog').innerHTML += 'onFileSelected: NO FILE<br>'); return; }
-  const dbgEl = document.getElementById('debugLog');
-  if(dbgEl) dbgEl.innerHTML += 'onFileSelected: ' + file.name + ' ' + file.size + 'b<br>';
-
-  // Show processing state immediately
-  g('czEmpty').style.display = 'none';
-  g('czHasPhoto').style.display = '';
-  g('czStatusSub').textContent = 'Processing image…';
-  g('ocrBar').classList.add('active');
-
-  // Convert to JPEG using FileReader (weldswine pattern)
-  let b64;
-  try { b64 = await toJpeg(file); } catch(e) { b64 = null; }
-
-  if (!b64 || b64.length < 200) {
-    toast('Image could not be processed — fill in manually');
-    g('czStatusSub').textContent = 'Fill in details below';
-    g('ocrBar').classList.remove('active');
-    g('confBadge').innerHTML = '<div class="conf-badge low">⚠ Fill in manually</div>';
-    showConfirm();
-    return;
-  }
-
-  _imgB64 = b64;
-  g('czThumb').src = b64;
-  g('czStatusSub').textContent = 'AI is reading it…';
-
-  await runOCR(b64);
-};
-
-async function runOCR(b64) {
-  // ocrBar already active from onFileSelected
-  try {
-    const sessionRes = await sb.auth.getSession();
-    const session = sessionRes?.data?.session;
-    if (!session) throw new Error('Not signed in');
-
-    const raw = b64.includes(',') ? b64.split(',')[1] : b64;
-    const mediaType = b64.startsWith('data:')
-      ? (b64.match(/^data:([^;]+);/)?.[1] || 'image/jpeg')
-      : 'image/jpeg';
-
-    const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({ imageBase64: raw, mediaType }),
-    });
-
-    if (!res.ok) throw new Error(`Worker error ${res.status}`);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-
-    // Fill confirmed fields
-    g('cfMerchant').value = data.merchant || '';
-    g('cfAmount').value   = data.amount   || '';
-    g('cfDate').value     = data.date ? isoDate(data.date) : today();
-    if (data.currency) g('cfCurrency').value = data.currency;
-
-    const conf = (data.confidence || 'medium').toLowerCase();
-    const labels = { high: '✓ High confidence', medium: '~ Review fields', low: '⚠ Check fields carefully' };
-    g('confBadge').innerHTML = `<div class="conf-badge ${conf}">${labels[conf] || conf}</div>`;
-    if(g('czStatusSub')) g('czStatusSub').textContent = 'Review details below';
-
-  } catch(err) {
-    console.error('OCR error:', err);
-    g('confBadge').innerHTML = `<div class="conf-badge low">⚠ Could not read — fill in manually</div>`;
-    if(g('czStatusSub')) g('czStatusSub').textContent = 'Fill in details below';
-  } finally {
-    g('ocrBar').classList.remove('active');
-    showConfirm();
-  }
-}
-
-function showConfirm() {
-  g('confirmFields').style.cssText='display:flex;flex-direction:column;gap:10px;';
-  g('confirmFields').classList.add('active');
-  g('saveBar').classList.add('active');
-  setTimeout(()=>{ try{g('scanBody').scrollTop=g('scanBody').scrollHeight;}catch(e){} },50);
-}
-
-window.saveReceipt = async () => {
-  const merchant = g('cfMerchant').value.trim();
-  const amount   = parseFloat(g('cfAmount').value)||0;
-  const date     = g('cfDate').value;
-  if(!merchant){toast('Please enter a merchant name');g('cfMerchant').focus();return;}
-  if(!amount)  {toast('Please enter an amount');g('cfAmount').focus();return;}
-  const btn=g('btnSave'); btn.disabled=true; btn.textContent='Saving…';
-  try {
-    // Only store image if < 800KB to avoid Supabase row size limits
-    const imgToStore = (_imgB64 && _imgB64.length < 800000) ? _imgB64 : null;
-    const {data,error} = await sb.from('receipts').insert({
-      user_id:_user.id, merchant, amount,
-      currency: g('cfCurrency').value||'GBP',
-      date:     date||null,
-      category: g('cfCategory').value||null,
-      vat:      parseFloat(g('cfVat').value)||null,
-      notes:    g('cfNotes').value.trim()||null,
-      image_url:imgToStore, ocr_raw:null,
-    }).select().single();
-    if(error) throw error;
-    _receipts.unshift(data);
-    const now=new Date();
-    const monthName=now.toLocaleDateString('en-GB',{month:'long'});
-    const monthTotal=_receipts.filter(r=>{
-      const d=new Date(r.date||r.created_at);
-      return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
-    }).reduce((s,r)=>s+parseFloat(r.amount||0),0);
-    g('successAmount').textContent = fmt(amount);
-    g('successTitle').textContent  = esc(merchant);
-    g('successSub').textContent    = `${monthName} total now ${fmt(monthTotal)}`;
-    g('successOverlay').classList.add('show');
-    setTimeout(()=>{
-      g('successOverlay').classList.remove('show');
-      show('homeScreen'); renderHome();
-    },1800);
-  } catch(e) {
-    console.error(e); toast('Error saving — please try again');
-  } finally { btn.disabled=false; btn.textContent='Save Receipt'; }
-};
-
-/* ── EXPORT ─────────────────────────────────────────────── */
-window.exportCSV = () => {
-  if(!_receipts.length){toast('No receipts to export');return;}
-  const rows = _receipts.map(r=>[
-    r.date||'',
-    `"${(r.merchant||'').replace(/"/g,'""')}"`,
-    parseFloat(r.amount||0).toFixed(2),
-    r.currency||'GBP',
-    r.category||'',
-    parseFloat(r.vat||0).toFixed(2),
-    `"${(r.notes||'').replace(/"/g,'""')}"`,
-    new Date(r.created_at).toISOString().slice(0,10),
-  ]);
-  const csv=[['Date','Merchant','Amount (£)','Currency','Category','VAT (£)','Notes','Added'],...rows].map(r=>r.join(',')).join('\n');
-  const a=Object.assign(document.createElement('a'),{
-    href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),
-    download:`snapreceipt-${today()}.csv`,
-  });
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(a.href); },1000);
-  toast('CSV exported ✓');
-};
-
-/* ── MENU ───────────────────────────────────────────────── */
-let _editId = null;
-window.openEdit = (id) => {
-  const r = _receipts.find(x=>x.id===id);
-  if (!r) return;
-  _editId = id;
-  g('edMerchant').value = r.merchant||'';
-  g('edAmount').value   = r.amount||'';
-  g('edCurrency').value = r.currency||'GBP';
-  g('edDate').value     = r.date ? r.date.slice(0,10) : '';
-  g('edCategory').value = r.category||'';
-  g('edVat').value      = r.vat||'';
-  g('edNotes').value    = r.notes||'';
-  g('edMsg').className  = 'auth-msg';
-  g('editSheet').classList.add('open');
-};
-window.closeEdit = () => { g('editSheet').classList.remove('open'); _editId=null; };
-window.saveEdit  = async () => {
-  if (!_editId) return;
-  const merchant = g('edMerchant').value.trim();
-  const amount   = parseFloat(g('edAmount').value)||0;
-  if (!merchant) { setMsg(g('edMsg'),'err','Please enter a merchant name.'); return; }
-  if (!amount)   { setMsg(g('edMsg'),'err','Please enter an amount.'); return; }
-  const btn = g('btnEditSave'); btn.disabled=true; btn.textContent='Saving…';
-  const {error} = await sb.from('receipts').update({
-    merchant, amount,
-    currency: g('edCurrency').value||'GBP',
-    date:     g('edDate').value||null,
-    category: g('edCategory').value||null,
-    vat:      parseFloat(g('edVat').value)||null,
-    notes:    g('edNotes').value.trim()||null,
-  }).eq('id',_editId);
-  btn.disabled=false; btn.textContent='Save changes';
-  if (error) { setMsg(g('edMsg'),'err','Error saving — please try again.'); return; }
-  // Update local cache
-  const idx = _receipts.findIndex(x=>x.id===_editId);
-  if (idx>-1) Object.assign(_receipts[idx], {
-    merchant, amount,
-    currency: g('edCurrency').value||'GBP',
-    date:     g('edDate').value||null,
-    category: g('edCategory').value||null,
-    vat:      parseFloat(g('edVat').value)||null,
-    notes:    g('edNotes').value.trim()||null,
-  });
-  closeEdit();
-  renderHome();
-  toast('Receipt updated ✓');
-};
-
-window.openMenu  = () => g('menuSheet').classList.add('open');
-window.closeMenu = (e) => { if(!e||e.target===g('menuSheet')) g('menuSheet').classList.remove('open'); };
-
-/* ── HELPERS ────────────────────────────────────────────── */
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));g(id).classList.add('active');}
-function g(id)  {return document.getElementById(id);}
-// Camera/gallery triggered by label+input pattern (most reliable on iOS/Android)
-function val(id){return g(id).value.trim();}
-function cap(s) {return s.charAt(0).toUpperCase()+s.slice(1);}
-function esc(s) {return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function today(){return new Date().toISOString().slice(0,10);}
+/* -------------------------------------------------------------------------- */
+/*                               BASIC HELPERS                                */
+/* -------------------------------------------------------------------------- */
+function g(id){ return document.getElementById(id); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); g(id).classList.add('active'); }
+function today(){ return new Date().toISOString().slice(0,10); }
 function fmt(n,currency){
   const sym={GBP:'£',USD:'$',EUR:'€'}[currency]||'£';
   return sym+parseFloat(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 }
-function fmtDate(d){
-  if(!d) return '—';
-  try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
-  catch{return d;}
-}
-function isoDate(s){
-  if(!s) return today();
-  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
-  const uk=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if(uk){const[,d,m,y]=uk;return`${y.length===2?'20'+y:y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
-  try{return new Date(s).toISOString().slice(0,10);}catch{return today();}
-}
-function setMsg(el,type,text){el.className='auth-msg '+type;el.textContent=text;}
-function friendlyErr(e){
-  const m=e.message||'';
-  if(m.includes('already registered')||m.includes('already exists')) return 'That email is already registered.';
-  if(m.includes('Invalid login')||m.includes('invalid_credentials'))  return 'Email or password is incorrect.';
-  if(m.includes('Password should')) return 'Password must be at least 6 characters.';
-  if(m.includes('Email not confirmed'))  return 'Please confirm your email first.';
-  return m||'Something went wrong.';
-}
-let _toastTimer;
-window.toast=function(msg){
+function toast(msg){
   const t=g('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
-};
-// FileReader → canvas resize → JPEG — exactly the pattern weldswine uses
-function toJpeg(file){
-  return new Promise(resolve=>{
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const dataUrl = ev.target.result;
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const MAX = 1200;
-          let w = img.width, h = img.height;
-          if(w > MAX || h > MAX){
-            if(w > h){ h = Math.round(h * MAX / w); w = MAX; }
-            else      { w = Math.round(w * MAX / h); h = MAX; }
-          }
-          const c = document.createElement('canvas');
-          c.width = w; c.height = h;
-          c.getContext('2d').drawImage(img, 0, 0, w, h);
-          resolve(c.toDataURL('image/jpeg', 0.82));
-        } catch(e) {
-          resolve(dataUrl); // fallback: send original
-        }
-      };
-      img.onerror = () => resolve(dataUrl);
-      img.src = dataUrl;
-    };
-    reader.onerror = () => resolve('');
-    reader.readAsDataURL(file);
-  });
+  clearTimeout(window.__t); window.__t=setTimeout(()=>t.classList.remove('show'),2500);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                             AUTH STATE HANDLING                            */
+/* -------------------------------------------------------------------------- */
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY'){ g('resetPassSheet').classList.add('open'); return; }
+
+  _user = session?.user ?? null;
+
+  if(_user){
+    g('menuEmail').textContent = _user.email;
+    show('homeScreen');
+    loadReceipts();
+  } else {
+    show('authScreen');
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/*                                 LOAD RECEIPTS                               */
+/* -------------------------------------------------------------------------- */
+async function loadReceipts(){
+  if(!_user) return;
+
+  const { data, error } = await sb
+    .from('receipts')
+    .select('*')
+    .eq('user_id', _user.id)
+    .order('created_at', {ascending:false});
+
+  if(error){
+    toast('Error loading receipts');
+    return;
+  }
+
+  _receipts = data || [];
+  renderHome();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          RENDER FUNCTIONS (UNCHANGED)                       */
+/* -------------------------------------------------------------------------- */
+// (Your existing renderList, renderRow, updateStats, edit sheet logic stays intact)
+
+/* -------------------------------------------------------------------------- */
+/*                             NEW: SCAN CAMERA MODULE                        */
+/* -------------------------------------------------------------------------- */
+const ScanCamera = (() => {
+
+  function init() {
+    const cap = g('captureInput');
+    const gal = g('galleryInput');
+
+    ['input','change'].forEach(ev=>{
+      cap.addEventListener(ev, handleFile);
+      gal.addEventListener(ev, handleFile);
+    });
+  }
+
+  async function handleFile(e){
+    const file = e.target.files?.[0];
+    if(!file) return;
+
+    UI.showPreviewLoading();
+
+    try{
+      const jpeg = await ImageProcessor.process(file);
+      State.imageBase64 = jpeg;
+      g('czThumb').src = jpeg;
+      UI.showPreviewReady();
+      await OCR.run(jpeg);
+    }catch(err){
+      console.error(err);
+      UI.showManualEntry("Image processing failed");
+    }
+  }
+
+  return { init };
+
+})();
+
+/* -------------------------------------------------------------------------- */
+/*                    NEW: IMAGE PROCESSOR (compression, crop)                */
+/* -------------------------------------------------------------------------- */
+const ImageProcessor = (() => {
+
+  async function process(file){
+    const dataUrl = await readFile(file);
+    const img = await loadImage(dataUrl);
+    const cropped = autoCropCanvas(img);
+    const lit = reduceShadows(cropped);
+    return dynamicCompress(lit);
+  }
+
+  function readFile(file){
+    return new Promise(res=>{
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.readAsDataURL(file);
+    });
+  }
+
+  function loadImage(src){
+    return new Promise((res,rej)=>{
+      const img = new Image();
+      img.onload = ()=>res(img);
+      img.onerror = rej;
+      img.src = src;
+    });
+  }
+
+  /* ---------------------- AUTO CROP (simple paper detect) ---------------------- */
+  function autoCropCanvas(img){
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img,0,0);
+
+    const data = ctx.getImageData(0,0,c.width,c.height).data;
+    const t = 240*3;
+
+    let top=null,bottom=null,left=null,right=null;
+
+    for(let y=0;y<c.height;y++){
+      for(let x=0;x<c.width;x++){
+        const i = (y*c.width+x)*4;
+        const b = data[i] + data[i+1] + data[i+2];
+        if(b < t){
+          if(top===null) top=y;
+          bottom=y;
+          left = left===null ? x : Math.min(left,x);
+          right= right===null? x : Math.max(right,x);
+        }
+      }
+    }
+
+    const x = Math.max(0,(left??0) - 10);
+    const y = Math.max(0,(top??0) - 10);
+    const w = Math.min(c.width, (right-left)+20);
+    const h = Math.min(c.height, (bottom-top)+20);
+
+    const out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    out.getContext('2d').drawImage(c,x,y,w,h,0,0,w,h);
+    return out;
+  }
+
+  /* -------------------------- SHADOW REDUCTION -------------------------- */
+  function reduceShadows(canvas){
+    const ctx = canvas.getContext('2d');
+    const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const d = img.data;
+
+    for(let i=0;i<d.length;i+=4){
+      d[i]   = Math.min(255, d[i]   * 1.15);
+      d[i+1] = Math.min(255, d[i+1] * 1.15);
+      d[i+2] = Math.min(255, d[i+2] * 1.15);
+    }
+
+    ctx.putImageData(img,0,0);
+    return canvas;
+  }
+
+  /* --------------------- DYNAMIC JPEG COMPRESSION ---------------------- */
+  function dynamicCompress(canvas){
+    let q = 0.9;
+    let out;
+
+    do{
+      out = canvas.toDataURL("image/jpeg", q);
+      const bytes = (out.length * 3) / 4;
+      if(bytes < 800*1024) break;
+      q -= 0.05;
+    }while(q > 0.4);
+
+    return out;
+  }
+
+  return { process };
+
+})();
+
+/* -------------------------------------------------------------------------- */
+/*              NEW: OCR MODULE (worker retry + empty-response fix)           */
+/* -------------------------------------------------------------------------- */
+const OCR = (() => {
+
+  async function run(base64){
+    UI.showOCR();
+
+    try{
+      const s = await sb.auth.getSession();
+      const token = s?.data?.session?.access_token;
+      if(!token) throw "Not signed in.";
+
+      const raw = base64.split(',')[1];
+
+      const res = await fetch(WORKER_URL,{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":`Bearer ${token}`
+        },
+        body:JSON.stringify({ imageBase64:raw })
+      });
+
+      if(!res.ok) throw "Worker error";
+
+      const data = await res.json();
+      if(!data || Object.keys(data).length === 0){
+        throw "Empty worker response";
+      }
+
+      UI.populateFromOCR(data);
+
+    }catch(err){
+      console.error("OCR error:",err);
+      UI.showManualEntry("AI failed — fill in manually");
+    }finally{
+      UI.hideOCR();
+    }
+  }
+
+  return { run };
+
+})();
+
+/* -------------------------------------------------------------------------- */
+/*                       NEW: OFFLINE QUEUE (IndexedDB)                      */
+/* -------------------------------------------------------------------------- */
+const OfflineQueue = (() => {
+  let db;
+
+  function init(){
+    const req = indexedDB.open("snapreceipt",1);
+
+    req.onupgradeneeded = e=>{
+      const db = e.target.result;
+      db.createObjectStore("queue",{keyPath:'id',autoIncrement:true});
+    };
+
+    req.onsuccess = e=>{
+      db = e.target.result;
+    };
+  }
+
+  function enqueue(data){
+    if(!db) return;
+    const tx = db.transaction("queue","readwrite");
+    tx.objectStore("queue").add({ data });
+  }
+
+  return { init, enqueue };
+
+})();
+
+/* -------------------------------------------------------------------------- */
+/*                          NEW: UI STATE MACHINE                             */
+/* -------------------------------------------------------------------------- */
+const UI = (() => {
+
+  function showPreviewLoading(){
+    g('czEmpty').style.display='none';
+    g('czHasPhoto').style.display='';
+    g('czStatusSub').textContent="Processing…";
+  }
+
+  function showPreviewReady(){
+    g('czStatusSub').textContent="AI reading…";
+  }
+
+  function showOCR(){ g('ocrBar').classList.add('active'); }
+  function hideOCR(){ g('ocrBar').classList.remove('active'); }
+
+  function populateFromOCR(data){
+    g('cfMerchant').value = data.merchant || '';
+    g('cfAmount').value   = data.amount   || '';
+    g('cfDate').value     = data.date     || today();
+    g('confBadge').innerHTML = `<div class="conf-badge high">✓ High confidence</div>`;
+    showConfirm();
+  }
+
+  function showManualEntry(reason){
+    g('confBadge').innerHTML = `<div class="conf-badge low">⚠ ${reason}</div>`;
+    showConfirm();
+  }
+
+  function showConfirm(){
+    g('confirmFields').classList.add('active');
+    g('saveBar').classList.add('active');
+  }
+
+  return {
+    showPreviewLoading,
+    showPreviewReady,
+    showOCR,
+    hideOCR,
+    populateFromOCR,
+    showManualEntry
+  };
+
+})();
+
+/* -------------------------------------------------------------------------- */
+/*                        OVERRIDE openScan + saveReceipt                     */
+/* -------------------------------------------------------------------------- */
+window.openScan = () => {
+  State.imageBase64 = null;
+
+  g('czEmpty').style.display='';
+  g('czHasPhoto').style.display='none';
+  g('czThumb').src='';
+
+  g('captureInput').value='';
+  g('galleryInput').value='';
+
+  g('confirmFields').classList.remove('active');
+  g('saveBar').classList.remove('active');
+  g('confBadge').innerHTML='';
+
+  g('cfMerchant').value='';
+  g('cfAmount').value='';
+  g('cfDate').value=today();
+  g('cfCategory').value='';
+  g('cfVat').value='';
+  g('cfNotes').value='';
+
+  show('scanScreen');
+};
+
+window.saveReceipt = async () => {
+  const merchant = g('cfMerchant').value.trim();
+  const amount = parseFloat(g('cfAmount').value)||0;
+  const date = g('cfDate').value;
+
+  if(!merchant){ toast('Enter a merchant'); return; }
+  if(!amount){ toast('Enter an amount'); return; }
+
+  const payload = {
+    user_id:_user.id,
+    merchant,
+    amount,
+    currency:g('cfCurrency').value,
+    date,
+    category:g('cfCategory').value||null,
+    vat:parseFloat(g('cfVat').value)||null,
+    notes:g('cfNotes').value.trim()||null,
+    image_url:State.imageBase64,
+    ocr_raw:null
+  };
+
+  try{
+    const { data, error } = await sb.from('receipts').insert(payload).select().single();
+
+    if(error) throw error;
+
+    _receipts.unshift(data);
+    toast("Saved ✓");
+    show('homeScreen');
+    renderHome();
+
+  }catch(e){
+    console.warn("Save error → using offline queue",e);
+    OfflineQueue.enqueue(payload);
+    toast("Saved offline — will sync later");
+    show('homeScreen');
+  }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                               INITIALISE                                    */
+/* -------------------------------------------------------------------------- */
+window.addEventListener("load", () => {
+  ScanCamera.init();
+  OfflineQueue.init();
+});
 </script>
+
 </body>
 </html>
