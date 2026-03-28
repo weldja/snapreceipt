@@ -935,8 +935,7 @@ window.saveReceipt = async function() {
     g('successOv').classList.add('on');
     setTimeout(function(){
       g('successOv').classList.remove('on');
-      show('homeScreen');
-      renderHome();
+      goHome();
     }, 1800);
   } catch(e) {
     console.error(e);
