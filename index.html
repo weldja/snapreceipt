@@ -521,30 +521,38 @@ function show(id) {
    - set _cameraOpen flag to block popstate navigation
 ─────────────────────────────────────────────────────── */
 function initFileInputs() {
-  var capIn  = g('captureInput');
-  var galIn  = g('galleryInput');
+  var capIn   = g('captureInput');
+  var galIn   = g('galleryInput');
   var capArea = g('cameraArea');
   var galArea = g('galleryArea');
 
+  // Reset value immediately before the file picker opens.
+  // Use mousedown/touchstart so it fires before the input's click,
+  // and does NOT fire again when the camera app returns.
+  function prepareInput(input) {
+    try { input.value = ''; } catch(e){}
+  }
+
+  capArea.addEventListener('mousedown',  function(){ prepareInput(capIn); });
+  capArea.addEventListener('touchstart', function(){ prepareInput(capIn); }, {passive:true});
+  galArea.addEventListener('mousedown',  function(){ prepareInput(galIn); });
+  galArea.addEventListener('touchstart', function(){ prepareInput(galIn); }, {passive:true});
+
+  // Set _cameraOpen on the input's own click — this fires exactly once
+  // when the user taps, not when the camera app returns
+  capIn.addEventListener('click', function(){ _cameraOpen = true; });
+  galIn.addEventListener('click', function(){ _cameraOpen = true; });
+
+  // Handle the selected file — both change and input for iOS/Android compat
   function handleFile(input) {
     if (input && input.files && input.files[0]) {
       _cameraOpen = false;
       onPhotoSelected(input.files[0]);
     }
   }
-
   ['change','input'].forEach(function(evt) {
-    capIn.addEventListener(evt, function(e){ handleFile(e.target); });
-    galIn.addEventListener(evt, function(e){ handleFile(e.target); });
-  });
-
-  capArea.addEventListener('click', function(){
-    _cameraOpen = true;
-    capIn.value = '';
-  });
-  galArea.addEventListener('click', function(){
-    _cameraOpen = true;
-    galIn.value = '';
+    capIn.addEventListener(evt, function(){ handleFile(capIn); });
+    galIn.addEventListener(evt, function(){ handleFile(galIn); });
   });
 }
 
