@@ -3,14 +3,67 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<title>SnapReceipt — Scan receipts instantly</title>
-<meta name="description" content="The fastest way to log receipts. Scan, confirm, done."/>
+
+<!-- ── Primary SEO ─────────────────────────────────────── -->
+<title>SnapReceipt — Free Receipt Scanner App for UK Freelancers &amp; Small Businesses</title>
+<meta name="description" content="Free receipt scanner app for UK freelancers and small businesses. AI reads merchant, amount and date automatically. Log expenses instantly and export CSV for Self Assessment. No app download needed."/>
+<meta name="keywords" content="receipt scanner app UK, free receipt scanner, expense tracker UK freelancer, HMRC receipt records, self assessment expenses, scan receipts UK, receipt log app, Making Tax Digital receipts"/>
+<meta name="author" content="SnapReceipt"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://snapreceipt.co.uk/"/>
+
+<!-- ── Open Graph (Facebook, LinkedIn, WhatsApp) ──────── -->
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="SnapReceipt"/>
+<meta property="og:title" content="SnapReceipt — Free Receipt Scanner App for UK Freelancers"/>
+<meta property="og:description" content="Scan any receipt in seconds. AI reads the details automatically. Log expenses, track totals and export CSV for your Self Assessment tax return. Free to use, no download needed."/>
+<meta property="og:url" content="https://snapreceipt.co.uk/"/>
+<meta property="og:locale" content="en_GB"/>
+
+<!-- ── Twitter / X card ───────────────────────────────── -->
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="SnapReceipt — Free Receipt Scanner App for UK Freelancers"/>
+<meta name="twitter:description" content="Scan any receipt in seconds. AI reads merchant, amount and date automatically. Free expense tracker for UK freelancers and small businesses."/>
+
+<!-- ── Structured data — Google rich results ─────────── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "SnapReceipt",
+  "url": "https://snapreceipt.co.uk/",
+  "description": "Free receipt scanner app for UK freelancers and small businesses. AI-powered OCR reads merchant names, amounts and dates automatically. Log expenses, track Self Assessment costs and export CSV — no app download required.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires a modern browser with camera access",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "GBP"
+  },
+  "featureList": [
+    "AI-powered receipt scanning",
+    "Automatic merchant and amount extraction",
+    "HMRC-ready expense tracking",
+    "CSV export for Self Assessment",
+    "Monthly and tax year expense totals",
+    "Works on iOS and Android",
+    "No app download required"
+  ],
+  "inLanguage": "en-GB",
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "UK freelancers, sole traders, and small business owners"
+  }
+}
+</script>
+
+<!-- ── PWA / mobile ───────────────────────────────────── -->
 <meta name="theme-color" content="#ffffff"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
-<link rel="canonical" href="https://snapreceipt.co.uk/"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -303,9 +356,9 @@ img{display:block;max-width:100%}
 
   <!-- Hero -->
   <section class="lhero">
-    <div class="lhero-label">🇬🇧 Built for UK freelancers &amp; businesses</div>
+    <div class="lhero-label">🇬🇧 Free receipt scanner app — built in the UK</div>
     <h1 class="lhero-h1">Stop losing receipts.<br/><span>Start saving time.</span></h1>
-    <p class="lhero-sub">Scan any receipt in seconds with your camera. AI reads the details automatically. Your expenses are organised and ready for tax time — without the admin.</p>
+    <p class="lhero-sub">Scan any receipt in seconds with your camera. AI reads the merchant, amount and date automatically. Your expenses are organised, searchable, and ready for your Self Assessment tax return — without the admin.</p>
     <div class="lhero-btns">
       <button class="lbtn-primary" onclick="showAuth('signup')">📸 Start scanning free</button>
       <button class="lbtn-secondary" onclick="showAuth('signin')">Sign in</button>
@@ -321,12 +374,12 @@ img{display:block;max-width:100%}
   <section class="lsteps">
     <div class="lsteps-inner">
       <div class="lsection-label">How it works</div>
-      <h2 class="lsection-h2">Three taps and you're done</h2>
+      <h2 class="lsection-h2">Three taps and your expense is logged</h2>
       <div class="lsteps-grid">
         <div class="lstep">
           <div class="lstep-icon">📷</div>
           <div class="lstep-title">1. Snap</div>
-          <div class="lstep-desc">Take a photo of any receipt — till receipts, invoices, card slips, online orders. Any format.</div>
+          <div class="lstep-desc">Take a photo of any receipt — till receipts, invoices, card machine slips, online orders. Works on iOS and Android, no app download needed.</div>
         </div>
         <div class="lstep">
           <div class="lstep-icon">🤖</div>
@@ -336,7 +389,7 @@ img{display:block;max-width:100%}
         <div class="lstep">
           <div class="lstep-icon">✅</div>
           <div class="lstep-title">3. Saved</div>
-          <div class="lstep-desc">Confirm in one tap. Your receipt is logged, categorised, and ready for export to your accountant.</div>
+          <div class="lstep-desc">Confirm in one tap. Your receipt is logged and ready to export as CSV for your accountant or Self Assessment tax return.</div>
         </div>
       </div>
     </div>
@@ -365,7 +418,7 @@ img{display:block;max-width:100%}
       <div class="lfeat">
         <div class="lfeat-icon">⬇</div>
         <div class="lfeat-title">CSV export</div>
-        <div class="lfeat-desc">Export all receipts as a spreadsheet with one tap. Send straight to your accountant.</div>
+        <div class="lfeat-desc">Export all receipts as a spreadsheet with one tap. Send to your accountant or use for your Self Assessment return. Includes merchant, amount, date, category and notes.</div>
       </div>
       <div class="lfeat">
         <div class="lfeat-icon">✏️</div>
@@ -390,10 +443,10 @@ img{display:block;max-width:100%}
           <div class="lwho-card-icon">💼</div>
           <div class="lwho-card-title">Freelancers &amp; sole traders</div>
           <ul class="lwho-card-list">
-            <li>Log expenses as you go — not in a January panic</li>
-            <li>Track deductible costs against your Self Assessment</li>
-            <li>Export a clean CSV for your accountant</li>
-            <li>Keep 6 years of records for HMRC</li>
+            <li>Log expenses as you go — not in a January Self Assessment panic</li>
+            <li>Track deductible costs and reduce your tax bill</li>
+            <li>Export a clean CSV for your accountant or HMRC records</li>
+            <li>Keep 6 years of receipts — fully HMRC compliant</li>
           </ul>
         </div>
         <div class="lwho-card">
@@ -488,7 +541,7 @@ img{display:block;max-width:100%}
   <!-- Bottom CTA -->
   <section class="lcta">
     <h2 class="lcta-h2">January tax return?<br/>Start now, not then.</h2>
-    <p class="lcta-sub">Every receipt you scan today is one less thing to worry about at year end.<br/>Free to use. No card required.</p>
+    <p class="lcta-sub">Every receipt you scan today is one less thing to worry about at Self Assessment time.<br/>Free receipt scanner. No credit card. No app download.</p>
     <button class="lbtn-primary" onclick="showAuth('signup')" style="font-size:1.05rem;padding:18px 40px">📸 Start scanning free</button>
   </section>
 
@@ -500,7 +553,7 @@ img{display:block;max-width:100%}
         <span class="lfooter-link" onclick="showAuth('signup')">Create account</span>
         <a class="lfooter-link" href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a>
       </div>
-      <div class="lfooter-copy">© 2025 SnapReceipt. Built in the UK.</div>
+      <div class="lfooter-copy">© 2025 SnapReceipt — free receipt scanner app for UK freelancers. Built in the UK.</div>
     </div>
   </footer>
 
