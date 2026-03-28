@@ -128,8 +128,11 @@ img{display:block;max-width:100%}
 .scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y}
 
 /* Capture zone */
-.capture-zone{border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);min-height:120px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative;padding:16px;transition:all .15s}
-.capture-zone.has-photo{border-style:solid;border-color:var(--border);background:#fff;min-height:auto;padding:10px 12px}
+/* Weldswine-proven scan upload area */
+.scan-upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;background:var(--gray-0);flex:1}
+.scan-upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
+.scan-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.scan-upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 12px;pointer-events:none}
 .cz-icon{font-size:1.7rem;flex-shrink:0}
 .cz-label{font-size:.92rem;font-weight:600;color:var(--black)}
 .cz-sub{font-size:.76rem;color:var(--gray-5);margin-top:2px}
@@ -282,33 +285,39 @@ img{display:block;max-width:100%}
     <div style="width:72px"></div>
   </header>
   <div class="scan-body" id="scanBody">
-    <div class="capture-zone" id="captureZone">
-      <!-- Empty state: two tap targets, file inputs inside labels -->
-      <div id="czEmpty" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding:8px 0">
-        <span style="font-size:2rem">📷</span>
-        <div style="display:flex;gap:10px;width:100%;max-width:320px">
-          <label id="cameraLabel" class="cz-btn cz-btn-primary" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px">
-            <input type="file" id="captureInput"
-              accept="image/*"
-              capture="environment"
-              style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer"/>
-            📸 Take photo
-          </label>
-          <label id="galleryLabel" class="cz-btn cz-btn-secondary" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px">
-            <input type="file" id="galleryInput"
-              accept="image/*"
-              style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer"/>
-            🖼 Gallery
-          </label>
+    <!-- Scan area: weldswine pattern — div with file input inset:0 inside -->
+    <div id="czEmpty">
+      <div style="display:flex;gap:10px">
+
+        <!-- Camera: div > input[inset:0, opacity:0] + inner[pointer-events:none] -->
+        <div class="scan-upload-area" id="cameraArea">
+          <input type="file" id="captureInput" accept="image/*" capture="environment"/>
+          <div class="scan-upload-inner" style="pointer-events:none">
+            <div style="font-size:1.5rem">📸</div>
+            <div style="font-size:.85rem;font-weight:700;color:#111">Take photo</div>
+          </div>
         </div>
+
+        <!-- Gallery: same but no capture attribute -->
+        <div class="scan-upload-area" id="galleryArea">
+          <input type="file" id="galleryInput" accept="image/*"/>
+          <div class="scan-upload-inner" style="pointer-events:none">
+            <div style="font-size:1.5rem">🖼</div>
+            <div style="font-size:.85rem;font-weight:700;color:#111">Gallery</div>
+          </div>
+        </div>
+
       </div>
-      <!-- Has-photo state -->
-      <img class="cz-thumb" id="czThumb" alt=""/>
-      <div class="cz-status hidden" id="czStatus">
-        <div class="cz-status-title">Receipt captured ✓</div>
-        <div class="cz-status-sub" id="czStatusSub">AI is reading it…</div>
+    </div>
+
+    <!-- After photo taken -->
+    <div id="czHasPhoto" style="display:none">
+      <img id="czThumb" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid #e5e5e5"/>
+      <div id="czStatus" style="margin-top:10px">
+        <div style="font-size:.88rem;font-weight:700;color:#111">Receipt captured ✓</div>
+        <div id="czStatusSub" style="font-size:.78rem;color:#888;margin-top:2px">AI is reading it…</div>
       </div>
-      <button class="cz-retake hidden" id="czRetake" onclick="retake(event)">↩ Retake</button>
+      <button id="czRetake" onclick="retake(event)" style="margin-top:8px;background:none;border:1.5px solid #ccc;border-radius:20px;padding:6px 14px;font-size:.8rem;font-weight:600;color:#555;cursor:pointer">↩ Retake</button>
     </div>
     <div class="ocr-bar" id="ocrBar">
       <div class="ocr-spin"></div>
@@ -406,16 +415,16 @@ let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 // Reset value before each open so iOS always fires even if same file selected
 // This is exactly the pattern used in weldswine which works on all mobile browsers
 function _initFileInputs() {
-  const captureEl = document.getElementById('captureInput');
-  const galleryEl = document.getElementById('galleryInput');
-  const cameraLbl = document.getElementById('cameraLabel');
-  const galleryLbl= document.getElementById('galleryLabel');
+  const captureEl  = document.getElementById('captureInput');
+  const galleryEl  = document.getElementById('galleryInput');
+  const cameraArea = document.getElementById('cameraArea');
+  const galArea    = document.getElementById('galleryArea');
 
-  // Reset value on label click so iOS re-fires change even for same photo
-  if(cameraLbl)  cameraLbl.addEventListener('click',  () => { captureEl.value = ''; });
-  if(galleryLbl) galleryLbl.addEventListener('click', () => { galleryEl.value = ''; });
+  // Reset value before each open — weldswine fix so iOS always fires change
+  if(cameraArea) cameraArea.addEventListener('click', () => { captureEl.value = ''; });
+  if(galArea)    galArea.addEventListener('click',    () => { galleryEl.value = ''; });
 
-  // Listen to both change AND input — iOS Safari sometimes only fires one
+  // Both 'change' AND 'input' — iOS Safari sometimes only fires one of them
   ['change','input'].forEach(evt => {
     captureEl.addEventListener(evt, e => {
       if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
@@ -639,11 +648,9 @@ window.deleteReceipt = async (id) => {
 /* ── SCAN ───────────────────────────────────────────────── */
 window.openScan = () => {
   _imgB64 = null;
-  g('captureZone').classList.remove('has-photo');
-  g('czThumb').classList.remove('visible'); g('czThumb').src='';
-  g('czEmpty').style.display='flex';
-  g('czStatus').classList.add('hidden');
-  g('czRetake').classList.add('hidden');
+  g('czEmpty').style.display='';
+  g('czHasPhoto').style.display='none';
+  g('czThumb').src='';
   // Reset file inputs — critical for iOS to re-fire change event
   try{ g('captureInput').value=''; }catch(e){}
   try{ g('galleryInput').value=''; }catch(e){}
@@ -665,11 +672,9 @@ function _debouncedLoad(){ clearTimeout(_loadTimer); _loadTimer=setTimeout(loadR
 window.retake = (e) => {
   e.stopPropagation();
   _imgB64=null;
-  g('captureZone').classList.remove('has-photo');
-  g('czThumb').classList.remove('visible');
-  g('czEmpty').style.display='flex';
-  g('czStatus').classList.add('hidden');
-  g('czRetake').classList.add('hidden');
+  g('czEmpty').style.display='';
+  g('czHasPhoto').style.display='none';
+  g('czThumb').src='';
   try{ g('captureInput').value=''; }catch(e){}
   try{ g('galleryInput').value=''; }catch(e){}
   g('ocrBar').classList.remove('active');
@@ -681,24 +686,17 @@ window.onFileSelected = async (input) => {
   const file = input.files[0];
   if (!file) return;
 
-  // Show "processing" state immediately so user knows something happened
+  // Show processing state immediately
   g('czEmpty').style.display = 'none';
-  g('czStatus').classList.remove('hidden');
+  g('czHasPhoto').style.display = '';
   g('czStatusSub').textContent = 'Processing image…';
-  g('czRetake').classList.remove('hidden');
-  g('captureZone').classList.add('has-photo');
   g('ocrBar').classList.add('active');
 
-  // Convert image to JPEG
+  // Convert to JPEG using FileReader (weldswine pattern)
   let b64;
-  try {
-    b64 = await toJpeg(file);
-  } catch(e) {
-    b64 = null;
-  }
+  try { b64 = await toJpeg(file); } catch(e) { b64 = null; }
 
   if (!b64 || b64.length < 200) {
-    // Show fields anyway — user can fill manually
     toast('Image could not be processed — fill in manually');
     g('czStatusSub').textContent = 'Fill in details below';
     g('ocrBar').classList.remove('active');
@@ -708,9 +706,7 @@ window.onFileSelected = async (input) => {
   }
 
   _imgB64 = b64;
-  // Show thumbnail
   g('czThumb').src = b64;
-  g('czThumb').classList.add('visible');
   g('czStatusSub').textContent = 'AI is reading it…';
 
   await runOCR(b64);
@@ -750,12 +746,12 @@ async function runOCR(b64) {
     const conf = (data.confidence || 'medium').toLowerCase();
     const labels = { high: '✓ High confidence', medium: '~ Review fields', low: '⚠ Check fields carefully' };
     g('confBadge').innerHTML = `<div class="conf-badge ${conf}">${labels[conf] || conf}</div>`;
-    g('czStatusSub').textContent = 'Review details below';
+    if(g('czStatusSub')) g('czStatusSub').textContent = 'Review details below';
 
   } catch(err) {
     console.error('OCR error:', err);
     g('confBadge').innerHTML = `<div class="conf-badge low">⚠ Could not read — fill in manually</div>`;
-    g('czStatusSub').textContent = 'Fill in details below';
+    if(g('czStatusSub')) g('czStatusSub').textContent = 'Fill in details below';
   } finally {
     g('ocrBar').classList.remove('active');
     showConfirm();
