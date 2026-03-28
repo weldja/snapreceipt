@@ -129,7 +129,7 @@ img{display:block;max-width:100%}
 
 /* Capture zone */
 /* Weldswine-proven scan upload area */
-.scan-upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;background:var(--gray-0);flex:1}
+.scan-upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;background:var(--gray-0)}
 .scan-upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
 .scan-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
 .scan-upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 12px;pointer-events:none}
@@ -289,11 +289,19 @@ img{display:block;max-width:100%}
     <div id="czEmpty">
       <div style="display:flex;gap:10px">
 
-        <div class="scan-upload-area" id="cameraArea" style="flex:1" onclick="document.getElementById('captureInput').click()">
+        <!-- Weldswine exact pattern: input sits at inset:0 inside div, inner has pointer-events:none -->
+        <div class="scan-upload-area" id="cameraArea" style="flex:1">
+          <input type="file" id="captureInput" accept="image/*" capture="environment"/>
           <div class="scan-upload-inner" style="pointer-events:none">
             <div style="font-size:2.2rem">📷</div>
-            <div style="font-size:.95rem;font-weight:700;color:#111">Tap to scan receipt</div>
-            <div style="font-size:.76rem;color:#888;margin-top:2px">Camera or gallery</div>
+            <div style="font-size:.95rem;font-weight:700;color:#111">Camera</div>
+          </div>
+        </div>
+        <div class="scan-upload-area" id="galleryArea" style="flex:1">
+          <input type="file" id="galleryInput" accept="image/*"/>
+          <div class="scan-upload-inner" style="pointer-events:none">
+            <div style="font-size:2.2rem">🖼</div>
+            <div style="font-size:.95rem;font-weight:700;color:#111">Gallery</div>
           </div>
         </div>
 
@@ -309,12 +317,6 @@ img{display:block;max-width:100%}
       </div>
       <button id="czRetake" onclick="retake(event)" style="margin-top:8px;background:none;border:1.5px solid #ccc;border-radius:20px;padding:6px 14px;font-size:.8rem;font-weight:600;color:#555;cursor:pointer">↩ Retake</button>
     </div>
-    <!-- DEBUG PANEL — remove after fixing -->
-    <div id="debugPanel" style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px;font-size:.75rem;font-family:monospace;max-height:120px;overflow-y:auto;display:none">
-      <strong>Debug log:</strong><br/>
-      <div id="debugLog"></div>
-    </div>
-
     <div class="ocr-bar" id="ocrBar">
       <div class="ocr-spin"></div>
       <div class="ocr-bar-text">Reading receipt…</div>
@@ -394,12 +396,6 @@ img{display:block;max-width:100%}
 
 <div class="toast" id="toast"></div>
 
-<!-- File inputs outside all screens — always in DOM so events fire reliably on Android -->
-<input type="file" id="captureInput" accept="image/*"
-  style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"/>
-<input type="file" id="galleryInput" accept="image/*"
-  style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"/>
-
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -417,53 +413,26 @@ let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 // Reset value before each open so iOS always fires even if same file selected
 // This is exactly the pattern used in weldswine which works on all mobile browsers
 function _initFileInputs() {
-  const captureEl = document.getElementById('captureInput');
-  const galleryEl = document.getElementById('galleryInput');
-
-  function dbg(msg) {
-    const p = document.getElementById('debugPanel');
-    const l = document.getElementById('debugLog');
-    if (p && l) {
-      p.style.display = 'block';
-      l.innerHTML += new Date().toLocaleTimeString() + ': ' + msg + '<br>';
-      p.scrollTop = p.scrollHeight;
-    }
-  }
-
-  function handleFile(input) {
-    dbg('handleFile: files=' + (input && input.files ? input.files.length : 'null'));
-    if (input && input.files && input.files[0]) {
-      window.onFileSelected(input);
-    }
-  }
-
-  if (captureEl) {
-    dbg('listeners attached to captureInput');
-    ['change','input'].forEach(evt => {
-      captureEl.addEventListener(evt, e => {
-        dbg('captureInput ' + evt + ' fired, files=' + (e.target.files ? e.target.files.length : 0));
-        if (e.target.files && e.target.files[0]) handleFile(captureEl);
-      });
+  // Weldswine exact pattern
+  ['change','input'].forEach(function(evt) {
+    document.getElementById('captureInput').addEventListener(evt, function(e) {
+      if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
     });
-  } else {
-    dbg('ERROR: captureInput not found!');
-  }
-  if (galleryEl) {
-    dbg('listeners attached to galleryInput');
-    ['change','input'].forEach(evt => {
-      galleryEl.addEventListener(evt, e => {
-        dbg('galleryInput ' + evt + ' fired, files=' + (e.target.files ? e.target.files.length : 0));
-        if (e.target.files && e.target.files[0]) handleFile(galleryEl);
-      });
+    document.getElementById('galleryInput').addEventListener(evt, function(e) {
+      if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
     });
-  }
-
-  // Reset on area click so Android re-fires even if same photo selected
-  const ca = document.getElementById('cameraArea');
-  const ga = document.getElementById('galleryArea');
-  if (ca) ca.addEventListener('click', () => { dbg('cameraArea clicked — reset + open'); captureEl.value = ''; });
-  if (ga) ga.addEventListener('click', () => { dbg('galleryArea clicked — reset + open'); galleryEl.value = ''; });
+  });
+  // Reset value on area click — weldswine iOS fix
+  document.getElementById('cameraArea').addEventListener('click', function() {
+    document.getElementById('captureInput').value = '';
+  });
+  document.getElementById('galleryArea').addEventListener('click', function() {
+    document.getElementById('galleryInput').value = '';
+  });
 }
+// Init file inputs at DOM ready — weldswine pattern
+document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
+
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
   const scanActive = g('scanScreen').classList.contains('active');
@@ -685,12 +654,6 @@ window.openScan = () => {
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
   show('scanScreen');
   history.pushState({snap:'scan'}, '');
-  // Attach file input listeners now that elements are in the DOM
-  // Guard flag so we only attach once
-  if (!window._fileInputsInit) {
-    window._fileInputsInit = true;
-    _initFileInputs();
-  }
 };
 
 window.goHome = () => { show('homeScreen'); _debouncedLoad(); };
