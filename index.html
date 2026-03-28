@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>SnapReceipt — Scan receipts instantly</title>
-  <meta name="description" content="The fastest way to log receipts. Scan, confirm, done. Built for UK freelancers."/>
-  <meta name="theme-color" content="#ffffff"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-  <meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
-  <link rel="canonical" href="https://snapreceipt.co.uk/"/>
-  <style>
-/* ─── RESET ───────────────────────────────────────────── */
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>SnapReceipt — Scan receipts instantly</title>
+<meta name="description" content="The fastest way to log receipts. Scan, confirm, done."/>
+<meta name="theme-color" content="#ffffff"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
+<link rel="canonical" href="https://snapreceipt.co.uk/"/>
+<style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#fff;color:#111;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-input,select,textarea{font-family:inherit}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 img{display:block;max-width:100%}
 
-/* ─── TOKENS ──────────────────────────────────────────── */
 :root{
-  --black:#111;--gray-9:#1a1a1a;--gray-7:#555;--gray-5:#888;
-  --gray-3:#ccc;--gray-1:#f5f5f5;--gray-0:#fafafa;--white:#fff;
+  --black:#111;--gray-7:#555;--gray-5:#888;--gray-3:#ccc;
+  --gray-1:#f5f5f5;--gray-0:#fafafa;
   --blue:#0066ff;--blue-lt:#e8f0ff;--blue-mid:#c5d8ff;
   --green:#00a651;--green-lt:#e6f5ed;
   --red:#e53935;--red-lt:#fdecea;
@@ -31,44 +29,42 @@ img{display:block;max-width:100%}
   --shadow-md:0 4px 20px rgba(0,0,0,.1);
 }
 
-/* ─── SCREENS ─────────────────────────────────────────── */
+/* ── SCREENS ─────────────────────────────────────── */
 .screen{display:none}
 .screen.active{display:flex;flex-direction:column}
 #authScreen{min-height:100dvh;min-height:100vh}
 #homeScreen{min-height:100dvh;min-height:100vh;background:var(--gray-0)}
-#scanScreen{height:100dvh;height:100vh;overflow:hidden;background:#fff;/* iOS Safari: prevent bounce */position:fixed;width:100%;top:0;left:0}
-#scanScreen.active{position:relative}
+#scanScreen{height:100dvh;height:100vh;overflow:hidden;background:#fff}
 
-/* ─── AUTH ────────────────────────────────────────────── */
+/* ── AUTH ────────────────────────────────────────── */
 .auth-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 48px;max-width:420px;margin:0 auto;width:100%}
-.auth-brand{text-align:center;margin-bottom:44px}
-.auth-brand-icon{width:64px;height:64px;background:var(--black);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px}
-.auth-brand-name{font-size:1.5rem;font-weight:700;color:var(--black);letter-spacing:-.03em}
-.auth-brand-tag{font-size:.85rem;color:var(--gray-5);margin-top:4px}
+.auth-brand{text-align:center;margin-bottom:40px}
+.auth-brand-icon{width:72px;height:72px;background:var(--black);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 14px}
+.auth-brand-name{font-size:1.7rem;font-weight:800;color:var(--black);letter-spacing:-.04em}
+.auth-brand-tag{font-size:.88rem;color:var(--gray-5);margin-top:6px}
 .auth-tabs{display:flex;background:var(--gray-1);border-radius:var(--r);padding:3px;gap:3px;margin-bottom:24px;width:100%}
 .auth-tab{flex:1;padding:9px;border:none;background:none;border-radius:8px;font-size:.88rem;font-weight:500;color:var(--gray-5);transition:all .15s}
 .auth-tab.active{background:#fff;color:var(--black);font-weight:700;box-shadow:var(--shadow)}
 .auth-form{width:100%;display:flex;flex-direction:column;gap:12px}
-.field-label{display:block;font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
-.text-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;color:var(--black);font-size:1rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
-.text-input:focus{border-color:var(--blue)}
-.btn-primary{width:100%;padding:14px;background:var(--black);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;letter-spacing:-.01em;transition:opacity .15s,transform .1s}
-.btn-primary:active{transform:scale(.98);opacity:.9}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed}
-.auth-msg{font-size:.85rem;padding:10px 12px;border-radius:var(--r);display:none;line-height:1.4}
-.auth-msg.ok{display:block;background:var(--green-lt);color:var(--green)}
-.auth-msg.err{display:block;background:var(--red-lt);color:var(--red)}
-.auth-link-row{text-align:center;margin-top:6px}
-.auth-link{background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:underline;padding:0}
+.fl{display:block;font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.ti{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;color:var(--black);font-size:1rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.ti:focus{border-color:var(--blue)}
+.btn-p{width:100%;padding:14px;background:var(--black);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;letter-spacing:-.01em;transition:opacity .15s,transform .1s}
+.btn-p:active{transform:scale(.98);opacity:.9}
+.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.amsg{font-size:.85rem;padding:10px 12px;border-radius:var(--r);display:none;line-height:1.4}
+.amsg.ok{display:block;background:var(--green-lt);color:var(--green)}
+.amsg.err{display:block;background:var(--red-lt);color:var(--red)}
+.alink-row{text-align:center;margin-top:6px}
+.alink{background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:underline;padding:0}
 
-/* ─── HOME HEADER ─────────────────────────────────────── */
-.home-header{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0}
-.home-brand{font-size:1.05rem;font-weight:800;color:var(--black);letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
-.home-brand-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;flex-shrink:0}
-.header-btn{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.82rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:6px;transition:all .15s}
-.header-btn:hover{border-color:var(--gray-3);background:var(--gray-0)}
+/* ── HOME ────────────────────────────────────────── */
+.hdr{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0}
+.hdr-brand{font-size:1.05rem;font-weight:800;color:var(--black);letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
+.hdr-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;flex-shrink:0}
+.hdr-btn{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.82rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:6px;transition:all .15s}
+.hdr-btn:hover{border-color:var(--gray-3);background:var(--gray-0)}
 
-/* ─── STATS BAR ───────────────────────────────────────── */
 .stats-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
 .stats-bar::-webkit-scrollbar{display:none}
 .stat-item{padding:10px 16px 10px 0;flex-shrink:0;border-right:1px solid var(--border);margin-right:16px}
@@ -77,156 +73,145 @@ img{display:block;max-width:100%}
 .stat-val.blue{color:var(--blue)}
 .stat-key{font-size:.66rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
 
-/* ─── MONTH HEADER ────────────────────────────────────── */
-.month-header{padding:18px 12px 6px;display:flex;align-items:baseline;justify-content:space-between}
-.month-label{font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.08em}
-.month-total{font-size:1.25rem;font-weight:800;color:var(--black);letter-spacing:-.03em}
+.search-wrap{padding:10px 12px 0}
+.search-inner{position:relative}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-5);font-size:.9rem;pointer-events:none}
+.search-input{width:100%;padding:10px 12px 10px 34px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.92rem;outline:none;-webkit-appearance:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--blue)}
 
-/* ─── RECEIPT LIST ────────────────────────────────────── */
-.receipt-list{flex:1;padding:0 12px 120px;display:flex;flex-direction:column;gap:6px}
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 140px;text-align:center;gap:10px}
+.month-hdr{padding:16px 12px 6px;display:flex;align-items:baseline;justify-content:space-between}
+.month-lbl{font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.08em}
+.month-tot{font-size:1.2rem;font-weight:800;color:var(--black);letter-spacing:-.03em}
+
+.rlist{flex:1;padding:0 12px 120px;display:flex;flex-direction:column;gap:6px}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 140px;text-align:center;gap:10px}
 .empty-icon{font-size:3rem;opacity:.25}
-.empty-title{font-size:1.1rem;font-weight:700;color:var(--black)}
+.empty-title{font-size:1.1rem;font-weight:700}
 .empty-sub{font-size:.88rem;color:var(--gray-5);line-height:1.6;max-width:240px}
 
-/* Receipt row */
-.receipt-row{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;animation:fadeUp .22s ease both;box-shadow:var(--shadow)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.receipt-row:active{opacity:.85;transform:scale(.99)}
-.receipt-row:hover{border-color:var(--gray-3);box-shadow:var(--shadow-md)}
-.receipt-row.expanded{border-color:var(--black);box-shadow:var(--shadow-md)}
-.receipt-row-main{display:flex;align-items:center;gap:14px;padding:14px 16px}
-.receipt-thumb{width:44px;height:56px;border-radius:8px;background:var(--gray-1);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-3);border:1px solid var(--border)}
-.receipt-thumb img{width:100%;height:100%;object-fit:cover}
-.receipt-info{flex:1;min-width:0}
-.receipt-merchant{font-size:1rem;font-weight:700;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
-.receipt-date{font-size:.75rem;color:var(--gray-5);margin-top:4px;font-weight:500}
-.receipt-amount{font-size:1.1rem;font-weight:800;color:var(--black);letter-spacing:-.02em;flex-shrink:0;text-align:right}
-.receipt-currency{font-size:.68rem;color:var(--gray-5);text-align:right;margin-top:2px;font-weight:600;text-transform:uppercase}
+.rrow{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;animation:fadeUp .2s ease both;box-shadow:var(--shadow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rrow:active{opacity:.85}
+.rrow.expanded{border-color:var(--black);box-shadow:var(--shadow-md)}
+.rrow-main{display:flex;align-items:center;gap:12px;padding:13px 14px}
+.rthumb{width:44px;height:56px;border-radius:8px;background:var(--gray-1);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-3);border:1px solid var(--border)}
+.rthumb img{width:100%;height:100%;object-fit:cover}
+.rinfo{flex:1;min-width:0}
+.rmerchant{font-size:1rem;font-weight:700;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.rdate{font-size:.74rem;color:var(--gray-5);margin-top:3px;font-weight:500}
+.rcat{display:inline-block;margin-top:4px;padding:2px 7px;border-radius:20px;background:var(--gray-1);font-size:.67rem;font-weight:700;color:var(--gray-7);border:1px solid var(--border)}
+.ramount{font-size:1.1rem;font-weight:800;color:var(--black);letter-spacing:-.02em;flex-shrink:0;text-align:right}
+.rcurrency{font-size:.68rem;color:var(--gray-5);text-align:right;margin-top:2px;font-weight:600;text-transform:uppercase}
 
-/* Expanded detail */
-.receipt-detail{display:none;border-top:1px solid var(--border);padding:14px;background:var(--gray-0);flex-direction:column;gap:12px}
-.receipt-row.expanded .receipt-detail{display:flex}
-.receipt-detail-img{width:100%;max-height:180px;object-fit:contain;border-radius:var(--r);border:1px solid var(--border);background:#fff}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.detail-cell-label{font-size:.66rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
-.detail-cell-val{font-size:.9rem;font-weight:600;color:var(--black)}
-.detail-actions{display:flex;gap:8px}
-.btn-outline{flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.85rem;font-weight:600;color:var(--gray-7);transition:all .15s;cursor:pointer}
-.btn-outline:hover{border-color:var(--gray-3)}
-.btn-outline.danger{color:var(--red);border-color:var(--red)}
-.btn-outline.danger:hover{background:var(--red-lt)}
+.rdetail{display:none;border-top:1px solid var(--border);padding:14px;background:var(--gray-0);flex-direction:column;gap:12px}
+.rrow.expanded .rdetail{display:flex}
+.rdetail-img{width:100%;max-height:200px;object-fit:contain;border-radius:var(--r);border:1px solid var(--border);background:#fff}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dcell-lbl{font-size:.66rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.dcell-val{font-size:.9rem;font-weight:600;color:var(--black)}
+.dactions{display:flex;gap:8px}
+.btn-out{flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.85rem;font-weight:600;color:var(--gray-7);transition:all .15s;cursor:pointer}
+.btn-out.danger{color:var(--red);border-color:var(--red)}
+.btn-out.danger:hover{background:var(--red-lt)}
 
-/* ─── SCAN FAB ────────────────────────────────────────── */
 .scan-fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom,20px));left:50%;transform:translateX(-50%);z-index:100;background:var(--black);color:#fff;border:none;border-radius:100px;padding:16px 36px;font-size:1rem;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;box-shadow:0 4px 24px rgba(0,0,0,.22);white-space:nowrap;transition:transform .15s,box-shadow .15s}
 .scan-fab:active{transform:translateX(-50%) scale(.96);box-shadow:0 2px 12px rgba(0,0,0,.18)}
 
-/* ─── SCAN SCREEN ─────────────────────────────────────── */
-.scan-header{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;background:#fff}
+/* ── SCAN ────────────────────────────────────────── */
+.scan-hdr{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;background:#fff}
 .scan-back{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.85rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:5px;transition:all .15s}
-.scan-back:hover{border-color:var(--gray-3)}
-.scan-title-text{font-size:.95rem;font-weight:700;color:var(--black)}
-.scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y}
+.scan-title{font-size:.95rem;font-weight:700;color:var(--black)}
+.scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:12px;touch-action:pan-y}
 
-/* Capture zone */
-/* Weldswine-proven scan upload area */
-.scan-upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;background:var(--gray-0)}
-.scan-upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
-.scan-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
-.scan-upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 12px;pointer-events:none}
-.cz-icon{font-size:1.7rem;flex-shrink:0}
-.cz-label{font-size:.92rem;font-weight:600;color:var(--black)}
-.cz-sub{font-size:.76rem;color:var(--gray-5);margin-top:2px}
-.cz-thumb{width:44px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;display:none}
-.cz-thumb.visible{display:block}
-.cz-status{flex:1;min-width:0}
-.cz-status-title{font-size:.88rem;font-weight:700;color:var(--black)}
-.cz-status-sub{font-size:.74rem;color:var(--gray-5);margin-top:2px}
-.cz-retake{flex-shrink:0;height:36px;padding:0 14px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.82rem;font-weight:600;color:var(--gray-7);display:none;align-items:center;gap:4px;z-index:3;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.cz-retake.visible{display:flex}
-.cz-btn{flex:1;padding:12px 8px;border-radius:var(--r);font-size:.9rem;font-weight:700;cursor:pointer;touch-action:manipulation;border:none;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent}
-.cz-btn-primary{background:var(--black);color:#fff}
-.cz-btn-primary:active{opacity:.85}
-.cz-btn-secondary{background:var(--gray-1);color:var(--black);border:1.5px solid var(--border)}
-.cz-btn-secondary:active{background:var(--border)}
+/* Upload areas — weldswine proven pattern */
+.upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);overflow:hidden;cursor:pointer;transition:all .2s;flex:1}
+.upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
+.upload-area input[type="file"]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2}
+.upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px;pointer-events:none}
 
-/* OCR bar */
+/* After photo taken */
+.captured-strip{display:none;align-items:center;gap:12px;padding:10px 12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg)}
+.captured-strip.show{display:flex}
+.cap-thumb{width:48px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0}
+.cap-info{flex:1;min-width:0}
+.cap-title{font-size:.88rem;font-weight:700;color:var(--black)}
+.cap-sub{font-size:.74rem;color:var(--gray-5);margin-top:2px}
+.cap-retake{flex-shrink:0;padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer}
+
 .ocr-bar{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-lt);border-radius:var(--r);border:1px solid var(--blue-mid)}
-.ocr-bar.active{display:flex}
+.ocr-bar.on{display:flex}
 .ocr-spin{width:16px;height:16px;border:2px solid var(--blue-mid);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ocr-bar-text{font-size:.85rem;font-weight:600;color:var(--blue)}
+.ocr-text{font-size:.85rem;font-weight:600;color:var(--blue)}
 
-/* Confirm fields */
-.confirm-fields{display:none;flex-direction:column;gap:10px}
-.confirm-fields.active{display:flex}
-.conf-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:700;width:fit-content}
-.conf-badge.high{background:var(--green-lt);color:var(--green)}
-.conf-badge.medium{background:#fff8e1;color:#b45309;border:1px solid #fde68a}
-.conf-badge.low{background:var(--red-lt);color:var(--red)}
-.field-group{display:flex;flex-direction:column;gap:4px}
-.form-input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;color:var(--black);font-size:.97rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
-.form-input:focus{border-color:var(--blue)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.amount-wrap{position:relative}
-.amount-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--gray-5);font-size:.95rem;pointer-events:none}
-.form-input.pl{padding-left:24px}
+.cfields{display:none;flex-direction:column;gap:12px}
+.cfields.on{display:flex}
+.cbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:700;width:fit-content}
+.cbadge.high{background:var(--green-lt);color:var(--green)}
+.cbadge.medium{background:#fff8e1;color:#b45309;border:1px solid #fde68a}
+.cbadge.low{background:var(--red-lt);color:var(--red)}
+.fg{display:flex;flex-direction:column;gap:4px}
+.field-lbl{font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em}
+.fi{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;color:var(--black);font-size:.97rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.fi:focus{border-color:var(--blue)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.amtwrap{position:relative}
+.amtpfx{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--gray-5);font-size:.95rem;pointer-events:none}
+.fi.pl{padding-left:24px}
 
-/* Save bar — flex child, never overlaps */
 .save-bar{flex-shrink:0;padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom,10px));background:#fff;border-top:1px solid var(--border);gap:10px;align-items:center;display:none}
-.save-bar.active{display:flex}
+.save-bar.on{display:flex}
 .btn-save{flex:1;padding:14px;background:var(--black);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;letter-spacing:-.01em;transition:opacity .15s,transform .1s}
 .btn-save:active{transform:scale(.98);opacity:.9}
 .btn-save:disabled{opacity:.4}
-.btn-cancel{flex-shrink:0;padding:14px 18px;background:var(--gray-1);color:var(--gray-7);border:none;border-radius:var(--r);font-size:.9rem;font-weight:600;transition:background .15s}
-.btn-cancel:hover{background:var(--border)}
+.btn-cancel{flex-shrink:0;padding:14px 18px;background:var(--gray-1);color:var(--gray-7);border:none;border-radius:var(--r);font-size:.9rem;font-weight:600}
 
-/* ─── SUCCESS OVERLAY ─────────────────────────────────── */
-.success-overlay{position:fixed;inset:0;z-index:500;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:40px}
-.success-overlay.show{display:flex;animation:fadeScaleIn .22s cubic-bezier(.34,1.56,.64,1)}
-@keyframes fadeScaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
-.success-icon{font-size:4rem;animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both;animation-delay:.05s}
-@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.success-amount{font-size:2.4rem;font-weight:800;color:var(--black);letter-spacing:-.04em;animation:fadeScaleIn .3s ease both;animation-delay:.15s}
-.success-title{font-size:1rem;font-weight:600;color:var(--gray-5);letter-spacing:-.01em;animation:fadeScaleIn .3s ease both;animation-delay:.2s}
-.success-sub{font-size:.88rem;color:var(--gray-5);line-height:1.5;animation:fadeScaleIn .3s ease both;animation-delay:.25s}
-.success-divider{width:40px;height:3px;background:var(--border);border-radius:2px;animation:fadeScaleIn .3s ease both;animation-delay:.3s}
+/* ── SUCCESS ─────────────────────────────────────── */
+.success-ov{position:fixed;inset:0;z-index:500;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:40px}
+.success-ov.on{display:flex;animation:succ .22s ease}
+@keyframes succ{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.succ-icon{font-size:4rem;animation:pop .3s cubic-bezier(.34,1.56,.64,1) both .05s}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.succ-amt{font-size:2.4rem;font-weight:800;color:var(--black);letter-spacing:-.04em}
+.succ-merchant{font-size:1rem;font-weight:600;color:var(--gray-5)}
+.succ-sub{font-size:.85rem;color:var(--gray-5);line-height:1.5}
 
-/* ─── SHEETS ──────────────────────────────────────────── */
-.sheet-bg{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.4);display:none;align-items:flex-end}
-.sheet-bg.open{display:flex}
-.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px))}
+/* ── SHEETS ──────────────────────────────────────── */
+.sheet-bg{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
+.sheet-bg.on{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px));max-height:92vh;overflow-y:auto}
 .sheet-handle{width:36px;height:4px;background:var(--gray-3);border-radius:2px;margin:12px auto 16px}
 .sheet-item{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:.95rem;font-weight:600;color:var(--black);border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
 .sheet-item:hover{background:var(--gray-0)}
-.sheet-item-icon{font-size:1.1rem;width:22px;text-align:center}
+.sicon{font-size:1.1rem;width:22px;text-align:center}
 .sheet-item.muted{color:var(--gray-5);font-size:.85rem}
 .sheet-item.danger{color:var(--red)}
-.sheet-divider{height:1px;background:var(--border);margin:4px 0}
-.sheet-body{padding:0 20px 8px}
-.sheet-body h3{font-size:1.05rem;font-weight:700;margin-bottom:6px;color:var(--black)}
-.sheet-body p{font-size:.88rem;color:var(--gray-5);margin-bottom:18px;line-height:1.5}
+.sdiv{height:1px;background:var(--border);margin:4px 0}
+.sbody{padding:0 20px 8px}
+.sbody h3{font-size:1.05rem;font-weight:700;margin-bottom:14px;color:var(--black)}
+.sform{display:flex;flex-direction:column;gap:12px}
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sbtns{display:flex;gap:10px;padding-top:4px}
 
-/* ─── TOAST ───────────────────────────────────────────── */
-.toast{position:fixed;bottom:max(88px,calc(env(safe-area-inset-bottom,0px) + 88px));left:50%;transform:translateX(-50%) translateY(12px);background:var(--black);color:#fff;padding:9px 18px;border-radius:50px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:9999;opacity:0;transition:opacity .18s,transform .18s;pointer-events:none}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ── TOAST ───────────────────────────────────────── */
+.toast{position:fixed;bottom:max(90px,calc(env(safe-area-inset-bottom,0px)+90px));left:50%;transform:translateX(-50%) translateY(10px);background:var(--black);color:#fff;padding:9px 18px;border-radius:50px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:9999;opacity:0;transition:opacity .18s,transform .18s;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ─── SKELETON ────────────────────────────────────────── */
-.skeleton{background:linear-gradient(90deg,var(--gray-1) 25%,#ececec 50%,var(--gray-1) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:6px}
-@keyframes shimmer{to{background-position:-200% 0}}
-
+/* ── SKELETON ────────────────────────────────────── */
+.skel{background:linear-gradient(90deg,var(--gray-1) 25%,#ececec 50%,var(--gray-1) 75%);background-size:200% 100%;animation:shim 1.3s infinite;border-radius:6px}
+@keyframes shim{to{background-position:-200% 0}}
 .hidden{display:none!important}
-  </style>
+</style>
 </head>
 <body>
 
-<!-- AUTH -->
+<!-- ═══ AUTH ═════════════════════════════════════════════ -->
 <div id="authScreen" class="screen">
   <div class="auth-wrap">
     <div class="auth-brand">
-      <div class="auth-brand-icon" style="width:72px;height:72px;font-size:2.2rem;border-radius:22px">🧾</div>
-      <div class="auth-brand-name" style="font-size:1.7rem;margin-top:4px">SnapReceipt</div>
-      <div class="auth-brand-tag" style="font-size:.9rem;margin-top:6px">The fastest way to log expenses</div>
+      <div class="auth-brand-icon">🧾</div>
+      <div class="auth-brand-name">SnapReceipt</div>
+      <div class="auth-brand-tag">The fastest way to log expenses</div>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tabSignin" onclick="authTab('signin')">Sign in</button>
@@ -234,40 +219,35 @@ img{display:block;max-width:100%}
       <button class="auth-tab" id="tabReset"  onclick="authTab('reset')">Reset</button>
     </div>
     <div id="formSignin" class="auth-form">
-      <div><label class="field-label">Email</label>
-        <input class="text-input" id="siEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
-      <div><label class="field-label">Password</label>
-        <input class="text-input" id="siPass" type="password" placeholder="Your password" autocomplete="current-password"/></div>
-      <button class="btn-primary" id="btnSignin" onclick="doSignin()">Sign in →</button>
-      <div class="auth-msg" id="siMsg"></div>
-      <div class="auth-link-row"><button class="auth-link" onclick="authTab('reset')">Forgot password?</button></div>
+      <div><label class="fl">Email</label><input class="ti" id="siEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div><label class="fl">Password</label><input class="ti" id="siPass" type="password" placeholder="Your password" autocomplete="current-password"/></div>
+      <button class="btn-p" id="btnSignin" onclick="doSignin()">Sign in →</button>
+      <div class="amsg" id="siMsg"></div>
+      <div class="alink-row"><button class="alink" onclick="authTab('reset')">Forgot password?</button></div>
     </div>
     <div id="formSignup" class="auth-form hidden">
-      <div><label class="field-label">Email</label>
-        <input class="text-input" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
-      <div><label class="field-label">Password</label>
-        <input class="text-input" id="suPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
-      <button class="btn-primary" id="btnSignup" onclick="doSignup()">Create account →</button>
-      <div class="auth-msg" id="suMsg"></div>
+      <div><label class="fl">Email</label><input class="ti" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div><label class="fl">Password</label><input class="ti" id="suPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+      <button class="btn-p" id="btnSignup" onclick="doSignup()">Create account →</button>
+      <div class="amsg" id="suMsg"></div>
     </div>
     <div id="formReset" class="auth-form hidden">
-      <p style="font-size:.88rem;color:var(--gray-5);line-height:1.5">We'll send a reset link to your email.</p>
-      <div><label class="field-label">Email</label>
-        <input class="text-input" id="rstEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
-      <button class="btn-primary" id="btnReset" onclick="doReset()">Send reset link →</button>
-      <div class="auth-msg" id="rstMsg"></div>
-      <div class="auth-link-row"><button class="auth-link" onclick="authTab('signin')">← Back to sign in</button></div>
+      <p style="font-size:.88rem;color:var(--gray-5);line-height:1.5;margin-bottom:4px">We'll send a reset link to your email.</p>
+      <div><label class="fl">Email</label><input class="ti" id="rstEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <button class="btn-p" id="btnReset" onclick="doReset()">Send reset link →</button>
+      <div class="amsg" id="rstMsg"></div>
+      <div class="alink-row"><button class="alink" onclick="authTab('signin')">← Back to sign in</button></div>
     </div>
   </div>
 </div>
 
-<!-- HOME -->
+<!-- ═══ HOME ══════════════════════════════════════════════ -->
 <div id="homeScreen" class="screen">
-  <header class="home-header">
-    <div class="home-brand"><div class="home-brand-dot"></div>SnapReceipt</div>
+  <header class="hdr">
+    <div class="hdr-brand"><div class="hdr-dot"></div>SnapReceipt</div>
     <div style="display:flex;gap:8px">
-      <button class="header-btn" onclick="exportCSV()">⬇ Export</button>
-      <button class="header-btn" onclick="openMenu()">⋯</button>
+      <button class="hdr-btn" onclick="exportCSV()">⬇ Export</button>
+      <button class="hdr-btn" onclick="openMenu()">⋯</button>
     </div>
   </header>
   <div class="stats-bar">
@@ -276,118 +256,110 @@ img{display:block;max-width:100%}
     <div class="stat-item"><div class="stat-val" id="statYear">£0.00</div><div class="stat-key">Tax year</div></div>
     <div class="stat-item"><div class="stat-val" id="statVAT">£0.00</div><div class="stat-key">VAT logged</div></div>
   </div>
-  <div style="padding:10px 12px 0">
-    <div style="position:relative">
-      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#888;font-size:.95rem;pointer-events:none">🔍</span>
-      <input id="searchInput" type="search" placeholder="Search receipts…"
-        style="width:100%;padding:10px 12px 10px 36px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.92rem;outline:none;-webkit-appearance:none"
-        oninput="filterReceipts(this.value)"/>
+  <div class="search-wrap">
+    <div class="search-inner">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="search" placeholder="Search receipts…" oninput="filterReceipts(this.value)"/>
     </div>
   </div>
-  <div id="receiptList" class="receipt-list"></div>
+  <div id="rlist" class="rlist"></div>
   <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
 </div>
 
-<!-- SCAN -->
+<!-- ═══ SCAN ═══════════════════════════════════════════════ -->
 <div id="scanScreen" class="screen">
-  <header class="scan-header">
+  <header class="scan-hdr">
     <button class="scan-back" onclick="goHome()">← Back</button>
-    <span class="scan-title-text">Scan Receipt</span>
+    <span class="scan-title">Scan Receipt</span>
     <div style="width:72px"></div>
   </header>
   <div class="scan-body" id="scanBody">
-    <!-- Scan area: weldswine pattern — div with file input inset:0 inside -->
-    <div id="czEmpty">
-      <div style="display:flex;gap:10px">
 
-        <!-- Weldswine exact pattern: input sits at inset:0 inside div, inner has pointer-events:none -->
-        <div class="scan-upload-area" id="cameraArea" style="flex:1">
-          <input type="file" id="captureInput" accept="image/*" capture="environment"/>
-          <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:2.2rem">📷</div>
-            <div style="font-size:.95rem;font-weight:700;color:#111">Camera</div>
-          </div>
+    <!-- Upload buttons — file inputs sit inside divs at inset:0, inner has pointer-events:none -->
+    <div id="uploadZone" style="display:flex;gap:10px">
+      <div class="upload-area" id="cameraArea">
+        <input type="file" id="captureInput" accept="image/*" capture="environment"/>
+        <div class="upload-inner" style="pointer-events:none">
+          <div style="font-size:1.8rem">📷</div>
+          <div style="font-size:.88rem;font-weight:700;color:#111;margin-top:2px">Camera</div>
         </div>
-        <div class="scan-upload-area" id="galleryArea" style="flex:1">
-          <input type="file" id="galleryInput" accept="image/*"/>
-          <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:2.2rem">🖼</div>
-            <div style="font-size:.95rem;font-weight:700;color:#111">Gallery</div>
-          </div>
+      </div>
+      <div class="upload-area" id="galleryArea">
+        <input type="file" id="galleryInput" accept="image/*"/>
+        <div class="upload-inner" style="pointer-events:none">
+          <div style="font-size:1.8rem">🖼</div>
+          <div style="font-size:.88rem;font-weight:700;color:#111;margin-top:2px">Gallery</div>
         </div>
-
       </div>
     </div>
 
-    <!-- After photo taken -->
-    <div id="czHasPhoto" style="display:none">
-      <img id="czThumb" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid #e5e5e5"/>
-      <div id="czStatus" style="margin-top:10px">
-        <div style="font-size:.88rem;font-weight:700;color:#111">Receipt captured ✓</div>
-        <div id="czStatusSub" style="font-size:.78rem;color:#888;margin-top:2px">AI is reading it…</div>
+    <!-- After photo selected -->
+    <div class="captured-strip" id="capturedStrip">
+      <img class="cap-thumb" id="capThumb" alt=""/>
+      <div class="cap-info">
+        <div class="cap-title">Receipt captured ✓</div>
+        <div class="cap-sub" id="capSub">AI is reading it…</div>
       </div>
-      <button id="czRetake" onclick="retake(event)" style="margin-top:8px;background:none;border:1.5px solid #ccc;border-radius:20px;padding:6px 14px;font-size:.8rem;font-weight:600;color:#555;cursor:pointer">↩ Retake</button>
+      <button class="cap-retake" onclick="retake()">↩ Retake</button>
     </div>
+
+    <!-- OCR progress -->
     <div class="ocr-bar" id="ocrBar">
       <div class="ocr-spin"></div>
-      <div class="ocr-bar-text">Reading receipt…</div>
+      <div class="ocr-text">Reading receipt…</div>
     </div>
-    <div class="confirm-fields" id="confirmFields">
-      <div id="confBadge"></div>
-      <div class="field-group">
-        <label class="field-label">Merchant *</label>
-        <input class="form-input" id="cfMerchant" placeholder="e.g. Tesco, Screwfix, AWS" autocomplete="off"/>
+
+    <!-- Confirm fields -->
+    <div class="cfields" id="cfields">
+      <div id="cbadge"></div>
+      <div class="fg">
+        <label class="field-lbl">Merchant *</label>
+        <input class="fi" id="cfMerchant" placeholder="e.g. Tesco, Screwfix, AWS" autocomplete="off"/>
       </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Amount *</label>
-          <div class="amount-wrap">
-            <span class="amount-prefix">£</span>
-            <input class="form-input pl" id="cfAmount" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
+      <div class="frow">
+        <div class="fg">
+          <label class="field-lbl">Amount *</label>
+          <div class="amtwrap"><span class="amtpfx">£</span>
+            <input class="fi pl" id="cfAmount" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
           </div>
         </div>
-        <div class="field-group">
-          <label class="field-label">Currency</label>
-          <select class="form-input" id="cfCurrency">
+        <div class="fg">
+          <label class="field-lbl">Currency</label>
+          <select class="fi" id="cfCurrency">
             <option value="GBP" selected>GBP £</option>
             <option value="USD">USD $</option>
             <option value="EUR">EUR €</option>
           </select>
         </div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Date</label>
-        <input class="form-input" id="cfDate" type="date"/>
+      <div class="fg">
+        <label class="field-lbl">Date</label>
+        <input class="fi" id="cfDate" type="date"/>
       </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label class="field-label">Category</label>
-          <select class="form-input" id="cfCategory">
-            <option value="">— select —</option>
-            <option value="Travel">Travel</option>
-            <option value="Meals">Meals &amp; Entertainment</option>
-            <option value="Office">Office &amp; Supplies</option>
-            <option value="Software">Software &amp; Subscriptions</option>
-            <option value="Equipment">Equipment</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Professional">Professional Services</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Other">Other</option>
+      <div class="frow">
+        <div class="fg">
+          <label class="field-lbl">Category</label>
+          <select class="fi" id="cfCategory">
+            <option value="">— none —</option>
+            <option>Travel</option><option>Meals</option><option>Office</option>
+            <option>Software</option><option>Equipment</option>
+            <option>Marketing</option><option>Professional</option>
+            <option>Utilities</option><option>Other</option>
           </select>
         </div>
-        <div class="field-group">
-          <label class="field-label">VAT (optional)</label>
-          <div class="amount-wrap">
-            <span class="amount-prefix">£</span>
-            <input class="form-input pl" id="cfVat" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
+        <div class="fg">
+          <label class="field-lbl">VAT (optional)</label>
+          <div class="amtwrap"><span class="amtpfx">£</span>
+            <input class="fi pl" id="cfVat" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
           </div>
         </div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Notes / Purpose</label>
-        <input class="form-input" id="cfNotes" placeholder="e.g. Client meeting, home office" autocomplete="off"/>
+      <div class="fg">
+        <label class="field-lbl">Notes / Purpose</label>
+        <input class="fi" id="cfNotes" placeholder="e.g. Client meeting, home office" autocomplete="off"/>
       </div>
     </div>
+
   </div>
   <div class="save-bar" id="saveBar">
     <button class="btn-cancel" onclick="goHome()">Cancel</button>
@@ -395,103 +367,77 @@ img{display:block;max-width:100%}
   </div>
 </div>
 
-<!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-icon">✅</div>
-  <div class="success-amount" id="successAmount">£0.00</div>
-  <div class="success-title" id="successTitle">Receipt saved</div>
-  <div class="success-divider"></div>
-  <div class="success-sub" id="successSub">Receipt logged successfully</div>
+<!-- ═══ SUCCESS ════════════════════════════════════════════ -->
+<div class="success-ov" id="successOv">
+  <div class="succ-icon">✅</div>
+  <div class="succ-amt" id="succAmt">£0.00</div>
+  <div class="succ-merchant" id="succMerchant">Saved</div>
+  <div class="succ-sub" id="succSub"></div>
 </div>
 
-<!-- MENU -->
-<div class="sheet-bg" id="menuSheet" onclick="closeMenu(event)">
+<!-- ═══ MENU SHEET ════════════════════════════════════════ -->
+<div class="sheet-bg" id="menuSheet" onclick="if(event.target===this)closeMenu()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sheet-item-icon">📸</span>Scan receipt</button>
-    <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sheet-item-icon">⬇</span>Export CSV</button>
-    <div class="sheet-divider"></div>
-    <div class="sheet-item muted" style="cursor:default"><span class="sheet-item-icon">👤</span><span id="menuEmail">—</span></div>
-    <button class="sheet-item danger" onclick="doSignout()"><span class="sheet-item-icon">→</span>Sign out</button>
+    <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
+    <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV</button>
+    <div class="sdiv"></div>
+    <div class="sheet-item muted" style="cursor:default"><span class="sicon">👤</span><span id="menuEmail">—</span></div>
+    <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
   </div>
 </div>
 
-<!-- EDIT RECEIPT SHEET -->
-<div class="sheet-bg" id="editSheet">
-  <div class="sheet" style="max-height:90vh;overflow-y:auto">
+<!-- ═══ EDIT SHEET ════════════════════════════════════════ -->
+<div class="sheet-bg" id="editSheet" onclick="if(event.target===this)closeEdit()">
+  <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-body">
+    <div class="sbody">
       <h3>Edit Receipt</h3>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
-        <div>
-          <label class="field-label">Merchant *</label>
-          <input class="text-input" id="edMerchant" placeholder="e.g. Tesco" autocomplete="off"/>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div>
-            <label class="field-label">Amount *</label>
-            <input class="text-input" id="edAmount" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
-          </div>
-          <div>
-            <label class="field-label">Currency</label>
-            <select class="text-input" id="edCurrency">
-              <option value="GBP">GBP £</option>
-              <option value="USD">USD $</option>
-              <option value="EUR">EUR €</option>
+      <div class="sform">
+        <div><label class="fl">Merchant *</label><input class="ti" id="edMerchant" autocomplete="off"/></div>
+        <div class="srow">
+          <div><label class="fl">Amount *</label><input class="ti" id="edAmount" type="number" step="0.01" min="0" inputmode="decimal" autocomplete="off"/></div>
+          <div><label class="fl">Currency</label>
+            <select class="ti" id="edCurrency">
+              <option value="GBP">GBP £</option><option value="USD">USD $</option><option value="EUR">EUR €</option>
             </select>
           </div>
         </div>
-        <div>
-          <label class="field-label">Date</label>
-          <input class="text-input" id="edDate" type="date"/>
+        <div><label class="fl">Date</label><input class="ti" id="edDate" type="date"/></div>
+        <div class="srow">
+          <div><label class="fl">Category</label>
+            <select class="ti" id="edCategory">
+              <option value="">— none —</option>
+              <option>Travel</option><option>Meals</option><option>Office</option>
+              <option>Software</option><option>Equipment</option>
+              <option>Marketing</option><option>Professional</option>
+              <option>Utilities</option><option>Other</option>
+            </select>
+          </div>
+          <div><label class="fl">VAT</label><input class="ti" id="edVat" type="number" step="0.01" min="0" inputmode="decimal" autocomplete="off"/></div>
         </div>
-        <div>
-          <label class="field-label">Category</label>
-          <select class="text-input" id="edCategory">
-            <option value="">— select —</option>
-            <option value="Travel">Travel</option>
-            <option value="Meals">Meals &amp; Entertainment</option>
-            <option value="Office">Office &amp; Supplies</option>
-            <option value="Software">Software &amp; Subscriptions</option>
-            <option value="Equipment">Equipment</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Professional">Professional Services</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label class="field-label">VAT (optional)</label>
-          <input class="text-input" id="edVat" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
-        </div>
-        <div>
-          <label class="field-label">Notes / Purpose</label>
-          <input class="text-input" id="edNotes" placeholder="e.g. Client meeting" autocomplete="off"/>
-        </div>
-        <div class="auth-msg" id="edMsg"></div>
-        <div style="display:flex;gap:10px;padding-top:4px">
-          <button class="btn-primary" style="background:var(--gray-1);color:var(--black)" onclick="closeEdit()">Cancel</button>
-          <button class="btn-primary" id="btnEditSave" onclick="saveEdit()">Save changes</button>
+        <div><label class="fl">Notes / Purpose</label><input class="ti" id="edNotes" autocomplete="off"/></div>
+        <div class="amsg" id="edMsg"></div>
+        <div class="sbtns">
+          <button class="btn-p" style="background:var(--gray-1);color:var(--black)" onclick="closeEdit()">Cancel</button>
+          <button class="btn-p" id="btnEditSave" onclick="saveEdit()">Save changes</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- RESET PASSWORD SHEET -->
+<!-- ═══ RESET PASSWORD SHEET ══════════════════════════════ -->
 <div class="sheet-bg" id="resetPassSheet">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-body">
+    <div class="sbody">
       <h3>Set new password</h3>
-      <p>Choose a new password for your account.</p>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div><label class="field-label">New password</label>
-          <input class="text-input" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
-        <div><label class="field-label">Confirm password</label>
-          <input class="text-input" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
-        <div class="auth-msg" id="npMsg"></div>
-        <button class="btn-primary" id="btnNewPass" onclick="doSetPassword()">Update password →</button>
+      <div class="sform">
+        <div><label class="fl">New password</label><input class="ti" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+        <div><label class="fl">Confirm password</label><input class="ti" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
+        <div class="amsg" id="npMsg"></div>
+        <button class="btn-p" id="btnNewPass" onclick="doSetPassword()">Update password →</button>
       </div>
     </div>
   </div>
@@ -499,420 +445,618 @@ img{display:block;max-width:100%}
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══════════════════════════════════════════════════════ 
+     SUPABASE — plain script (not module) — same as weldswine
+     This is critical: type="module" breaks file input events
+     on Android with capture="environment"
+══════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const { createClient } = supabase;
+'use strict';
 
-/* -------------------------------------------------------------------------- */
-/*                              SUPABASE CONFIG                               */
-/* -------------------------------------------------------------------------- */
+/* ── CONFIG ──────────────────────────────────────────── */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI…'; // shortened for clarity
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3a2Fzd2x6enF6aml1dWp5dXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQwNDUsImV4cCI6MjA5MDE0MDA0NX0.DpM1H4LXGl9gdci9Qrzjam2yqScZy10M1VLE1-0XnO8';
 const WORKER_URL   = 'https://snapreceipt.james-weld.workers.dev';
+const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* -------------------------------------------------------------------------- */
-/*                                    STATE                                   */
-/* -------------------------------------------------------------------------- */
-let _user = null;
-let _receipts = [];
-let _expanded = null;
+/* ── STATE ───────────────────────────────────────────── */
+var _user     = null;
+var _receipts = [];
+var _imgB64   = null;
+var _expanded = null;
+var _editId   = null;
+var _cameraOpen = false; // flag: true while camera/picker is open
 
-const State = {
-  imageBase64: null
-};
-
-/* -------------------------------------------------------------------------- */
-/*                               BASIC HELPERS                                */
-/* -------------------------------------------------------------------------- */
-function g(id){ return document.getElementById(id); }
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); g(id).classList.add('active'); }
+/* ── HELPERS ─────────────────────────────────────────── */
+function g(id) { return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function today(){ return new Date().toISOString().slice(0,10); }
-function fmt(n,currency){
-  const sym={GBP:'£',USD:'$',EUR:'€'}[currency]||'£';
-  return sym+parseFloat(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+function fmt(n, currency) {
+  var sym = {GBP:'£',USD:'$',EUR:'€'}[currency] || '£';
+  return sym + parseFloat(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 }
-function toast(msg){
-  const t=g('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(window.__t); window.__t=setTimeout(()=>t.classList.remove('show'),2500);
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+  catch(e) { return d; }
+}
+function isoDate(s) {
+  if (!s) return today();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  var uk = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (uk) { var y=uk[3],m=uk[2],d=uk[1]; return (y.length===2?'20'+y:y)+'-'+m.padStart(2,'0')+'-'+d.padStart(2,'0'); }
+  try { return new Date(s).toISOString().slice(0,10); } catch(e) { return today(); }
+}
+function setMsg(el, type, text) { el.className='amsg '+type; el.textContent=text; }
+function friendlyErr(e) {
+  var m = e.message||'';
+  if (m.includes('already registered')||m.includes('already exists')) return 'That email is already registered.';
+  if (m.includes('Invalid login')||m.includes('invalid_credentials'))  return 'Email or password is incorrect.';
+  if (m.includes('Password should')) return 'Password must be at least 6 characters.';
+  if (m.includes('Email not confirmed')) return 'Please confirm your email first.';
+  return m || 'Something went wrong.';
+}
+var _toastTimer;
+function toast(msg) {
+  var t = g('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2600);
+}
+function show(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  g(id).classList.add('active');
 }
 
-/* -------------------------------------------------------------------------- */
-/*                             AUTH STATE HANDLING                            */
-/* -------------------------------------------------------------------------- */
-sb.auth.onAuthStateChange((event,session)=>{
-  if(event==='PASSWORD_RECOVERY'){ g('resetPassSheet').classList.add('open'); return; }
+/* ── FILE INPUT LISTENERS ────────────────────────────
+   Called once at DOMContentLoaded.
+   Pattern copied exactly from weldswine which works on
+   iOS Safari, Android Chrome, Android Samsung Browser.
+   Key rules:
+   - input sits at inset:0 inside a relative div
+   - inner content has pointer-events:none
+   - listen to BOTH change AND input events
+   - reset input.value on area click (iOS retake fix)
+   - set _cameraOpen flag to block popstate navigation
+─────────────────────────────────────────────────────── */
+function initFileInputs() {
+  var capIn  = g('captureInput');
+  var galIn  = g('galleryInput');
+  var capArea = g('cameraArea');
+  var galArea = g('galleryArea');
 
-  _user = session?.user ?? null;
+  function handleFile(input) {
+    if (input && input.files && input.files[0]) {
+      _cameraOpen = false;
+      onPhotoSelected(input.files[0]);
+    }
+  }
 
-  if(_user){
-    g('menuEmail').textContent = _user.email;
+  ['change','input'].forEach(function(evt) {
+    capIn.addEventListener(evt, function(e){ handleFile(e.target); });
+    galIn.addEventListener(evt, function(e){ handleFile(e.target); });
+  });
+
+  capArea.addEventListener('click', function(){
+    _cameraOpen = true;
+    capIn.value = '';
+  });
+  galArea.addEventListener('click', function(){
+    _cameraOpen = true;
+    galIn.value = '';
+  });
+}
+
+/* ── BACK BUTTON ─────────────────────────────────────
+   Android fires popstate when camera app closes.
+   _cameraOpen flag blocks navigation during that window.
+─────────────────────────────────────────────────────── */
+history.replaceState({snap:'home'}, '');
+window.addEventListener('popstate', function() {
+  if (_cameraOpen) {
+    // Camera/picker is returning — ignore, push state back
+    _cameraOpen = false;
+    history.pushState({snap:'scan'}, '');
+    return;
+  }
+  var scanActive = g('scanScreen').classList.contains('active');
+  if (scanActive) { goHome(); return; }
+  history.pushState({snap:'home'}, '');
+});
+
+/* ── AUTH ────────────────────────────────────────────── */
+sb.auth.onAuthStateChange(function(event, session) {
+  if (event === 'PASSWORD_RECOVERY') {
+    g('resetPassSheet').classList.add('on');
+    return;
+  }
+  _user = session ? session.user : null;
+  if (_user) {
+    g('menuEmail').textContent = _user.email || '';
     show('homeScreen');
     loadReceipts();
   } else {
     show('authScreen');
+    _receipts = [];
   }
 });
 
-/* -------------------------------------------------------------------------- */
-/*                                 LOAD RECEIPTS                               */
-/* -------------------------------------------------------------------------- */
-async function loadReceipts(){
-  if(!_user) return;
+function authTab(tab) {
+  ['signin','signup','reset'].forEach(function(t) {
+    g('form'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('hidden', t!==tab);
+    g('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
+  });
+}
+window.authTab = authTab;
 
-  const { data, error } = await sb
-    .from('receipts')
-    .select('*')
+window.doSignin = async function() {
+  var email=g('siEmail').value.trim(), pass=g('siPass').value.trim();
+  var msg=g('siMsg'), btn=g('btnSignin');
+  msg.className='amsg';
+  if(!email||!pass){setMsg(msg,'err','Please fill in both fields.');return;}
+  btn.disabled=true; btn.textContent='Signing in…';
+  var res = await sb.auth.signInWithPassword({email:email,password:pass});
+  if(res.error) setMsg(msg,'err',friendlyErr(res.error));
+  btn.disabled=false; btn.textContent='Sign in →';
+};
+
+window.doSignup = async function() {
+  var email=g('suEmail').value.trim(), pass=g('suPass').value.trim();
+  var msg=g('suMsg'), btn=g('btnSignup');
+  msg.className='amsg';
+  if(!email||!pass){setMsg(msg,'err','Please fill in both fields.');return;}
+  btn.disabled=true; btn.textContent='Creating account…';
+  var res = await sb.auth.signUp({email:email,password:pass});
+  if(res.error) setMsg(msg,'err',friendlyErr(res.error));
+  else setMsg(msg,'ok','Account created! Check your email to confirm.');
+  btn.disabled=false; btn.textContent='Create account →';
+};
+
+window.doReset = async function() {
+  var email=g('rstEmail').value.trim();
+  var msg=g('rstMsg'), btn=g('btnReset');
+  msg.className='amsg';
+  if(!email){setMsg(msg,'err','Please enter your email.');return;}
+  btn.disabled=true; btn.textContent='Sending…';
+  var res = await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://snapreceipt.co.uk'});
+  if(res.error) setMsg(msg,'err',res.error.message);
+  else setMsg(msg,'ok','Reset link sent! Check your email.');
+  btn.disabled=false; btn.textContent='Send reset link →';
+};
+
+window.doSetPassword = async function() {
+  var pass=g('npPass').value.trim(), confirm=g('npConfirm').value.trim();
+  var msg=g('npMsg'), btn=g('btnNewPass');
+  msg.className='amsg';
+  if(!pass||pass.length<6){setMsg(msg,'err','Password must be at least 6 characters.');return;}
+  if(pass!==confirm){setMsg(msg,'err','Passwords do not match.');return;}
+  btn.disabled=true; btn.textContent='Saving…';
+  var res = await sb.auth.updateUser({password:pass});
+  if(res.error) setMsg(msg,'err',res.error.message);
+  else { setMsg(msg,'ok','Password updated!'); setTimeout(function(){g('resetPassSheet').classList.remove('on');},1600); }
+  btn.disabled=false; btn.textContent='Update password →';
+};
+
+window.doSignout = async function() {
+  closeMenu();
+  await sb.auth.signOut();
+};
+
+/* ── DATA ────────────────────────────────────────────── */
+async function loadReceipts() {
+  if (!_user) return;
+  renderSkeleton();
+  var res = await sb.from('receipts')
+    .select('id,merchant,amount,currency,date,category,vat,notes,image_url,created_at')
     .eq('user_id', _user.id)
     .order('created_at', {ascending:false});
-
-  if(error){
-    toast('Error loading receipts');
-    return;
-  }
-
-  _receipts = data || [];
+  if (res.error) { toast('Error loading receipts'); return; }
+  _receipts = res.data || [];
   renderHome();
 }
 
-/* -------------------------------------------------------------------------- */
-/*                          RENDER FUNCTIONS (UNCHANGED)                       */
-/* -------------------------------------------------------------------------- */
-// (Your existing renderList, renderRow, updateStats, edit sheet logic stays intact)
+function renderHome() { updateStats(); renderList(_receipts); }
 
-/* -------------------------------------------------------------------------- */
-/*                             NEW: SCAN CAMERA MODULE                        */
-/* -------------------------------------------------------------------------- */
-const ScanCamera = (() => {
+function updateStats() {
+  var now = new Date();
+  var taxStart = now.getMonth() >= 3
+    ? new Date(now.getFullYear(),3,6)
+    : new Date(now.getFullYear()-1,3,6);
+  var monthRs = _receipts.filter(function(r){
+    var d=new Date(r.date||r.created_at);
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  });
+  var yearRs = _receipts.filter(function(r){ return new Date(r.date||r.created_at)>=taxStart; });
+  g('statCount').textContent = _receipts.length;
+  g('statMonth').textContent = fmt(monthRs.reduce(function(s,r){return s+parseFloat(r.amount||0);},0));
+  g('statYear').textContent  = fmt(yearRs.reduce(function(s,r){return s+parseFloat(r.amount||0);},0));
+  g('statVAT').textContent   = '£'+yearRs.reduce(function(s,r){return s+parseFloat(r.vat||0);},0).toFixed(2);
+}
 
-  function init() {
-    const cap = g('captureInput');
-    const gal = g('galleryInput');
+function renderSkeleton() {
+  g('rlist').innerHTML = [1,2,3].map(function(){
+    return '<div class="rrow" style="pointer-events:none"><div class="rrow-main">'
+      +'<div class="rthumb"><div class="skel" style="width:100%;height:100%"></div></div>'
+      +'<div class="rinfo"><div class="skel" style="height:14px;width:60%;margin-bottom:8px;border-radius:4px"></div>'
+      +'<div class="skel" style="height:11px;width:38%;border-radius:4px"></div></div>'
+      +'<div class="skel" style="height:18px;width:44px;border-radius:4px"></div>'
+      +'</div></div>';
+  }).join('');
+}
 
-    ['input','change'].forEach(ev=>{
-      cap.addEventListener(ev, handleFile);
-      gal.addEventListener(ev, handleFile);
-    });
+function renderList(rs) {
+  var list = g('rlist');
+  if (!rs.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🧾</div>'
+      +'<div class="empty-title">No receipts yet</div>'
+      +'<div class="empty-sub">Tap the button below to scan your first receipt.</div></div>';
+    return;
   }
-
-  async function handleFile(e){
-    const file = e.target.files?.[0];
-    if(!file) return;
-
-    UI.showPreviewLoading();
-
-    try{
-      const jpeg = await ImageProcessor.process(file);
-      State.imageBase64 = jpeg;
-      g('czThumb').src = jpeg;
-      UI.showPreviewReady();
-      await OCR.run(jpeg);
-    }catch(err){
-      console.error(err);
-      UI.showManualEntry("Image processing failed");
+  // Pre-compute month totals O(n)
+  var totals = {};
+  rs.forEach(function(r){
+    var d=new Date(r.date||r.created_at);
+    var mk=d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    totals[mk]=(totals[mk]||0)+parseFloat(r.amount||0);
+  });
+  var lastMk='', rows=[];
+  rs.forEach(function(r,i){
+    var d=new Date(r.date||r.created_at);
+    var mk=d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    if(mk!==lastMk){
+      rows.push('<div class="month-hdr"><span class="month-lbl">'+mk+'</span><span class="month-tot">'+fmt(totals[mk])+'</span></div>');
+      lastMk=mk;
     }
+    rows.push(renderRow(r,i));
+  });
+  list.innerHTML = rows.join('');
+}
+
+function renderRow(r, i) {
+  var thumb = r.image_url
+    ? '<div class="rthumb"><img src="'+esc(r.image_url)+'" alt="" loading="lazy"/></div>'
+    : '<div class="rthumb">🧾</div>';
+  var catBadge = r.category ? '<span class="rcat">'+esc(r.category)+'</span>' : '';
+  var isExp = (_expanded === r.id);
+  var noteCell = r.notes ? '<div class="dcell" style="grid-column:1/-1"><div class="dcell-lbl">Notes</div><div class="dcell-val">'+esc(r.notes)+'</div></div>' : '';
+  var vatCell  = r.vat   ? '<div class="dcell"><div class="dcell-lbl">VAT</div><div class="dcell-val">'+fmt(r.vat,'GBP')+'</div></div>' : '';
+  var catCell  = r.category ? '<div class="dcell"><div class="dcell-lbl">Category</div><div class="dcell-val">'+esc(r.category)+'</div></div>' : '';
+  return '<div class="rrow'+(isExp?' expanded':'')+'" id="row-'+esc(r.id)+'" style="animation-delay:'+(i*0.025)+'s">'
+    +'<div class="rrow-main" onclick="toggleRow(\''+esc(r.id)+'\')">'
+    +thumb
+    +'<div class="rinfo"><div class="rmerchant">'+esc(r.merchant||'Unknown')+'</div>'
+    +'<div class="rdate">'+fmtDate(r.date||r.created_at)+'</div>'+catBadge+'</div>'
+    +'<div><div class="ramount">'+fmt(r.amount,r.currency)+'</div><div class="rcurrency">'+(r.currency||'GBP')+'</div></div>'
+    +'</div>'
+    +'<div class="rdetail">'
+    +(r.image_url?'<img class="rdetail-img" src="'+esc(r.image_url)+'" alt="Receipt"/>'  :'')
+    +'<div class="dgrid">'
+    +'<div class="dcell"><div class="dcell-lbl">Date</div><div class="dcell-val">'+fmtDate(r.date||r.created_at)+'</div></div>'
+    +'<div class="dcell"><div class="dcell-lbl">Amount</div><div class="dcell-val">'+fmt(r.amount,r.currency)+'</div></div>'
+    +catCell+vatCell+noteCell
+    +'<div class="dcell"><div class="dcell-lbl">Added</div><div class="dcell-val">'+fmtDate(r.created_at)+'</div></div>'
+    +'</div>'
+    +'<div class="dactions">'
+    +'<button class="btn-out" onclick="openEdit(\''+esc(r.id)+'\')">✏️ Edit</button>'
+    +'<button class="btn-out danger" onclick="deleteReceipt(\''+esc(r.id)+'\')">Delete</button>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+window.toggleRow = function(id) {
+  _expanded = (_expanded===id) ? null : id;
+  renderList(_receipts);
+  if (_expanded) setTimeout(function(){
+    var row=g('row-'+id); if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },60);
+};
+
+window.deleteReceipt = async function(id) {
+  if (!confirm('Delete this receipt?')) return;
+  await sb.from('receipts').delete().eq('id',id);
+  _receipts = _receipts.filter(function(r){return r.id!==id;});
+  _expanded = null;
+  renderHome();
+  toast('Receipt deleted');
+};
+
+window.filterReceipts = function(q) {
+  q = q.toLowerCase().trim();
+  if (!q) { renderList(_receipts); return; }
+  var filtered = _receipts.filter(function(r){
+    return (r.merchant||'').toLowerCase().includes(q)
+      || (r.category||'').toLowerCase().includes(q)
+      || (r.notes||'').toLowerCase().includes(q)
+      || (r.date||'').includes(q);
+  });
+  if (!filtered.length) {
+    g('rlist').innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>'
+      +'<div class="empty-title">No results</div>'
+      +'<div class="empty-sub">No receipts match "'+esc(q)+'"</div></div>';
+    return;
   }
+  renderList(filtered);
+};
 
-  return { init };
-
-})();
-
-/* -------------------------------------------------------------------------- */
-/*                    NEW: IMAGE PROCESSOR (compression, crop)                */
-/* -------------------------------------------------------------------------- */
-const ImageProcessor = (() => {
-
-  async function process(file){
-    const dataUrl = await readFile(file);
-    const img = await loadImage(dataUrl);
-    const cropped = autoCropCanvas(img);
-    const lit = reduceShadows(cropped);
-    return dynamicCompress(lit);
-  }
-
-  function readFile(file){
-    return new Promise(res=>{
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.readAsDataURL(file);
-    });
-  }
-
-  function loadImage(src){
-    return new Promise((res,rej)=>{
-      const img = new Image();
-      img.onload = ()=>res(img);
-      img.onerror = rej;
-      img.src = src;
-    });
-  }
-
-  /* ---------------------- AUTO CROP (simple paper detect) ---------------------- */
-  function autoCropCanvas(img){
-    const c = document.createElement('canvas');
-    c.width = img.width; c.height = img.height;
-    const ctx = c.getContext('2d');
-    ctx.drawImage(img,0,0);
-
-    const data = ctx.getImageData(0,0,c.width,c.height).data;
-    const t = 240*3;
-
-    let top=null,bottom=null,left=null,right=null;
-
-    for(let y=0;y<c.height;y++){
-      for(let x=0;x<c.width;x++){
-        const i = (y*c.width+x)*4;
-        const b = data[i] + data[i+1] + data[i+2];
-        if(b < t){
-          if(top===null) top=y;
-          bottom=y;
-          left = left===null ? x : Math.min(left,x);
-          right= right===null? x : Math.max(right,x);
-        }
-      }
-    }
-
-    const x = Math.max(0,(left??0) - 10);
-    const y = Math.max(0,(top??0) - 10);
-    const w = Math.min(c.width, (right-left)+20);
-    const h = Math.min(c.height, (bottom-top)+20);
-
-    const out = document.createElement('canvas');
-    out.width = w; out.height = h;
-    out.getContext('2d').drawImage(c,x,y,w,h,0,0,w,h);
-    return out;
-  }
-
-  /* -------------------------- SHADOW REDUCTION -------------------------- */
-  function reduceShadows(canvas){
-    const ctx = canvas.getContext('2d');
-    const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-    const d = img.data;
-
-    for(let i=0;i<d.length;i+=4){
-      d[i]   = Math.min(255, d[i]   * 1.15);
-      d[i+1] = Math.min(255, d[i+1] * 1.15);
-      d[i+2] = Math.min(255, d[i+2] * 1.15);
-    }
-
-    ctx.putImageData(img,0,0);
-    return canvas;
-  }
-
-  /* --------------------- DYNAMIC JPEG COMPRESSION ---------------------- */
-  function dynamicCompress(canvas){
-    let q = 0.9;
-    let out;
-
-    do{
-      out = canvas.toDataURL("image/jpeg", q);
-      const bytes = (out.length * 3) / 4;
-      if(bytes < 800*1024) break;
-      q -= 0.05;
-    }while(q > 0.4);
-
-    return out;
-  }
-
-  return { process };
-
-})();
-
-/* -------------------------------------------------------------------------- */
-/*              NEW: OCR MODULE (worker retry + empty-response fix)           */
-/* -------------------------------------------------------------------------- */
-const OCR = (() => {
-
-  async function run(base64){
-    UI.showOCR();
-
-    try{
-      const s = await sb.auth.getSession();
-      const token = s?.data?.session?.access_token;
-      if(!token) throw "Not signed in.";
-
-      const raw = base64.split(',')[1];
-
-      const res = await fetch(WORKER_URL,{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${token}`
-        },
-        body:JSON.stringify({ imageBase64:raw })
-      });
-
-      if(!res.ok) throw "Worker error";
-
-      const data = await res.json();
-      if(!data || Object.keys(data).length === 0){
-        throw "Empty worker response";
-      }
-
-      UI.populateFromOCR(data);
-
-    }catch(err){
-      console.error("OCR error:",err);
-      UI.showManualEntry("AI failed — fill in manually");
-    }finally{
-      UI.hideOCR();
-    }
-  }
-
-  return { run };
-
-})();
-
-/* -------------------------------------------------------------------------- */
-/*                       NEW: OFFLINE QUEUE (IndexedDB)                      */
-/* -------------------------------------------------------------------------- */
-const OfflineQueue = (() => {
-  let db;
-
-  function init(){
-    const req = indexedDB.open("snapreceipt",1);
-
-    req.onupgradeneeded = e=>{
-      const db = e.target.result;
-      db.createObjectStore("queue",{keyPath:'id',autoIncrement:true});
-    };
-
-    req.onsuccess = e=>{
-      db = e.target.result;
-    };
-  }
-
-  function enqueue(data){
-    if(!db) return;
-    const tx = db.transaction("queue","readwrite");
-    tx.objectStore("queue").add({ data });
-  }
-
-  return { init, enqueue };
-
-})();
-
-/* -------------------------------------------------------------------------- */
-/*                          NEW: UI STATE MACHINE                             */
-/* -------------------------------------------------------------------------- */
-const UI = (() => {
-
-  function showPreviewLoading(){
-    g('czEmpty').style.display='none';
-    g('czHasPhoto').style.display='';
-    g('czStatusSub').textContent="Processing…";
-  }
-
-  function showPreviewReady(){
-    g('czStatusSub').textContent="AI reading…";
-  }
-
-  function showOCR(){ g('ocrBar').classList.add('active'); }
-  function hideOCR(){ g('ocrBar').classList.remove('active'); }
-
-  function populateFromOCR(data){
-    g('cfMerchant').value = data.merchant || '';
-    g('cfAmount').value   = data.amount   || '';
-    g('cfDate').value     = data.date     || today();
-    g('confBadge').innerHTML = `<div class="conf-badge high">✓ High confidence</div>`;
-    showConfirm();
-  }
-
-  function showManualEntry(reason){
-    g('confBadge').innerHTML = `<div class="conf-badge low">⚠ ${reason}</div>`;
-    showConfirm();
-  }
-
-  function showConfirm(){
-    g('confirmFields').classList.add('active');
-    g('saveBar').classList.add('active');
-  }
-
-  return {
-    showPreviewLoading,
-    showPreviewReady,
-    showOCR,
-    hideOCR,
-    populateFromOCR,
-    showManualEntry
-  };
-
-})();
-
-/* -------------------------------------------------------------------------- */
-/*                        OVERRIDE openScan + saveReceipt                     */
-/* -------------------------------------------------------------------------- */
-window.openScan = () => {
-  State.imageBase64 = null;
-
-  g('czEmpty').style.display='';
-  g('czHasPhoto').style.display='none';
-  g('czThumb').src='';
-
-  g('captureInput').value='';
-  g('galleryInput').value='';
-
-  g('confirmFields').classList.remove('active');
-  g('saveBar').classList.remove('active');
-  g('confBadge').innerHTML='';
-
-  g('cfMerchant').value='';
-  g('cfAmount').value='';
-  g('cfDate').value=today();
-  g('cfCategory').value='';
-  g('cfVat').value='';
-  g('cfNotes').value='';
-
+/* ── SCAN ────────────────────────────────────────────── */
+window.openScan = function() {
+  _imgB64 = null;
+  _cameraOpen = false;
+  // Reset upload zone
+  g('uploadZone').style.display = 'flex';
+  g('capturedStrip').classList.remove('show');
+  g('capThumb').src = '';
+  // Reset inputs (critical for iOS re-fire)
+  try { g('captureInput').value=''; } catch(e){}
+  try { g('galleryInput').value=''; } catch(e){}
+  // Reset OCR and fields
+  g('ocrBar').classList.remove('on');
+  g('cfields').classList.remove('on');
+  g('cfields').style.cssText = '';
+  g('saveBar').classList.remove('on');
+  g('cbadge').innerHTML = '';
+  g('cfMerchant').value=''; g('cfAmount').value='';
+  g('cfCurrency').value='GBP'; g('cfDate').value=today();
+  g('cfCategory').value=''; g('cfVat').value=''; g('cfNotes').value='';
   show('scanScreen');
+  history.pushState({snap:'scan'}, '');
 };
 
-window.saveReceipt = async () => {
-  const merchant = g('cfMerchant').value.trim();
-  const amount = parseFloat(g('cfAmount').value)||0;
-  const date = g('cfDate').value;
+window.goHome = function() {
+  show('homeScreen');
+  // Reload in background — don't block UI
+  setTimeout(loadReceipts, 100);
+};
 
-  if(!merchant){ toast('Enter a merchant'); return; }
-  if(!amount){ toast('Enter an amount'); return; }
+window.retake = function() {
+  _imgB64 = null;
+  _cameraOpen = false;
+  g('uploadZone').style.display = 'flex';
+  g('capturedStrip').classList.remove('show');
+  g('capThumb').src = '';
+  try { g('captureInput').value=''; } catch(e){}
+  try { g('galleryInput').value=''; } catch(e){}
+  g('ocrBar').classList.remove('on');
+  g('cfields').classList.remove('on');
+  g('cfields').style.cssText = '';
+  g('saveBar').classList.remove('on');
+};
 
-  const payload = {
-    user_id:_user.id,
-    merchant,
-    amount,
-    currency:g('cfCurrency').value,
-    date,
-    category:g('cfCategory').value||null,
-    vat:parseFloat(g('cfVat').value)||null,
-    notes:g('cfNotes').value.trim()||null,
-    image_url:State.imageBase64,
-    ocr_raw:null
-  };
+/* Called by initFileInputs change/input handler */
+function onPhotoSelected(file) {
+  if (!file) return;
 
-  try{
-    const { data, error } = await sb.from('receipts').insert(payload).select().single();
+  // Show captured strip immediately
+  g('uploadZone').style.display = 'none';
+  g('capturedStrip').classList.add('show');
+  g('capSub').textContent = 'Processing image…';
+  g('ocrBar').classList.add('on');
 
-    if(error) throw error;
+  toJpeg(file, function(b64) {
+    if (!b64 || b64.length < 200) {
+      toast('Could not read image — fill in manually');
+      g('capSub').textContent = 'Fill in details below';
+      g('ocrBar').classList.remove('on');
+      g('cbadge').innerHTML = '<div class="cbadge low">⚠ Fill in manually</div>';
+      showConfirm();
+      return;
+    }
+    _imgB64 = b64;
+    g('capThumb').src = b64;
+    g('capSub').textContent = 'AI is reading it…';
+    runOCR(b64);
+  });
+}
 
-    _receipts.unshift(data);
-    toast("Saved ✓");
-    show('homeScreen');
-    renderHome();
+function runOCR(b64) {
+  sb.auth.getSession().then(function(res) {
+    var session = res && res.data && res.data.session;
+    if (!session) {
+      toast('Session expired — please sign in again');
+      g('ocrBar').classList.remove('on');
+      showConfirm();
+      return;
+    }
+    var raw = b64.includes(',') ? b64.split(',')[1] : b64;
+    var mediaType = b64.startsWith('data:') ? (b64.match(/^data:([^;]+);/)||['','image/jpeg'])[1] : 'image/jpeg';
+    // Normalise to types Anthropic accepts
+    if (!['image/jpeg','image/png','image/gif','image/webp'].includes(mediaType)) mediaType = 'image/jpeg';
 
-  }catch(e){
-    console.warn("Save error → using offline queue",e);
-    OfflineQueue.enqueue(payload);
-    toast("Saved offline — will sync later");
-    show('homeScreen');
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body: JSON.stringify({imageBase64:raw, mediaType:mediaType})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (data.error) throw new Error(data.error);
+      g('cfMerchant').value = data.merchant || '';
+      g('cfAmount').value   = data.amount   || '';
+      g('cfDate').value     = data.date ? isoDate(data.date) : today();
+      if (data.currency) g('cfCurrency').value = data.currency;
+      if (data.vat)      g('cfVat').value      = data.vat;
+      var conf   = (data.confidence||'medium').toLowerCase();
+      var labels = {high:'✓ High confidence', medium:'~ Review fields', low:'⚠ Check fields carefully'};
+      g('cbadge').innerHTML = '<div class="cbadge '+conf+'">'+(labels[conf]||conf)+'</div>';
+      g('capSub').textContent = 'Review details below';
+      g('ocrBar').classList.remove('on');
+      showConfirm();
+    })
+    .catch(function(err) {
+      console.error('OCR error:', err);
+      g('cbadge').innerHTML = '<div class="cbadge low">⚠ Could not read — fill in manually</div>';
+      g('capSub').textContent = 'Fill in details below';
+      g('ocrBar').classList.remove('on');
+      showConfirm();
+    });
+  });
+}
+
+function showConfirm() {
+  g('cfields').style.cssText = 'display:flex;flex-direction:column;gap:12px;';
+  g('cfields').classList.add('on');
+  g('saveBar').classList.add('on');
+  // Scroll fields into view
+  setTimeout(function(){
+    try { g('scanBody').scrollTop = g('scanBody').scrollHeight; } catch(e){}
+  },50);
+}
+
+window.saveReceipt = async function() {
+  var merchant = g('cfMerchant').value.trim();
+  var amount   = parseFloat(g('cfAmount').value) || 0;
+  var date     = g('cfDate').value;
+  if (!merchant) { toast('Please enter a merchant name'); g('cfMerchant').focus(); return; }
+  if (!amount)   { toast('Please enter an amount'); g('cfAmount').focus(); return; }
+  var btn = g('btnSave'); btn.disabled=true; btn.textContent='Saving…';
+  try {
+    var imgToStore = (_imgB64 && _imgB64.length < 800000) ? _imgB64 : null;
+    var res = await sb.from('receipts').insert({
+      user_id:  _user.id,
+      merchant: merchant,
+      amount:   amount,
+      currency: g('cfCurrency').value || 'GBP',
+      date:     date || null,
+      category: g('cfCategory').value || null,
+      vat:      parseFloat(g('cfVat').value) || null,
+      notes:    g('cfNotes').value.trim() || null,
+      image_url:imgToStore,
+      ocr_raw:  null,
+    }).select().single();
+    if (res.error) throw res.error;
+    _receipts.unshift(res.data);
+    var now = new Date();
+    var monthName = now.toLocaleDateString('en-GB',{month:'long'});
+    var monthTotal = _receipts.filter(function(r){
+      var d=new Date(r.date||r.created_at);
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    }).reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
+    g('succAmt').textContent      = fmt(amount);
+    g('succMerchant').textContent = merchant;
+    g('succSub').textContent      = monthName+' total now '+fmt(monthTotal);
+    g('successOv').classList.add('on');
+    setTimeout(function(){
+      g('successOv').classList.remove('on');
+      show('homeScreen');
+      renderHome();
+    }, 1800);
+  } catch(e) {
+    console.error(e);
+    toast('Error saving — please try again');
+  } finally {
+    btn.disabled=false; btn.textContent='Save Receipt';
   }
 };
 
-/* -------------------------------------------------------------------------- */
-/*                               INITIALISE                                    */
-/* -------------------------------------------------------------------------- */
-window.addEventListener("load", () => {
-  ScanCamera.init();
-  OfflineQueue.init();
-});
-</script>
+/* ── EDIT ────────────────────────────────────────────── */
+window.openEdit = function(id) {
+  var r = _receipts.find(function(x){return x.id===id;});
+  if (!r) return;
+  _editId = id;
+  g('edMerchant').value = r.merchant||'';
+  g('edAmount').value   = r.amount||'';
+  g('edCurrency').value = r.currency||'GBP';
+  g('edDate').value     = r.date ? r.date.slice(0,10) : '';
+  g('edCategory').value = r.category||'';
+  g('edVat').value      = r.vat||'';
+  g('edNotes').value    = r.notes||'';
+  g('edMsg').className  = 'amsg';
+  g('editSheet').classList.add('on');
+};
+window.closeEdit = function() { g('editSheet').classList.remove('on'); _editId=null; };
+window.saveEdit  = async function() {
+  if (!_editId) return;
+  var merchant = g('edMerchant').value.trim();
+  var amount   = parseFloat(g('edAmount').value) || 0;
+  if (!merchant) { setMsg(g('edMsg'),'err','Please enter a merchant name.'); return; }
+  if (!amount)   { setMsg(g('edMsg'),'err','Please enter an amount.'); return; }
+  var btn = g('btnEditSave'); btn.disabled=true; btn.textContent='Saving…';
+  var update = {
+    merchant: merchant, amount: amount,
+    currency: g('edCurrency').value||'GBP',
+    date:     g('edDate').value||null,
+    category: g('edCategory').value||null,
+    vat:      parseFloat(g('edVat').value)||null,
+    notes:    g('edNotes').value.trim()||null,
+  };
+  var res = await sb.from('receipts').update(update).eq('id',_editId);
+  btn.disabled=false; btn.textContent='Save changes';
+  if (res.error) { setMsg(g('edMsg'),'err','Error saving — please try again.'); return; }
+  var idx = _receipts.findIndex(function(x){return x.id===_editId;});
+  if (idx>-1) Object.assign(_receipts[idx], update);
+  closeEdit();
+  renderHome();
+  toast('Receipt updated ✓');
+};
 
+/* ── EXPORT ──────────────────────────────────────────── */
+window.exportCSV = function() {
+  if (!_receipts.length) { toast('No receipts to export'); return; }
+  var rows = _receipts.map(function(r){
+    return [
+      r.date||'',
+      '"'+(r.merchant||'').replace(/"/g,'""')+'"',
+      parseFloat(r.amount||0).toFixed(2),
+      r.currency||'GBP',
+      r.category||'',
+      parseFloat(r.vat||0).toFixed(2),
+      '"'+(r.notes||'').replace(/"/g,'""')+'"',
+      new Date(r.created_at).toISOString().slice(0,10),
+    ].join(',');
+  });
+  var csv = ['Date,Merchant,Amount (£),Currency,Category,VAT (£),Notes,Added'].concat(rows).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = 'snapreceipt-'+today()+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
+  toast('CSV exported ✓');
+};
+
+/* ── MENU ────────────────────────────────────────────── */
+window.openMenu  = function() { g('menuSheet').classList.add('on'); };
+window.closeMenu = function() { g('menuSheet').classList.remove('on'); };
+
+/* ── IMAGE PROCESSING ────────────────────────────────── 
+   FileReader → canvas → JPEG
+   Exact pattern from weldswine — proven on all platforms
+─────────────────────────────────────────────────────── */
+function toJpeg(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var dataUrl = ev.target.result;
+    var img = new Image();
+    img.onload = function() {
+      try {
+        var MAX = 1200;
+        var w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        callback(c.toDataURL('image/jpeg', 0.82));
+      } catch(e) {
+        callback(dataUrl); // fallback: send original
+      }
+    };
+    img.onerror = function() { callback(dataUrl); };
+    img.src = dataUrl;
+  };
+  reader.onerror = function() { callback(''); };
+  reader.readAsDataURL(file);
+}
+
+/* ── INIT ────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  initFileInputs();
+});
+
+</script>
 </body>
 </html>
