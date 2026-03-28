@@ -430,8 +430,8 @@ function _initFileInputs() {
     document.getElementById('galleryInput').value = '';
   });
 }
-// Init file inputs at DOM ready — weldswine pattern
-document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
+// Modules run after DOM is parsed — call directly, no DOMContentLoaded needed
+_initFileInputs();
 
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
