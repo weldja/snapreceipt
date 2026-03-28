@@ -283,25 +283,21 @@ img{display:block;max-width:100%}
   </header>
   <div class="scan-body" id="scanBody">
     <div class="capture-zone" id="captureZone">
-      <!-- Empty state: file inputs live INSIDE buttons — only reliable mobile pattern -->
+      <!-- Empty state: two tap targets, file inputs inside labels -->
       <div id="czEmpty" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding:8px 0">
         <span style="font-size:2rem">📷</span>
         <div style="display:flex;gap:10px;width:100%;max-width:320px">
-          <!-- Camera button: input overlays the button, capture=environment opens rear camera -->
-          <label class="cz-btn cz-btn-primary" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px">
+          <label id="cameraLabel" class="cz-btn cz-btn-primary" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px">
             <input type="file" id="captureInput"
-              accept="image/*,image/heic,image/heif,.heic,.heif"
+              accept="image/*"
               capture="environment"
-              style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2"
-              onchange="onFileSelected(this)"/>
+              style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer"/>
             📸 Take photo
           </label>
-          <!-- Gallery button: input without capture, opens photo library -->
-          <label class="cz-btn cz-btn-secondary" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px">
+          <label id="galleryLabel" class="cz-btn cz-btn-secondary" style="position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px">
             <input type="file" id="galleryInput"
-              accept="image/*,image/heic,image/heif,.heic,.heif"
-              style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2"
-              onchange="onFileSelected(this)"/>
+              accept="image/*"
+              style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer"/>
             🖼 Gallery
           </label>
         </div>
@@ -406,6 +402,36 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 
 /* ── AUTH STATE ─────────────────────────────────────────── */
+// ── File input listeners — both 'change' and 'input' (iOS Safari fix) ──
+// Reset value before each open so iOS always fires even if same file selected
+// This is exactly the pattern used in weldswine which works on all mobile browsers
+function _initFileInputs() {
+  const captureEl = document.getElementById('captureInput');
+  const galleryEl = document.getElementById('galleryInput');
+  const cameraLbl = document.getElementById('cameraLabel');
+  const galleryLbl= document.getElementById('galleryLabel');
+
+  // Reset value on label click so iOS re-fires change even for same photo
+  if(cameraLbl)  cameraLbl.addEventListener('click',  () => { captureEl.value = ''; });
+  if(galleryLbl) galleryLbl.addEventListener('click', () => { galleryEl.value = ''; });
+
+  // Listen to both change AND input — iOS Safari sometimes only fires one
+  ['change','input'].forEach(evt => {
+    captureEl.addEventListener(evt, e => {
+      if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
+    });
+    galleryEl.addEventListener(evt, e => {
+      if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
+    });
+  });
+}
+// Init immediately if DOM ready, else wait
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initFileInputs);
+} else {
+  _initFileInputs();
+}
+
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
   const scanActive = g('scanScreen').classList.contains('active');
@@ -618,7 +644,9 @@ window.openScan = () => {
   g('czEmpty').style.display='flex';
   g('czStatus').classList.add('hidden');
   g('czRetake').classList.add('hidden');
-  g('captureInput').value=''; g('galleryInput').value='';
+  // Reset file inputs — critical for iOS to re-fire change event
+  try{ g('captureInput').value=''; }catch(e){}
+  try{ g('galleryInput').value=''; }catch(e){}
   g('ocrBar').classList.remove('active');
   g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
   g('saveBar').classList.remove('active');
@@ -642,7 +670,8 @@ window.retake = (e) => {
   g('czEmpty').style.display='flex';
   g('czStatus').classList.add('hidden');
   g('czRetake').classList.add('hidden');
-  g('captureInput').value=''; g('galleryInput').value='';
+  try{ g('captureInput').value=''; }catch(e){}
+  try{ g('galleryInput').value=''; }catch(e){}
   g('ocrBar').classList.remove('active');
   g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
   g('saveBar').classList.remove('active');
@@ -837,52 +866,33 @@ window.toast=function(msg){
   const t=g('toast'); t.textContent=msg; t.classList.add('show');
   clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
 };
-async function toJpeg(file){
-  // Try fast path: createObjectURL (avoids base64 read, faster on iOS)
-  const objectUrl = URL.createObjectURL(file);
+// FileReader → canvas resize → JPEG — exactly the pattern weldswine uses
+function toJpeg(file){
   return new Promise(resolve=>{
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      try {
-        // 900px max — receipts are text-heavy, quality is identical, 40% smaller payload
-        const MAX=900; let w=img.width||1, h=img.height||1;
-        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
-        const canvas=document.createElement('canvas');
-        canvas.width=w; canvas.height=h;
-        const ctx=canvas.getContext('2d');
-        if(!ctx) throw new Error('no ctx');
-        ctx.drawImage(img,0,0,w,h);
-        const jpeg = canvas.toDataURL('image/jpeg',0.82);
-        // Sanity check: must be a real image
-        if(jpeg.length < 100) throw new Error('empty canvas');
-        resolve(jpeg);
-      } catch(e) {
-        // Canvas failed (e.g. HEIC on older iOS) — fall back to FileReader
-        readAsBase64(file).then(resolve);
-      }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const dataUrl = ev.target.result;
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const MAX = 1200;
+          let w = img.width, h = img.height;
+          if(w > MAX || h > MAX){
+            if(w > h){ h = Math.round(h * MAX / w); w = MAX; }
+            else      { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        } catch(e) {
+          resolve(dataUrl); // fallback: send original
+        }
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
     };
-    img.onerror = () => {
-      // objectURL decode failed (HEIC without native support) — use FileReader
-      URL.revokeObjectURL(objectUrl);
-      readAsBase64(file).then(resolve);
-    };
-    img.src = objectUrl;
-  });
-}
-
-// FileReader fallback — sends original file as base64 (browser sends as-is to worker)
-function readAsBase64(file){
-  return new Promise(resolve=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const result = e.target?.result;
-      if(!result || typeof result!=='string' || result.length<50){
-        resolve(''); return;
-      }
-      resolve(result);
-    };
-    reader.onerror=()=>resolve('');
+    reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
   });
 }
