@@ -289,21 +289,13 @@ img{display:block;max-width:100%}
     <div id="czEmpty">
       <div style="display:flex;gap:10px">
 
-        <!-- Camera: div > input[inset:0, opacity:0] + inner[pointer-events:none] -->
-        <div class="scan-upload-area" id="cameraArea">
-          <input type="file" id="captureInput" accept="image/*" capture="environment"/>
+        <!-- Single upload area — file picker on mobile includes camera option -->
+        <div class="scan-upload-area" id="cameraArea" style="flex:1">
+          <input type="file" id="captureInput" accept="image/*"/>
           <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:1.5rem">📸</div>
-            <div style="font-size:.85rem;font-weight:700;color:#111">Take photo</div>
-          </div>
-        </div>
-
-        <!-- Gallery: same but no capture attribute -->
-        <div class="scan-upload-area" id="galleryArea">
-          <input type="file" id="galleryInput" accept="image/*"/>
-          <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:1.5rem">🖼</div>
-            <div style="font-size:.85rem;font-weight:700;color:#111">Gallery</div>
+            <div style="font-size:2rem">📷</div>
+            <div style="font-size:.9rem;font-weight:700;color:#111">Tap to scan receipt</div>
+            <div style="font-size:.76rem;color:#888">Camera or gallery</div>
           </div>
         </div>
 
@@ -429,10 +421,10 @@ function _initFileInputs() {
 
   // Both 'change' AND 'input' — iOS Safari sometimes only fires one of them
   ['change','input'].forEach(evt => {
-    captureEl.addEventListener(evt, e => {
+    if(captureEl) captureEl.addEventListener(evt, e => {
       if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
     });
-    galleryEl.addEventListener(evt, e => {
+    if(galleryEl) galleryEl.addEventListener(evt, e => {
       if(e.target.files && e.target.files[0]) window.onFileSelected(e.target);
     });
   });
