@@ -517,20 +517,23 @@ let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 // Reset value before each open so iOS always fires even if same file selected
 // This is exactly the pattern used in weldswine which works on all mobile browsers
 function _initFileInputs() {
-  // Weldswine exact pattern
   ['change','input'].forEach(function(evt) {
     document.getElementById('captureInput').addEventListener(evt, function(e) {
+      _cameraOpen = false;
       if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
     });
     document.getElementById('galleryInput').addEventListener(evt, function(e) {
+      _cameraOpen = false;
       if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
     });
   });
-  // Reset value on area click — weldswine iOS fix
+  // Set _cameraOpen flag on click so popstate ignores the camera-return event
   document.getElementById('cameraArea').addEventListener('click', function() {
+    _cameraOpen = true;
     document.getElementById('captureInput').value = '';
   });
   document.getElementById('galleryArea').addEventListener('click', function() {
+    _cameraOpen = true;
     document.getElementById('galleryInput').value = '';
   });
 }
@@ -538,20 +541,18 @@ function _initFileInputs() {
 document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
 
 // Intercept browser back button — go to home instead of leaving app
-window.addEventListener('popstate', (e) => {
-  // Ignore popstate events fired when camera/file picker returns on Android
-  // Only navigate home if we explicitly pushed a 'scan' state AND no file is being processed
+// Flag set when camera/file picker is opened — prevents popstate from navigating away
+let _cameraOpen = false;
+
+window.addEventListener('popstate', () => {
+  if (_cameraOpen) {
+    // Camera just returned — ignore this popstate, push state back
+    _cameraOpen = false;
+    history.pushState({snap:'scan'}, '');
+    return;
+  }
   const scanActive = g('scanScreen').classList.contains('active');
   if (scanActive) {
-    // If OCR is running or confirm fields are shown, ignore — camera just returned
-    const ocrActive = g('ocrBar').classList.contains('active');
-    const fieldsShown = g('confirmFields').style.display && g('confirmFields').style.display !== 'none';
-    const hasPhoto = g('czHasPhoto').style.display !== 'none';
-    if (ocrActive || fieldsShown || hasPhoto) {
-      // Camera returned — push state again to restore and do nothing
-      history.pushState({snap:'scan'}, '');
-      return;
-    }
     goHome();
     return;
   }
