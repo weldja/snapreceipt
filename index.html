@@ -396,8 +396,9 @@ img{display:block;max-width:100%}
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
 
 /* ── CONFIG ─────────────────────────────────────────────── */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
@@ -430,8 +431,8 @@ function _initFileInputs() {
     document.getElementById('galleryInput').value = '';
   });
 }
-// Modules run after DOM is parsed — call directly, no DOMContentLoaded needed
-_initFileInputs();
+// Init file inputs at DOM ready
+document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
 
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
