@@ -204,9 +204,218 @@ img{display:block;max-width:100%}
 .skel{background:linear-gradient(90deg,var(--gray-1) 25%,#ececec 50%,var(--gray-1) 75%);background-size:200% 100%;animation:shim 1.3s infinite;border-radius:6px}
 @keyframes shim{to{background-position:-200% 0}}
 .hidden{display:none!important}
+
+/* ── LANDING PAGE ─────────────────────────────────────── */
+#landingPage{display:none;flex-direction:column;min-height:100vh;background:#fff}
+#landingPage.active{display:flex}
+
+/* Nav */
+.lnav{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;background:#fff;z-index:10}
+.lnav-brand{font-size:1.1rem;font-weight:800;color:var(--black);letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
+.lnav-dot{width:8px;height:8px;background:var(--blue);border-radius:50%}
+.lnav-cta{padding:9px 20px;background:var(--black);color:#fff;border:none;border-radius:20px;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .15s}
+.lnav-cta:hover{opacity:.85}
+
+/* Hero */
+.lhero{padding:72px 24px 64px;text-align:center;max-width:640px;margin:0 auto}
+.lhero-label{display:inline-block;padding:5px 14px;background:var(--blue-lt);color:var(--blue);border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:20px}
+.lhero-h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;color:var(--black);letter-spacing:-.04em;line-height:1.1;margin-bottom:18px}
+.lhero-h1 span{color:var(--blue)}
+.lhero-sub{font-size:1.05rem;color:var(--gray-7);line-height:1.7;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
+.lhero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.lbtn-primary{padding:16px 32px;background:var(--black);color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.lbtn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.lbtn-secondary{padding:16px 24px;background:#fff;color:var(--black);border:2px solid var(--border);border-radius:50px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .15s}
+.lbtn-secondary:hover{border-color:var(--black)}
+.ltrust{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.ltrust-item{font-size:.8rem;font-weight:600;color:var(--gray-5);display:flex;align-items:center;gap:5px}
+
+/* Steps */
+.lsteps{background:var(--gray-0);padding:72px 24px}
+.lsteps-inner{max-width:800px;margin:0 auto}
+.lsection-label{font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;text-align:center}
+.lsection-h2{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;color:var(--black);letter-spacing:-.03em;text-align:center;margin-bottom:48px;line-height:1.2}
+.lsteps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
+.lstep{background:#fff;border-radius:var(--r-lg);padding:28px 24px;box-shadow:var(--shadow)}
+.lstep-num{width:36px;height:36px;background:var(--black);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;margin-bottom:14px}
+.lstep-icon{font-size:1.8rem;margin-bottom:10px}
+.lstep-title{font-size:1rem;font-weight:700;color:var(--black);margin-bottom:6px;letter-spacing:-.01em}
+.lstep-desc{font-size:.88rem;color:var(--gray-7);line-height:1.6}
+
+/* Features */
+.lfeatures{padding:72px 24px;max-width:900px;margin:0 auto}
+.lfeat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:48px}
+.lfeat{padding:24px;border:1.5px solid var(--border);border-radius:var(--r-lg);transition:all .15s}
+.lfeat:hover{border-color:var(--black);box-shadow:var(--shadow)}
+.lfeat-icon{font-size:1.6rem;margin-bottom:12px}
+.lfeat-title{font-size:.97rem;font-weight:700;color:var(--black);margin-bottom:6px}
+.lfeat-desc{font-size:.85rem;color:var(--gray-7);line-height:1.6}
+
+/* Who it's for */
+.lwho{background:var(--gray-0);padding:72px 24px}
+.lwho-inner{max-width:800px;margin:0 auto}
+.lwho-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+@media(max-width:520px){.lwho-grid{grid-template-columns:1fr}}
+.lwho-card{background:#fff;border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow)}
+.lwho-card-icon{font-size:1.6rem;margin-bottom:10px}
+.lwho-card-title{font-size:1rem;font-weight:700;color:var(--black);margin-bottom:8px}
+.lwho-card-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.lwho-card-list li{font-size:.85rem;color:var(--gray-7);display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.lwho-card-list li::before{content:"✓";color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* CTA bottom */
+.lcta{padding:80px 24px;text-align:center;background:#fff}
+.lcta-h2{font-size:clamp(1.5rem,4vw,2.4rem);font-weight:800;color:var(--black);letter-spacing:-.04em;margin-bottom:14px;line-height:1.2}
+.lcta-sub{font-size:1rem;color:var(--gray-7);margin-bottom:32px;line-height:1.6}
+
+/* Footer */
+.lfooter{border-top:1px solid var(--border);padding:24px;text-align:center}
+.lfooter-inner{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;flex-wrap:wrap;gap:12px}
+.lfooter-brand{font-size:.9rem;font-weight:700;color:var(--black)}
+.lfooter-links{display:flex;gap:20px}
+.lfooter-link{font-size:.82rem;color:var(--gray-5);text-decoration:none;cursor:pointer}
+.lfooter-link:hover{color:var(--black)}
+.lfooter-copy{font-size:.78rem;color:var(--gray-5)}
 </style>
 </head>
 <body>
+
+<!-- ═══ LANDING PAGE ════════════════════════════════════════ -->
+<div id="landingPage">
+
+  <nav class="lnav">
+    <div class="lnav-brand"><div class="lnav-dot"></div>SnapReceipt</div>
+    <button class="lnav-cta" onclick="showAuth('signin')">Sign in →</button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="lhero">
+    <div class="lhero-label">🇬🇧 Built for UK freelancers &amp; businesses</div>
+    <h1 class="lhero-h1">Stop losing receipts.<br/><span>Start saving time.</span></h1>
+    <p class="lhero-sub">Scan any receipt in seconds with your camera. AI reads the details automatically. Your expenses are organised and ready for tax time — without the admin.</p>
+    <div class="lhero-btns">
+      <button class="lbtn-primary" onclick="showAuth('signup')">📸 Start scanning free</button>
+      <button class="lbtn-secondary" onclick="showAuth('signin')">Sign in</button>
+    </div>
+    <div class="ltrust">
+      <span class="ltrust-item">✓ No credit card required</span>
+      <span class="ltrust-item">✓ Works on iOS &amp; Android</span>
+      <span class="ltrust-item">✓ Built in the UK</span>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="lsteps">
+    <div class="lsteps-inner">
+      <div class="lsection-label">How it works</div>
+      <h2 class="lsection-h2">Three taps and you're done</h2>
+      <div class="lsteps-grid">
+        <div class="lstep">
+          <div class="lstep-icon">📷</div>
+          <div class="lstep-title">1. Snap</div>
+          <div class="lstep-desc">Take a photo of any receipt — till receipts, invoices, card slips, online orders. Any format.</div>
+        </div>
+        <div class="lstep">
+          <div class="lstep-icon">🤖</div>
+          <div class="lstep-title">2. AI reads it</div>
+          <div class="lstep-desc">Claude AI extracts the merchant, amount, date and VAT automatically. No typing required.</div>
+        </div>
+        <div class="lstep">
+          <div class="lstep-icon">✅</div>
+          <div class="lstep-title">3. Saved</div>
+          <div class="lstep-desc">Confirm in one tap. Your receipt is logged, categorised, and ready for export to your accountant.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="lfeatures">
+    <div class="lsection-label">Features</div>
+    <h2 class="lsection-h2">Everything you need.<br/>Nothing you don't.</h2>
+    <div class="lfeat-grid">
+      <div class="lfeat">
+        <div class="lfeat-icon">🧾</div>
+        <div class="lfeat-title">AI-powered scanning</div>
+        <div class="lfeat-desc">Powered by Claude — reads faded thermal receipts, crumpled invoices, and card machine slips.</div>
+      </div>
+      <div class="lfeat">
+        <div class="lfeat-icon">📊</div>
+        <div class="lfeat-title">Expense totals at a glance</div>
+        <div class="lfeat-desc">Monthly and tax year totals calculated automatically. Always know where you stand.</div>
+      </div>
+      <div class="lfeat">
+        <div class="lfeat-icon">🔍</div>
+        <div class="lfeat-title">Instant search</div>
+        <div class="lfeat-desc">Find any receipt instantly. Search by merchant, category, notes or date.</div>
+      </div>
+      <div class="lfeat">
+        <div class="lfeat-icon">⬇</div>
+        <div class="lfeat-title">CSV export</div>
+        <div class="lfeat-desc">Export all receipts as a spreadsheet with one tap. Send straight to your accountant.</div>
+      </div>
+      <div class="lfeat">
+        <div class="lfeat-icon">✏️</div>
+        <div class="lfeat-title">Edit anything</div>
+        <div class="lfeat-desc">AI got something wrong? Edit any field on any receipt at any time.</div>
+      </div>
+      <div class="lfeat">
+        <div class="lfeat-icon">📱</div>
+        <div class="lfeat-title">Works in your browser</div>
+        <div class="lfeat-desc">No app to download. Opens in Safari or Chrome. Add to your home screen for instant access.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who it's for -->
+  <section class="lwho">
+    <div class="lwho-inner">
+      <div class="lsection-label">Who it's for</div>
+      <h2 class="lsection-h2">Built for anyone who hates<br/>dealing with receipts</h2>
+      <div class="lwho-grid">
+        <div class="lwho-card">
+          <div class="lwho-card-icon">💼</div>
+          <div class="lwho-card-title">Freelancers &amp; sole traders</div>
+          <ul class="lwho-card-list">
+            <li>Log expenses as you go — not in a January panic</li>
+            <li>Track deductible costs against your Self Assessment</li>
+            <li>Export a clean CSV for your accountant</li>
+            <li>Keep 6 years of records for HMRC</li>
+          </ul>
+        </div>
+        <div class="lwho-card">
+          <div class="lwho-card-icon">🏢</div>
+          <div class="lwho-card-title">Small business owners</div>
+          <ul class="lwho-card-list">
+            <li>Capture receipts on the go — never lose one again</li>
+            <li>Track monthly and yearly spend at a glance</li>
+            <li>Add notes for HMRC business purpose</li>
+            <li>No complex accounting software needed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="lcta">
+    <h2 class="lcta-h2">January tax return?<br/>Start now, not then.</h2>
+    <p class="lcta-sub">Every receipt you scan today is one less thing to worry about at year end.<br/>Free to use. No card required.</p>
+    <button class="lbtn-primary" onclick="showAuth('signup')" style="font-size:1.05rem;padding:18px 40px">📸 Start scanning free</button>
+  </section>
+
+  <footer class="lfooter">
+    <div class="lfooter-inner">
+      <div class="lfooter-brand">🧾 SnapReceipt</div>
+      <div class="lfooter-links">
+        <span class="lfooter-link" onclick="showAuth('signin')">Sign in</span>
+        <span class="lfooter-link" onclick="showAuth('signup')">Create account</span>
+      </div>
+      <div class="lfooter-copy">© 2025 SnapReceipt. Built in the UK.</div>
+    </div>
+  </footer>
+
+</div>
 
 <!-- ═══ AUTH ═════════════════════════════════════════════ -->
 <div id="authScreen" class="screen">
@@ -367,6 +576,13 @@ img{display:block;max-width:100%}
     <div class="sheet-handle"></div>
     <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
     <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV</button>
+    <div class="sdiv"></div>
+    <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
+      <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em">receipts@snapreceipt.co.uk</div>
+      <div style="font-size:.74rem;color:var(--gray-5);line-height:1.4">Forward any receipt email or attach a photo — it'll appear in your list automatically.</div>
+      <button onclick="copyEmailAddr()" style="margin-top:4px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer" id="copyEmailBtn">Copy address</button>
+    </div>
     <div class="sdiv"></div>
     <div class="sheet-item muted" style="cursor:default"><span class="sicon">👤</span><span id="menuEmail">—</span></div>
     <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
@@ -544,6 +760,20 @@ function initFileInputs() {
    Android fires popstate when camera app closes.
    _cameraOpen flag blocks navigation during that window.
 ─────────────────────────────────────────────────────── */
+/* ── LANDING / AUTH NAVIGATION ──────────────────────────── */
+function showLanding() {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  g('landingPage').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+window.showAuth = function(tab) {
+  g('landingPage').classList.remove('active');
+  show('authScreen');
+  authTab(tab || 'signin');
+  window.scrollTo(0,0);
+};
+
 history.replaceState({snap:'home'}, '');
 window.addEventListener('popstate', function() {
   if (_cameraOpen) {
@@ -567,11 +797,19 @@ sb.auth.onAuthStateChange(function(event, session) {
   _user = session ? session.user : null;
   if (_user) {
     g('menuEmail').textContent = _user.email || '';
+    g('landingPage').classList.remove('active');
     show('homeScreen');
     loadReceipts();
   } else {
-    show('authScreen');
     _receipts = [];
+    // Show landing page for logged-out visitors
+    // If they came via a direct link with #signin or #signup, skip to auth
+    var hash = window.location.hash;
+    if (hash === '#signin' || hash === '#signup') {
+      showAuth(hash.slice(1));
+    } else {
+      showLanding();
+    }
   }
 });
 
@@ -1013,6 +1251,28 @@ window.exportCSV = function() {
 
 /* ── MENU ────────────────────────────────────────────── */
 window.openMenu  = function() { g('menuSheet').classList.add('on'); };
+window.copyEmailAddr = function() {
+  var addr = 'receipts@snapreceipt.co.uk';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr).then(function() {
+      var btn = g('copyEmailBtn');
+      btn.textContent = '✓ Copied!';
+      setTimeout(function(){ btn.textContent = 'Copy address'; }, 2000);
+    });
+  } else {
+    // Fallback for older browsers
+    var el = document.createElement('textarea');
+    el.value = addr;
+    el.style.position = 'fixed'; el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    var btn = g('copyEmailBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(function(){ btn.textContent = 'Copy address'; }, 2000);
+  }
+};
 window.closeMenu = function() { g('menuSheet').classList.remove('on'); };
 
 /* ── IMAGE PROCESSING ────────────────────────────────── 
