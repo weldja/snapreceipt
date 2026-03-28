@@ -420,6 +420,7 @@ img{display:block;max-width:100%}
     <div class="sbody">
       <h3>Set new password</h3>
       <form class="sform" onsubmit="doSetPassword();return false">
+        <input type="text" autocomplete="username" style="display:none" aria-hidden="true"/>
         <div><label class="fl">New password</label><input class="ti" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
         <div><label class="fl">Confirm password</label><input class="ti" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
         <div class="amsg" id="npMsg"></div>
@@ -791,7 +792,7 @@ window.openScan = function() {
   g('cbadge').innerHTML = '';
   g('cfMerchant').value=''; g('cfAmount').value='';
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
-  g('cfCategory').value=''; g('cfVat').value=''; g('cfNotes').value='';
+  if(g('cfNotes')) g('cfNotes').value='';
   // Show as overlay — file inputs remain in DOM, events always fire
   g('scanScreen').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -872,7 +873,7 @@ function runOCR(b64) {
       g('cfAmount').value   = data.amount   || '';
       g('cfDate').value     = data.date ? isoDate(data.date) : today();
       if (data.currency) g('cfCurrency').value = data.currency;
-      if (data.vat)      g('cfVat').value      = data.vat;
+
       var conf   = (data.confidence||'medium').toLowerCase();
       var labels = {high:'✓ High confidence', medium:'~ Review fields', low:'⚠ Check fields carefully'};
       g('cbadge').innerHTML = '<div class="cbadge '+conf+'">'+(labels[conf]||conf)+'</div>';
@@ -915,8 +916,7 @@ window.saveReceipt = async function() {
       amount:   amount,
       currency: g('cfCurrency').value || 'GBP',
       date:     date || null,
-      category: g('cfCategory').value || null,
-      vat:      parseFloat(g('cfVat').value) || null,
+
       notes:    g('cfNotes').value.trim() || null,
       image_url:imgToStore,
       ocr_raw:  null,
