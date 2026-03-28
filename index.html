@@ -289,16 +289,11 @@ img{display:block;max-width:100%}
     <div id="czEmpty">
       <div style="display:flex;gap:10px">
 
-        <div class="scan-upload-area" id="cameraArea" onclick="document.getElementById('captureInput').click()">
+        <div class="scan-upload-area" id="cameraArea" style="flex:1" onclick="document.getElementById('captureInput').click()">
           <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:1.5rem">📸</div>
-            <div style="font-size:.85rem;font-weight:700;color:#111">Camera</div>
-          </div>
-        </div>
-        <div class="scan-upload-area" id="galleryArea" onclick="document.getElementById('galleryInput').click()">
-          <div class="scan-upload-inner" style="pointer-events:none">
-            <div style="font-size:1.5rem">🖼</div>
-            <div style="font-size:.85rem;font-weight:700;color:#111">Gallery</div>
+            <div style="font-size:2.2rem">📷</div>
+            <div style="font-size:.95rem;font-weight:700;color:#111">Tap to scan receipt</div>
+            <div style="font-size:.76rem;color:#888;margin-top:2px">Camera or gallery</div>
           </div>
         </div>
 
@@ -400,7 +395,7 @@ img{display:block;max-width:100%}
 <div class="toast" id="toast"></div>
 
 <!-- File inputs outside all screens — always in DOM so events fire reliably on Android -->
-<input type="file" id="captureInput" accept="image/*" capture="environment"
+<input type="file" id="captureInput" accept="image/*"
   style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"/>
 <input type="file" id="galleryInput" accept="image/*"
   style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"/>
