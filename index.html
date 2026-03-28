@@ -289,15 +289,13 @@ img{display:block;max-width:100%}
     <div id="czEmpty">
       <div style="display:flex;gap:10px">
 
-        <div class="scan-upload-area" id="cameraArea">
-          <input type="file" id="captureInput" accept="image/*;capture=camera"/>
+        <div class="scan-upload-area" id="cameraArea" onclick="document.getElementById('captureInput').click()">
           <div class="scan-upload-inner" style="pointer-events:none">
             <div style="font-size:1.5rem">📸</div>
             <div style="font-size:.85rem;font-weight:700;color:#111">Camera</div>
           </div>
         </div>
-        <div class="scan-upload-area" id="galleryArea">
-          <input type="file" id="galleryInput" accept="image/*"/>
+        <div class="scan-upload-area" id="galleryArea" onclick="document.getElementById('galleryInput').click()">
           <div class="scan-upload-inner" style="pointer-events:none">
             <div style="font-size:1.5rem">🖼</div>
             <div style="font-size:.85rem;font-weight:700;color:#111">Gallery</div>
@@ -401,6 +399,12 @@ img{display:block;max-width:100%}
 
 <div class="toast" id="toast"></div>
 
+<!-- File inputs outside all screens — always in DOM so events fire reliably on Android -->
+<input type="file" id="captureInput" accept="image/*" capture="environment"
+  style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"/>
+<input type="file" id="galleryInput" accept="image/*"
+  style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"/>
+
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -440,18 +444,30 @@ function _initFileInputs() {
 
   if (captureEl) {
     dbg('listeners attached to captureInput');
-    captureEl.addEventListener('change', () => { dbg('captureInput CHANGE fired'); handleFile(captureEl); });
-    captureEl.addEventListener('input',  () => { dbg('captureInput INPUT fired');  handleFile(captureEl); });
-    captureEl.addEventListener('click',  () => { dbg('captureInput CLICK — reset'); captureEl.value = ''; });
+    ['change','input'].forEach(evt => {
+      captureEl.addEventListener(evt, e => {
+        dbg('captureInput ' + evt + ' fired, files=' + (e.target.files ? e.target.files.length : 0));
+        if (e.target.files && e.target.files[0]) handleFile(captureEl);
+      });
+    });
   } else {
     dbg('ERROR: captureInput not found!');
   }
   if (galleryEl) {
     dbg('listeners attached to galleryInput');
-    galleryEl.addEventListener('change', () => { dbg('galleryInput CHANGE fired'); handleFile(galleryEl); });
-    galleryEl.addEventListener('input',  () => { dbg('galleryInput INPUT fired');  handleFile(galleryEl); });
-    galleryEl.addEventListener('click',  () => { dbg('galleryInput CLICK — reset'); galleryEl.value = ''; });
+    ['change','input'].forEach(evt => {
+      galleryEl.addEventListener(evt, e => {
+        dbg('galleryInput ' + evt + ' fired, files=' + (e.target.files ? e.target.files.length : 0));
+        if (e.target.files && e.target.files[0]) handleFile(galleryEl);
+      });
+    });
   }
+
+  // Reset on area click so Android re-fires even if same photo selected
+  const ca = document.getElementById('cameraArea');
+  const ga = document.getElementById('galleryArea');
+  if (ca) ca.addEventListener('click', () => { dbg('cameraArea clicked — reset + open'); captureEl.value = ''; });
+  if (ga) ga.addEventListener('click', () => { dbg('galleryArea clicked — reset + open'); galleryEl.value = ''; });
 }
 // Intercept browser back button — go to home instead of leaving app
 window.addEventListener('popstate', () => {
