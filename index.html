@@ -1363,6 +1363,49 @@ function showConfirm() {
   },50);
 }
 
+/* ── UPLOAD IMAGE TO SUPABASE STORAGE ───────────────────────
+   Converts base64 to a Blob and uploads to the receipt-images
+   bucket. Returns the public URL or null on failure.
+─────────────────────────────────────────────────────────── */
+async function uploadImageToStorage(b64, userId) {
+  try {
+    // Convert base64 data URL to Blob
+    var base64Data = b64.includes(',') ? b64.split(',')[1] : b64;
+    var byteChars  = atob(base64Data);
+    var byteNums   = new Array(byteChars.length);
+    for (var i = 0; i < byteChars.length; i++) {
+      byteNums[i] = byteChars.charCodeAt(i);
+    }
+    var blob = new Blob([new Uint8Array(byteNums)], { type: 'image/jpeg' });
+
+    // Unique filename: userId/timestamp.jpg
+    var filename = userId + '/' + Date.now() + '.jpg';
+
+    var uploadRes = await sb.storage
+      .from('receipt-images')
+      .upload(filename, blob, {
+        contentType: 'image/jpeg',
+        upsert: false,
+      });
+
+    if (uploadRes.error) {
+      console.error('Storage upload error:', uploadRes.error.message);
+      return null;
+    }
+
+    // Get the public URL
+    var urlRes = sb.storage
+      .from('receipt-images')
+      .getPublicUrl(filename);
+
+    return urlRes.data.publicUrl || null;
+
+  } catch(e) {
+    console.error('Image upload failed:', e.message);
+    return null; // Fail silently — receipt still saves without image
+  }
+}
+
 window.saveReceipt = async function() {
   var merchant = g('cfMerchant').value.trim();
   var amount   = parseFloat(g('cfAmount').value) || 0;
@@ -1371,16 +1414,20 @@ window.saveReceipt = async function() {
   if (!amount)   { toast('Please enter an amount'); g('cfAmount').focus(); return; }
   var btn = g('btnSave'); btn.disabled=true; btn.textContent='Saving…';
   try {
-    var imgToStore = (_imgB64 && _imgB64.length < 800000) ? _imgB64 : null;
+    // Upload image to Supabase Storage if we have one
+    var imageUrl = null;
+    if (_imgB64 && _imgB64.length > 100) {
+      imageUrl = await uploadImageToStorage(_imgB64, _user.id);
+    }
+
     var res = await sb.from('receipts').insert({
       user_id:  _user.id,
       merchant: merchant,
       amount:   amount,
       currency: g('cfCurrency').value || 'GBP',
       date:     date || null,
-
       notes:    g('cfNotes').value.trim() || null,
-      image_url:imgToStore,
+      image_url: imageUrl,
       ocr_raw:  null,
     }).select().single();
     if (res.error) throw res.error;
