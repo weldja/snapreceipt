@@ -34,7 +34,9 @@ img{display:block;max-width:100%}
 .screen.active{display:flex;flex-direction:column}
 #authScreen{min-height:100dvh;min-height:100vh}
 #homeScreen{min-height:100dvh;min-height:100vh;background:var(--gray-0)}
-#scanScreen{height:100dvh;height:100vh;overflow:hidden;background:#fff}
+/* scanScreen is a fixed overlay — not toggled by .screen/.active */
+#scanScreen{position:fixed;inset:0;z-index:200;background:#fff;display:none;flex-direction:column;overflow:hidden}
+#scanScreen.active{display:flex}
 
 /* ── AUTH ────────────────────────────────────────── */
 .auth-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 48px;max-width:420px;margin:0 auto;width:100%}
@@ -267,7 +269,7 @@ img{display:block;max-width:100%}
 </div>
 
 <!-- ═══ SCAN ═══════════════════════════════════════════════ -->
-<div id="scanScreen" class="screen">
+<div id="scanScreen">
   <header class="scan-hdr">
     <button class="scan-back" onclick="goHome()">← Back</button>
     <span class="scan-title">Scan Receipt</span>
@@ -538,12 +540,9 @@ function initFileInputs() {
   galArea.addEventListener('mousedown',  function(){ prepareInput(galIn); });
   galArea.addEventListener('touchstart', function(){ prepareInput(galIn); }, {passive:true});
 
-  // Set _cameraOpen on the input's own click — this fires exactly once
-  // when the user taps, not when the camera app returns
   capIn.addEventListener('click', function(){ _cameraOpen = true; });
   galIn.addEventListener('click', function(){ _cameraOpen = true; });
 
-  // Handle the selected file — both change and input for iOS/Android compat
   function handleFile(input) {
     if (input && input.files && input.files[0]) {
       _cameraOpen = false;
@@ -563,13 +562,14 @@ function initFileInputs() {
 history.replaceState({snap:'home'}, '');
 window.addEventListener('popstate', function() {
   if (_cameraOpen) {
-    // Camera/picker is returning — ignore, push state back
+    // Camera/picker returning — push state back, do nothing else
+    // scanScreen stays visible, file input change event will fire shortly
     _cameraOpen = false;
     history.pushState({snap:'scan'}, '');
     return;
   }
-  var scanActive = g('scanScreen').classList.contains('active');
-  if (scanActive) { goHome(); return; }
+  var scanVisible = g('scanScreen').style.display === 'flex';
+  if (scanVisible) { goHome(); return; }
   history.pushState({snap:'home'}, '');
 });
 
@@ -808,13 +808,17 @@ window.openScan = function() {
   g('cfMerchant').value=''; g('cfAmount').value='';
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
   g('cfCategory').value=''; g('cfVat').value=''; g('cfNotes').value='';
-  show('scanScreen');
+  // Show as overlay — file inputs remain in DOM, events always fire
+  g('scanScreen').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
   history.pushState({snap:'scan'}, '');
 };
 
 window.goHome = function() {
-  show('homeScreen');
-  // Reload in background — don't block UI
+  g('scanScreen').style.display = 'none';
+  document.body.style.overflow = '';
+  // Make sure home is visible
+  if (!g('homeScreen').classList.contains('active')) show('homeScreen');
   setTimeout(loadReceipts, 100);
 };
 
