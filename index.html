@@ -6,6 +6,7 @@
 <title>SnapReceipt — Scan receipts instantly</title>
 <meta name="description" content="The fastest way to log receipts. Scan, confirm, done."/>
 <meta name="theme-color" content="#ffffff"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
@@ -220,19 +221,19 @@ img{display:block;max-width:100%}
       <button class="auth-tab" id="tabSignup" onclick="authTab('signup')">Create account</button>
       <button class="auth-tab" id="tabReset"  onclick="authTab('reset')">Reset</button>
     </div>
-    <div id="formSignin" class="auth-form">
+    <form id="formSignin" class="auth-form" onsubmit="doSignin();return false">
       <div><label class="fl">Email</label><input class="ti" id="siEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
       <div><label class="fl">Password</label><input class="ti" id="siPass" type="password" placeholder="Your password" autocomplete="current-password"/></div>
-      <button class="btn-p" id="btnSignin" onclick="doSignin()">Sign in →</button>
+      <button class="btn-p" id="btnSignin" type="submit">Sign in →</button>
       <div class="amsg" id="siMsg"></div>
-      <div class="alink-row"><button class="alink" onclick="authTab('reset')">Forgot password?</button></div>
-    </div>
-    <div id="formSignup" class="auth-form hidden">
+      <div class="alink-row"><button class="alink" type="button" onclick="authTab('reset')">Forgot password?</button></div>
+    </form>
+    <form id="formSignup" class="auth-form hidden" onsubmit="doSignup();return false">
       <div><label class="fl">Email</label><input class="ti" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
       <div><label class="fl">Password</label><input class="ti" id="suPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
-      <button class="btn-p" id="btnSignup" onclick="doSignup()">Create account →</button>
+      <button class="btn-p" id="btnSignup" type="submit">Create account →</button>
       <div class="amsg" id="suMsg"></div>
-    </div>
+    </form>
     <div id="formReset" class="auth-form hidden">
       <p style="font-size:.88rem;color:var(--gray-5);line-height:1.5;margin-bottom:4px">We'll send a reset link to your email.</p>
       <div><label class="fl">Email</label><input class="ti" id="rstEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
@@ -418,12 +419,12 @@ img{display:block;max-width:100%}
     <div class="sheet-handle"></div>
     <div class="sbody">
       <h3>Set new password</h3>
-      <div class="sform">
+      <form class="sform" onsubmit="doSetPassword();return false">
         <div><label class="fl">New password</label><input class="ti" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
         <div><label class="fl">Confirm password</label><input class="ti" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
         <div class="amsg" id="npMsg"></div>
-        <button class="btn-p" id="btnNewPass" onclick="doSetPassword()">Update password →</button>
-      </div>
+        <button class="btn-p" id="btnNewPass" type="submit">Update password →</button>
+      </form>
     </div>
   </div>
 </div>
@@ -662,7 +663,7 @@ function updateStats() {
   g('statCount').textContent = _receipts.length;
   g('statMonth').textContent = fmt(monthRs.reduce(function(s,r){return s+parseFloat(r.amount||0);},0));
   g('statYear').textContent  = fmt(yearRs.reduce(function(s,r){return s+parseFloat(r.amount||0);},0));
-  g('statVAT').textContent   = '£'+yearRs.reduce(function(s,r){return s+parseFloat(r.vat||0);},0).toFixed(2);
+
 }
 
 function renderSkeleton() {
