@@ -420,9 +420,12 @@ function _initFileInputs() {
   const cameraArea = document.getElementById('cameraArea');
   const galArea    = document.getElementById('galleryArea');
 
-  // Reset value before each open — weldswine fix so iOS always fires change
-  if(cameraArea) cameraArea.addEventListener('click', () => { captureEl.value = ''; });
-  if(galArea)    galArea.addEventListener('click',    () => { galleryEl.value = ''; });
+  // Reset value on touchstart/mousedown — must happen BEFORE the click
+  // so iOS always fires change even if same photo selected again
+  ['touchstart','mousedown'].forEach(evt => {
+    if(cameraArea) cameraArea.addEventListener(evt, () => { try{ captureEl.value=''; }catch(e){} }, {passive:true});
+    if(galArea)    galArea.addEventListener(evt,    () => { try{ galleryEl.value=''; }catch(e){} }, {passive:true});
+  });
 
   // Both 'change' AND 'input' — iOS Safari sometimes only fires one of them
   ['change','input'].forEach(evt => {
