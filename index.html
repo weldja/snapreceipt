@@ -3,1111 +3,339 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>SnapReceipt — Scan & Log Receipts Instantly</title>
-  <meta name="description" content="The fastest way to scan receipts and log expenses. AI extracts merchant, amount and date instantly. Built for UK freelancers."/>
-  <meta name="theme-color" content="#0ea5e9" media="(prefers-color-scheme: light)"/>
-  <meta name="theme-color" content="#0c1117" media="(prefers-color-scheme: dark)"/>
+  <title>SnapReceipt — Scan receipts instantly</title>
+  <meta name="description" content="The fastest way to log receipts. Scan, confirm, done. Built for UK freelancers."/>
+  <meta name="theme-color" content="#ffffff"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
   <meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
   <link rel="canonical" href="https://snapreceipt.co.uk/"/>
-
   <style>
-/* ─────────────────────────────────────────────────────────
-   DESIGN TOKENS — light & dark via prefers-color-scheme
-───────────────────────────────────────────────────────── */
-:root {
-  --bg:          #ffffff;
-  --bg-2:        #f4f6f8;
-  --bg-3:        #e8ecf0;
-  --border:      #d1d9e0;
-  --border-strong:#b0bec8;
-  --text:        #0d1117;
-  --text-2:      #4a5568;
-  --text-3:      #8a9ab0;
-  --accent:      #0ea5e9;
-  --accent-dark: #0284c7;
-  --accent-pale: #e0f2fe;
-  --green:       #10b981;
-  --green-pale:  #d1fae5;
-  --amber:       #f59e0b;
-  --amber-pale:  #fef3c7;
-  --red:         #ef4444;
-  --red-pale:    #fee2e2;
-  --shadow-sm:   0 1px 3px rgba(0,0,0,.08);
-  --shadow-md:   0 4px 16px rgba(0,0,0,.10);
-  --shadow-lg:   0 12px 40px rgba(0,0,0,.14);
-  --r:           10px;
-  --r-lg:        16px;
-  --font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+/* ─── RESET ───────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#fff;color:#111;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input,select,textarea{font-family:inherit}
+img{display:block;max-width:100%}
+
+/* ─── TOKENS ──────────────────────────────────────────── */
+:root{
+  --black:#111;--gray-9:#1a1a1a;--gray-7:#555;--gray-5:#888;
+  --gray-3:#ccc;--gray-1:#f5f5f5;--gray-0:#fafafa;--white:#fff;
+  --blue:#0066ff;--blue-lt:#e8f0ff;--blue-mid:#c5d8ff;
+  --green:#00a651;--green-lt:#e6f5ed;
+  --red:#e53935;--red-lt:#fdecea;
+  --border:#e5e5e5;--r:10px;--r-lg:16px;
+  --shadow:0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:0 4px 20px rgba(0,0,0,.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:          #0c1117;
-    --bg-2:        #161b22;
-    --bg-3:        #21262d;
-    --border:      #30363d;
-    --border-strong:#484f58;
-    --text:        #e6edf3;
-    --text-2:      #8b949e;
-    --text-3:      #484f58;
-    --accent:      #38bdf8;
-    --accent-dark: #0ea5e9;
-    --accent-pale: rgba(56,189,248,.12);
-    --green:       #3fb950;
-    --green-pale:  rgba(63,185,80,.12);
-    --amber:       #d29922;
-    --amber-pale:  rgba(210,153,34,.12);
-    --red:         #f85149;
-    --red-pale:    rgba(248,81,73,.12);
-    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
-    --shadow-md:   0 4px 16px rgba(0,0,0,.4);
-    --shadow-lg:   0 12px 40px rgba(0,0,0,.6);
-  }
-}
-
-/* ─────────────────────────────────────────────────────────
-   RESET + BASE
-───────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html {
-  font-family: var(--font);
-  font-size: 16px;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  min-height: 100dvh;
-  min-height: 100vh;
-  background: var(--bg);
-  overflow-x: hidden;
-}
-
-button { font-family: var(--font); cursor: pointer; }
-input, textarea, select { font-family: var(--font); }
-img { display: block; max-width: 100%; }
-
-/* ─────────────────────────────────────────────────────────
-   APP SHELL — three screens, only one visible at a time
-───────────────────────────────────────────────────────── */
-.screen {
-  display: none;
-  flex-direction: column;
-  min-height: 100dvh;
-  min-height: 100vh;
-}
-.screen.active { display: flex; }
-
-/* ─────────────────────────────────────────────────────────
-   AUTH SCREEN
-───────────────────────────────────────────────────────── */
-#authScreen {
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: var(--bg);
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 380px;
-}
-
-.auth-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 32px;
-}
-
-.auth-logo-icon {
-  width: 42px;
-  height: 42px;
-  background: var(--accent);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  flex-shrink: 0;
-}
-
-.auth-logo-name {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -.02em;
-}
-
-.auth-logo-tag {
-  font-size: .75rem;
-  color: var(--text-2);
-  margin-top: 1px;
-}
-
-.auth-heading {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 6px;
-  letter-spacing: -.02em;
-}
-
-.auth-sub {
-  font-size: .9rem;
-  color: var(--text-2);
-  margin-bottom: 28px;
-  line-height: 1.5;
-}
-
-.auth-tabs {
-  display: flex;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 3px;
-  gap: 3px;
-  margin-bottom: 22px;
-}
-
-.auth-tab {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  background: none;
-  border-radius: 7px;
-  font-size: .88rem;
-  font-weight: 500;
-  color: var(--text-2);
-  transition: all .15s;
-}
-
-.auth-tab.active {
-  background: var(--bg);
-  color: var(--text);
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
-
-.form-field { margin-bottom: 14px; }
-
-.form-label {
-  display: block;
-  font-size: .78rem;
-  font-weight: 600;
-  color: var(--text-2);
-  margin-bottom: 5px;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-}
-
-.form-input {
-  width: 100%;
-  padding: 9px 11px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--r);
-  background: var(--bg-2);
-  color: var(--text);
-  font-size: .93rem;
-  outline: none;
-  transition: border-color .15s, background .15s;
-  -webkit-appearance: none;
-}
-
-.form-input:focus {
-  border-color: var(--accent);
-  background: var(--bg);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: none;
-  border-radius: var(--r);
-  font-size: .95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .15s;
-  -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
-}
-
-.btn:active { transform: scale(.97); }
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-  padding: 13px 20px;
-}
-
-.btn-primary:hover { background: var(--accent-dark); }
-.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-
-.btn-secondary {
-  background: var(--bg-2);
-  color: var(--text);
-  border: 1.5px solid var(--border);
-  padding: 11px 18px;
-}
-
-.btn-secondary:hover { background: var(--bg-3); border-color: var(--border-strong); }
-
-.btn-danger {
-  background: var(--red-pale);
-  color: var(--red);
-  border: 1.5px solid var(--red);
-  padding: 11px 18px;
-}
-
-.btn-danger:hover { background: var(--red); color: #fff; }
-
-.btn-full { width: 100%; }
-
-.btn-sm { padding: 8px 14px; font-size: .85rem; }
-
-.auth-msg {
-  font-size: .85rem;
-  padding: 10px 13px;
-  border-radius: var(--r);
-  margin-top: 12px;
-  display: none;
-  line-height: 1.4;
-}
-
-.auth-msg.ok  { display: block; background: var(--green-pale); color: var(--green); }
-.auth-msg.err { display: block; background: var(--red-pale);   color: var(--red);   }
-
-.auth-footer-link {
-  text-align: center;
-  margin-top: 14px;
-  font-size: .82rem;
-  color: var(--text-2);
-}
-
-.auth-footer-link button {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: .82rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-}
-
-/* ─────────────────────────────────────────────────────────
-   HOME SCREEN
-───────────────────────────────────────────────────────── */
-#homeScreen {
-  background: var(--bg);
-}
-
-.home-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg);
-  border-bottom: 2px solid var(--border);
-  padding: 0 16px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  box-shadow: 0 1px 6px rgba(0,0,0,.06);
-}
-
-.home-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -.02em;
-}
-
-.home-logo-icon {
-  width: 28px;
-  height: 28px;
-  background: var(--accent);
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .85rem;
-}
-
-.header-actions { display: flex; align-items: center; gap: 8px; }
-
-.btn-icon {
-  width: 38px;
-  height: 38px;
-  border: 1.5px solid var(--border-strong);
-  background: var(--bg-3);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background .15s;
-  -webkit-tap-highlight-color: transparent;
-  color: var(--text);
-  font-weight: 600;
-}
-
-.btn-icon:hover { background: var(--border); }
-
-/* Scan FAB */
-.scan-fab {
-  position: fixed;
-  bottom: max(24px, env(safe-area-inset-bottom, 24px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 50px;
-  padding: 16px 32px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -.01em;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  box-shadow: 0 4px 20px rgba(14,165,233,.45);
-  cursor: pointer;
-  transition: all .15s;
-  -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
-}
-
-.scan-fab:hover  { background: var(--accent-dark); box-shadow: 0 6px 24px rgba(14,165,233,.55); }
-.scan-fab:active { transform: translateX(-50%) scale(.96); }
-
-/* Summary strip */
-.summary-strip {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.summary-strip::-webkit-scrollbar { display: none; }
-
-.summary-item {
-  flex: 1;
-  min-width: 100px;
-  padding: 12px 16px;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-.summary-item:last-child { border-right: none; }
-
-.summary-val {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1;
-  margin-bottom: 3px;
-}
-
-.summary-val.accent { color: var(--accent); }
-
-.summary-key {
-  font-size: .68rem;
-  font-weight: 700;
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-
-/* Receipt list */
-.receipt-list {
-  flex: 1;
-  padding: 12px 12px 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.receipt-item {
-  background: var(--bg-2);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all .15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.receipt-item:hover  { border-color: var(--accent); background: var(--bg); }
-.receipt-item:active { transform: scale(.99); }
-
-.receipt-thumb {
-  width: 44px;
-  height: 56px;
-  border-radius: 7px;
-  object-fit: cover;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-  background: var(--bg-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  color: var(--text-3);
-  overflow: hidden;
-}
-
-.receipt-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.receipt-info { flex: 1; min-width: 0; }
-
-.receipt-merchant {
-  font-size: .97rem;
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 3px;
-}
-
-.receipt-date {
-  font-size: .78rem;
-  color: var(--text-3);
-  font-weight: 500;
-}
-
-.receipt-amount {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text);
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.receipt-currency {
-  font-size: .7rem;
-  color: var(--text-3);
-  margin-top: 2px;
-}
-
-/* Empty state */
-.empty-state {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px 120px;
-  text-align: center;
-}
-
-.empty-icon {
-  font-size: 3.5rem;
-  margin-bottom: 16px;
-  opacity: .4;
-}
-
-.empty-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 8px;
-  letter-spacing: -.01em;
-}
-
-.empty-sub {
-  font-size: .88rem;
-  color: var(--text-2);
-  line-height: 1.6;
-  max-width: 260px;
-}
-
-/* Skeleton loader */
-.skeleton {
-  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  border-radius: 6px;
-}
-@keyframes shimmer { to { background-position: -200% 0; } }
-
-/* ─────────────────────────────────────────────────────────
-   SCAN / CONFIRM SCREEN
-   Single screen: camera → OCR results → confirm → save
-───────────────────────────────────────────────────────── */
-#scanScreen {
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.scan-header {
-  height: 52px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
-  flex-shrink: 0;
-}
-
-.scan-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-/* scan-body scrolls, save-bar is PART OF THE FLEX COLUMN not fixed */
-.scan-body {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 14px 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 0; /* crucial for flex children to scroll */
-}
-
-/* Capture area */
-.capture-area {
-  border: 2px dashed var(--border);
-  border-radius: var(--r);
-  background: var(--bg-2);
-  min-height: 100px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all .15s;
-  -webkit-tap-highlight-color: transparent;
-  padding: 12px 14px;
-}
-
-.capture-area:hover, .capture-area.dragover {
-  border-color: var(--accent);
-  background: var(--accent-pale);
-}
-
-.capture-area input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.capture-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
-.capture-title { font-size: .92rem; font-weight: 600; color: var(--text); }
-.capture-sub   { font-size: .76rem; color: var(--text-2); margin-top: 3px; }
-
-/* Compact strip once photo taken */
-.capture-area.has-photo {
-  min-height: auto;
-  border-style: solid;
-  border-color: var(--border);
-  background: var(--bg);
-  padding: 8px 12px;
-}
-
-.capture-preview {
-  display: none;
-  width: 44px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.capture-preview.visible { display: block; }
-
-.capture-retake {
-  display: none;
-  background: var(--bg-3);
-  color: var(--text);
-  border: 1.5px solid var(--border-strong);
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-size: .78rem;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 3;
-  position: static;
-  -webkit-tap-highlight-color: transparent;
-  flex-shrink: 0;
-}
-
-.capture-retake.visible { display: inline-flex; align-items: center; gap: 4px; }
-
-/* OCR state — compact inline row */
-.ocr-loading {
-  display: none;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: var(--accent-pale);
-  border-radius: var(--r);
-  border: 1px solid var(--accent);
-}
-
-.ocr-loading.active { display: flex; }
-
-.ocr-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(14,165,233,.3);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.ocr-loading-text {
-  font-size: .85rem;
-  color: var(--accent-dark);
-  font-weight: 600;
-}
+/* ─── SCREENS ─────────────────────────────────────────── */
+.screen{display:none}
+.screen.active{display:flex;flex-direction:column}
+#authScreen{min-height:100dvh;min-height:100vh}
+#homeScreen{min-height:100dvh;min-height:100vh;background:var(--gray-0)}
+#scanScreen{height:100dvh;height:100vh;overflow:hidden;background:#fff;/* iOS Safari: prevent bounce */position:fixed;width:100%;top:0;left:0}
+#scanScreen.active{position:relative}
+
+/* ─── AUTH ────────────────────────────────────────────── */
+.auth-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 48px;max-width:420px;margin:0 auto;width:100%}
+.auth-brand{text-align:center;margin-bottom:44px}
+.auth-brand-icon{width:64px;height:64px;background:var(--black);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px}
+.auth-brand-name{font-size:1.5rem;font-weight:700;color:var(--black);letter-spacing:-.03em}
+.auth-brand-tag{font-size:.85rem;color:var(--gray-5);margin-top:4px}
+.auth-tabs{display:flex;background:var(--gray-1);border-radius:var(--r);padding:3px;gap:3px;margin-bottom:24px;width:100%}
+.auth-tab{flex:1;padding:9px;border:none;background:none;border-radius:8px;font-size:.88rem;font-weight:500;color:var(--gray-5);transition:all .15s}
+.auth-tab.active{background:#fff;color:var(--black);font-weight:700;box-shadow:var(--shadow)}
+.auth-form{width:100%;display:flex;flex-direction:column;gap:12px}
+.field-label{display:block;font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.text-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;color:var(--black);font-size:1rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.text-input:focus{border-color:var(--blue)}
+.btn-primary{width:100%;padding:14px;background:var(--black);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;letter-spacing:-.01em;transition:opacity .15s,transform .1s}
+.btn-primary:active{transform:scale(.98);opacity:.9}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.auth-msg{font-size:.85rem;padding:10px 12px;border-radius:var(--r);display:none;line-height:1.4}
+.auth-msg.ok{display:block;background:var(--green-lt);color:var(--green)}
+.auth-msg.err{display:block;background:var(--red-lt);color:var(--red)}
+.auth-link-row{text-align:center;margin-top:6px}
+.auth-link{background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:underline;padding:0}
+
+/* ─── HOME HEADER ─────────────────────────────────────── */
+.home-header{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0}
+.home-brand{font-size:1.05rem;font-weight:800;color:var(--black);letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
+.home-brand-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;flex-shrink:0}
+.header-btn{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.82rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:6px;transition:all .15s}
+.header-btn:hover{border-color:var(--gray-3);background:var(--gray-0)}
+
+/* ─── STATS BAR ───────────────────────────────────────── */
+.stats-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.stats-bar::-webkit-scrollbar{display:none}
+.stat-item{padding:10px 16px 10px 0;flex-shrink:0;border-right:1px solid var(--border);margin-right:16px}
+.stat-item:last-child{border-right:none}
+.stat-val{font-size:1.1rem;font-weight:800;color:var(--black);letter-spacing:-.02em;line-height:1}
+.stat-val.blue{color:var(--blue)}
+.stat-key{font-size:.66rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+
+/* ─── MONTH HEADER ────────────────────────────────────── */
+.month-header{padding:18px 12px 6px;display:flex;align-items:baseline;justify-content:space-between}
+.month-label{font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.08em}
+.month-total{font-size:1.25rem;font-weight:800;color:var(--black);letter-spacing:-.03em}
+
+/* ─── RECEIPT LIST ────────────────────────────────────── */
+.receipt-list{flex:1;padding:0 12px 120px;display:flex;flex-direction:column;gap:6px}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 140px;text-align:center;gap:10px}
+.empty-icon{font-size:3rem;opacity:.25}
+.empty-title{font-size:1.1rem;font-weight:700;color:var(--black)}
+.empty-sub{font-size:.88rem;color:var(--gray-5);line-height:1.6;max-width:240px}
+
+/* Receipt row */
+.receipt-row{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;animation:fadeUp .22s ease both;box-shadow:var(--shadow)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.receipt-row:active{opacity:.85;transform:scale(.99)}
+.receipt-row:hover{border-color:var(--gray-3);box-shadow:var(--shadow-md)}
+.receipt-row.expanded{border-color:var(--black);box-shadow:var(--shadow-md)}
+.receipt-row-main{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.receipt-thumb{width:44px;height:56px;border-radius:8px;background:var(--gray-1);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-3);border:1px solid var(--border)}
+.receipt-thumb img{width:100%;height:100%;object-fit:cover}
+.receipt-info{flex:1;min-width:0}
+.receipt-merchant{font-size:1rem;font-weight:700;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.receipt-date{font-size:.75rem;color:var(--gray-5);margin-top:4px;font-weight:500}
+.receipt-amount{font-size:1.1rem;font-weight:800;color:var(--black);letter-spacing:-.02em;flex-shrink:0;text-align:right}
+.receipt-currency{font-size:.68rem;color:var(--gray-5);text-align:right;margin-top:2px;font-weight:600;text-transform:uppercase}
+
+/* Expanded detail */
+.receipt-detail{display:none;border-top:1px solid var(--border);padding:14px;background:var(--gray-0);flex-direction:column;gap:12px}
+.receipt-row.expanded .receipt-detail{display:flex}
+.receipt-detail-img{width:100%;max-height:180px;object-fit:contain;border-radius:var(--r);border:1px solid var(--border);background:#fff}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.detail-cell-label{font-size:.66rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.detail-cell-val{font-size:.9rem;font-weight:600;color:var(--black)}
+.detail-actions{display:flex;gap:8px}
+.btn-outline{flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.85rem;font-weight:600;color:var(--gray-7);transition:all .15s;cursor:pointer}
+.btn-outline:hover{border-color:var(--gray-3)}
+.btn-outline.danger{color:var(--red);border-color:var(--red)}
+.btn-outline.danger:hover{background:var(--red-lt)}
+
+/* ─── SCAN FAB ────────────────────────────────────────── */
+.scan-fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom,20px));left:50%;transform:translateX(-50%);z-index:100;background:var(--black);color:#fff;border:none;border-radius:100px;padding:16px 36px;font-size:1rem;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;box-shadow:0 4px 24px rgba(0,0,0,.22);white-space:nowrap;transition:transform .15s,box-shadow .15s}
+.scan-fab:active{transform:translateX(-50%) scale(.96);box-shadow:0 2px 12px rgba(0,0,0,.18)}
+
+/* ─── SCAN SCREEN ─────────────────────────────────────── */
+.scan-header{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;background:#fff}
+.scan-back{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.85rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:5px;transition:all .15s}
+.scan-back:hover{border-color:var(--gray-3)}
+.scan-title-text{font-size:.95rem;font-weight:700;color:var(--black)}
+.scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y}
+
+/* Capture zone */
+/* Weldswine-proven scan upload area */
+.scan-upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);cursor:pointer;transition:border-color .2s,background .2s;overflow:hidden;background:var(--gray-0)}
+.scan-upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
+.scan-upload-area input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.scan-upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 12px;pointer-events:none}
+.cz-icon{font-size:1.7rem;flex-shrink:0}
+.cz-label{font-size:.92rem;font-weight:600;color:var(--black)}
+.cz-sub{font-size:.76rem;color:var(--gray-5);margin-top:2px}
+.cz-thumb{width:44px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;display:none}
+.cz-thumb.visible{display:block}
+.cz-status{flex:1;min-width:0}
+.cz-status-title{font-size:.88rem;font-weight:700;color:var(--black)}
+.cz-status-sub{font-size:.74rem;color:var(--gray-5);margin-top:2px}
+.cz-retake{flex-shrink:0;height:36px;padding:0 14px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.82rem;font-weight:600;color:var(--gray-7);display:none;align-items:center;gap:4px;z-index:3;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.cz-retake.visible{display:flex}
+.cz-btn{flex:1;padding:12px 8px;border-radius:var(--r);font-size:.9rem;font-weight:700;cursor:pointer;touch-action:manipulation;border:none;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent}
+.cz-btn-primary{background:var(--black);color:#fff}
+.cz-btn-primary:active{opacity:.85}
+.cz-btn-secondary{background:var(--gray-1);color:var(--black);border:1.5px solid var(--border)}
+.cz-btn-secondary:active{background:var(--border)}
+
+/* OCR bar */
+.ocr-bar{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-lt);border-radius:var(--r);border:1px solid var(--blue-mid)}
+.ocr-bar.active{display:flex}
+.ocr-spin{width:16px;height:16px;border:2px solid var(--blue-mid);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ocr-bar-text{font-size:.85rem;font-weight:600;color:var(--blue)}
 
 /* Confirm fields */
-.confirm-section {
-  display: none;
-  flex-direction: column;
-  gap: 14px;
-}
+.confirm-fields{display:none;flex-direction:column;gap:10px}
+.confirm-fields.active{display:flex}
+.conf-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:700;width:fit-content}
+.conf-badge.high{background:var(--green-lt);color:var(--green)}
+.conf-badge.medium{background:#fff8e1;color:#b45309;border:1px solid #fde68a}
+.conf-badge.low{background:var(--red-lt);color:var(--red)}
+.field-group{display:flex;flex-direction:column;gap:4px}
+.form-input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;color:var(--black);font-size:.97rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--blue)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.amount-wrap{position:relative}
+.amount-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--gray-5);font-size:.95rem;pointer-events:none}
+.form-input.pl{padding-left:24px}
 
-.confirm-section.active { display: flex; }
+/* Save bar — flex child, never overlaps */
+.save-bar{flex-shrink:0;padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom,10px));background:#fff;border-top:1px solid var(--border);gap:10px;align-items:center;display:none}
+.save-bar.active{display:flex}
+.btn-save{flex:1;padding:14px;background:var(--black);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;letter-spacing:-.01em;transition:opacity .15s,transform .1s}
+.btn-save:active{transform:scale(.98);opacity:.9}
+.btn-save:disabled{opacity:.4}
+.btn-cancel{flex-shrink:0;padding:14px 18px;background:var(--gray-1);color:var(--gray-7);border:none;border-radius:var(--r);font-size:.9rem;font-weight:600;transition:background .15s}
+.btn-cancel:hover{background:var(--border)}
 
-.confidence-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: .78rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-  width: fit-content;
-}
+/* ─── SUCCESS OVERLAY ─────────────────────────────────── */
+.success-overlay{position:fixed;inset:0;z-index:500;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:40px}
+.success-overlay.show{display:flex;animation:fadeScaleIn .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes fadeScaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+.success-icon{font-size:4rem;animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both;animation-delay:.05s}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-amount{font-size:2.4rem;font-weight:800;color:var(--black);letter-spacing:-.04em;animation:fadeScaleIn .3s ease both;animation-delay:.15s}
+.success-title{font-size:1rem;font-weight:600;color:var(--gray-5);letter-spacing:-.01em;animation:fadeScaleIn .3s ease both;animation-delay:.2s}
+.success-sub{font-size:.88rem;color:var(--gray-5);line-height:1.5;animation:fadeScaleIn .3s ease both;animation-delay:.25s}
+.success-divider{width:40px;height:3px;background:var(--border);border-radius:2px;animation:fadeScaleIn .3s ease both;animation-delay:.3s}
 
-.confidence-badge.high   { background: var(--green-pale); color: var(--green); }
-.confidence-badge.medium { background: var(--amber-pale); color: var(--amber); }
-.confidence-badge.low    { background: var(--red-pale);   color: var(--red);   }
+/* ─── SHEETS ──────────────────────────────────────────── */
+.sheet-bg{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.4);display:none;align-items:flex-end}
+.sheet-bg.open{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px))}
+.sheet-handle{width:36px;height:4px;background:var(--gray-3);border-radius:2px;margin:12px auto 16px}
+.sheet-item{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:.95rem;font-weight:600;color:var(--black);border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
+.sheet-item:hover{background:var(--gray-0)}
+.sheet-item-icon{font-size:1.1rem;width:22px;text-align:center}
+.sheet-item.muted{color:var(--gray-5);font-size:.85rem}
+.sheet-item.danger{color:var(--red)}
+.sheet-divider{height:1px;background:var(--border);margin:4px 0}
+.sheet-body{padding:0 20px 8px}
+.sheet-body h3{font-size:1.05rem;font-weight:700;margin-bottom:6px;color:var(--black)}
+.sheet-body p{font-size:.88rem;color:var(--gray-5);margin-bottom:18px;line-height:1.5}
 
-.field-group { display: flex; flex-direction: column; gap: 4px; }
+/* ─── TOAST ───────────────────────────────────────────── */
+.toast{position:fixed;bottom:max(88px,calc(env(safe-area-inset-bottom,0px) + 88px));left:50%;transform:translateX(-50%) translateY(12px);background:var(--black);color:#fff;padding:9px 18px;border-radius:50px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:9999;opacity:0;transition:opacity .18s,transform .18s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.field-label {
-  font-size: .72rem;
-  font-weight: 700;
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-}
+/* ─── SKELETON ────────────────────────────────────────── */
+.skeleton{background:linear-gradient(90deg,var(--gray-1) 25%,#ececec 50%,var(--gray-1) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:6px}
+@keyframes shimmer{to{background-position:-200% 0}}
 
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-.amount-wrap { position: relative; }
-.amount-prefix {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-weight: 700;
-  color: var(--text-2);
-  font-size: .95rem;
-  pointer-events: none;
-}
-.form-input.indented { padding-left: 26px; }
-
-/* Save bar — part of the flex column, always at the bottom, never overlaps */
-.save-bar {
-  flex-shrink: 0;
-  background: var(--bg);
-  border-top: 2px solid var(--border);
-  padding: 10px 14px;
-  padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  box-shadow: 0 -2px 8px rgba(0,0,0,.06);
-}
-
-/* ─────────────────────────────────────────────────────────
-   DETAIL SHEET (slide up overlay)
-───────────────────────────────────────────────────────── */
-.sheet-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(0,0,0,.45);
-  display: none;
-  align-items: flex-end;
-}
-
-.sheet-overlay.open { display: flex; }
-
-.sheet {
-  background: var(--bg);
-  border-radius: 20px 20px 0 0;
-  width: 100%;
-  max-height: 85dvh;
-  max-height: 85vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
-}
-
-.sheet-handle {
-  width: 36px;
-  height: 4px;
-  background: var(--border-strong);
-  border-radius: 2px;
-  margin: 12px auto 20px;
-}
-
-.sheet-body { padding: 0 20px 20px; }
-
-.sheet-merchant {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 4px;
-  letter-spacing: -.02em;
-}
-
-.sheet-amount {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -.03em;
-  margin-bottom: 16px;
-}
-
-.sheet-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.sheet-meta-item {}
-
-.sheet-meta-label {
-  font-size: .72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--text-3);
-  margin-bottom: 3px;
-}
-
-.sheet-meta-val {
-  font-size: .92rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.sheet-img {
-  width: 100%;
-  max-height: 220px;
-  object-fit: contain;
-  border-radius: var(--r);
-  border: 1px solid var(--border);
-  margin-bottom: 20px;
-  background: var(--bg-2);
-}
-
-.sheet-ocr {
-  font-size: .8rem;
-  color: var(--text-2);
-  line-height: 1.6;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 12px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-bottom: 20px;
-  display: none;
-}
-
-.sheet-ocr.visible { display: block; }
-
-.sheet-actions { display: flex; gap: 10px; }
-
-/* ─────────────────────────────────────────────────────────
-   TOAST
-───────────────────────────────────────────────────────── */
-.toast {
-  position: fixed;
-  bottom: max(80px, calc(env(safe-area-inset-bottom, 0px) + 80px));
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--text);
-  color: var(--bg);
-  padding: 10px 20px;
-  border-radius: 50px;
-  font-size: .88rem;
-  font-weight: 600;
-  white-space: nowrap;
-  z-index: 9999;
-  opacity: 0;
-  transition: opacity .2s, transform .2s;
-  pointer-events: none;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* ─────────────────────────────────────────────────────────
-   MENU SHEET
-───────────────────────────────────────────────────────── */
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: 14px 20px;
-  font-size: .95rem;
-  font-weight: 500;
-  color: var(--text);
-  cursor: pointer;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  transition: background .12s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.menu-item:hover { background: var(--bg-2); }
-.menu-item .mi-icon { font-size: 1.15rem; width: 22px; text-align: center; flex-shrink: 0; }
-.menu-item.danger { color: var(--red); }
-.menu-divider { height: 1px; background: var(--border); margin: 6px 0; }
-
-/* ─────────────────────────────────────────────────────────
-   UTILITIES
-───────────────────────────────────────────────────────── */
-.hidden { display: none !important; }
-.text-center { text-align: center; }
-
-@media (min-width: 480px) {
-  .scan-body { max-width: 480px; margin: 0 auto; width: 100%; }
-  .save-bar  { max-width: 480px; left: 50%; transform: translateX(-50%); right: auto; width: 480px; }
-}
+.hidden{display:none!important}
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════
-     AUTH SCREEN
-════════════════════════════════════════════════════════ -->
+<!-- AUTH -->
 <div id="authScreen" class="screen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-icon">🧾</div>
-      <div>
-        <div class="auth-logo-name">SnapReceipt</div>
-        <div class="auth-logo-tag">Scan → Log → Done</div>
-      </div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="auth-brand-icon" style="width:72px;height:72px;font-size:2.2rem;border-radius:22px">🧾</div>
+      <div class="auth-brand-name" style="font-size:1.7rem;margin-top:4px">SnapReceipt</div>
+      <div class="auth-brand-tag" style="font-size:.9rem;margin-top:6px">The fastest way to log expenses</div>
     </div>
-
-    <h1 class="auth-heading">Sign in to continue</h1>
-    <p class="auth-sub">Your receipts are stored securely to your account.</p>
-
     <div class="auth-tabs">
-      <button class="auth-tab active" id="tabSignin"  onclick="authTab('signin')">Sign in</button>
-      <button class="auth-tab"        id="tabSignup"  onclick="authTab('signup')">Create account</button>
-      <button class="auth-tab"        id="tabReset"   onclick="authTab('reset')">Reset</button>
+      <button class="auth-tab active" id="tabSignin" onclick="authTab('signin')">Sign in</button>
+      <button class="auth-tab" id="tabSignup" onclick="authTab('signup')">Create account</button>
+      <button class="auth-tab" id="tabReset"  onclick="authTab('reset')">Reset</button>
     </div>
-
-    <!-- Sign in -->
-    <div id="formSignin">
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="siEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="siPass"  type="password" placeholder="Your password" autocomplete="current-password"/>
-      </div>
-      <button class="btn btn-primary btn-full" id="btnSignin" onclick="doSignin()">Sign in →</button>
+    <div id="formSignin" class="auth-form">
+      <div><label class="field-label">Email</label>
+        <input class="text-input" id="siEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div><label class="field-label">Password</label>
+        <input class="text-input" id="siPass" type="password" placeholder="Your password" autocomplete="current-password"/></div>
+      <button class="btn-primary" id="btnSignin" onclick="doSignin()">Sign in →</button>
       <div class="auth-msg" id="siMsg"></div>
-      <div class="auth-footer-link">
-        <button onclick="authTab('reset')">Forgot password?</button>
-      </div>
+      <div class="auth-link-row"><button class="auth-link" onclick="authTab('reset')">Forgot password?</button></div>
     </div>
-
-    <!-- Sign up -->
-    <div id="formSignup" class="hidden">
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="suPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/>
-      </div>
-      <button class="btn btn-primary btn-full" id="btnSignup" onclick="doSignup()">Create account →</button>
+    <div id="formSignup" class="auth-form hidden">
+      <div><label class="field-label">Email</label>
+        <input class="text-input" id="suEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div><label class="field-label">Password</label>
+        <input class="text-input" id="suPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+      <button class="btn-primary" id="btnSignup" onclick="doSignup()">Create account →</button>
       <div class="auth-msg" id="suMsg"></div>
     </div>
-
-    <!-- Reset -->
-    <div id="formReset" class="hidden">
-      <p style="font-size:.88rem;color:var(--text-2);margin-bottom:16px;line-height:1.5">
-        Enter your email and we'll send a reset link.
-      </p>
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="rstEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
-      </div>
-      <button class="btn btn-primary btn-full" id="btnReset" onclick="doReset()">Send reset link →</button>
+    <div id="formReset" class="auth-form hidden">
+      <p style="font-size:.88rem;color:var(--gray-5);line-height:1.5">We'll send a reset link to your email.</p>
+      <div><label class="field-label">Email</label>
+        <input class="text-input" id="rstEmail" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <button class="btn-primary" id="btnReset" onclick="doReset()">Send reset link →</button>
       <div class="auth-msg" id="rstMsg"></div>
-      <div class="auth-footer-link">
-        <button onclick="authTab('signin')">← Back to sign in</button>
-      </div>
+      <div class="auth-link-row"><button class="auth-link" onclick="authTab('signin')">← Back to sign in</button></div>
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════════
-     HOME SCREEN
-════════════════════════════════════════════════════════ -->
+<!-- HOME -->
 <div id="homeScreen" class="screen">
   <header class="home-header">
-    <div class="home-logo">
-      <div class="home-logo-icon">🧾</div>
-      SnapReceipt
-    </div>
-    <div class="header-actions">
-      <button class="btn-icon" title="Export CSV" onclick="exportCSV()">⬇</button>
-      <button class="btn-icon" title="Menu" onclick="openMenu()">⋯</button>
+    <div class="home-brand"><div class="home-brand-dot"></div>SnapReceipt</div>
+    <div style="display:flex;gap:8px">
+      <button class="header-btn" onclick="exportCSV()">⬇ Export</button>
+      <button class="header-btn" onclick="openMenu()">⋯</button>
     </div>
   </header>
-
-  <!-- Summary -->
-  <div class="summary-strip" id="summaryStrip">
-    <div class="summary-item">
-      <div class="summary-val" id="sumTotal">0</div>
-      <div class="summary-key">Receipts</div>
-    </div>
-    <div class="summary-item">
-      <div class="summary-val accent" id="sumMonth">£0.00</div>
-      <div class="summary-key">This month</div>
-    </div>
-    <div class="summary-item">
-      <div class="summary-val accent" id="sumYear">£0.00</div>
-      <div class="summary-key">This tax year</div>
-    </div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-val" id="statCount">0</div><div class="stat-key">Receipts</div></div>
+    <div class="stat-item"><div class="stat-val blue" id="statMonth">£0.00</div><div class="stat-key">This month</div></div>
+    <div class="stat-item"><div class="stat-val" id="statYear">£0.00</div><div class="stat-key">Tax year</div></div>
+    <div class="stat-item"><div class="stat-val" id="statVAT">£0.00</div><div class="stat-key">VAT logged</div></div>
   </div>
-
-  <!-- Receipt list / empty state -->
   <div id="receiptList" class="receipt-list"></div>
-
-  <!-- Scan FAB -->
-  <button class="scan-fab" onclick="openScan()">
-    <span>📷</span> Scan Receipt
-  </button>
+  <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════════
-     SCAN / CONFIRM SCREEN
-════════════════════════════════════════════════════════ -->
+<!-- SCAN -->
 <div id="scanScreen" class="screen">
   <header class="scan-header">
-    <button class="btn btn-secondary btn-sm" onclick="goHome()">← Back</button>
-    <span class="scan-title" id="scanTitle">Scan Receipt</span>
-    <div style="width:64px"></div><!-- spacer -->
+    <button class="scan-back" onclick="goHome()">← Back</button>
+    <span class="scan-title-text">Scan Receipt</span>
+    <div style="width:72px"></div>
   </header>
+  <div class="scan-body" id="scanBody">
+    <!-- Scan area: weldswine pattern — div with file input inset:0 inside -->
+    <div id="czEmpty">
+      <div style="display:flex;gap:10px">
 
-  <div class="scan-body">
-    <!-- Capture area: big tap target before photo; compact strip after -->
-    <div class="capture-area" id="captureArea">
-      <!-- Camera input -->
-      <input type="file" id="captureInput"
-        accept="image/*,image/heic,image/heif"
-        capture="environment"
-        onchange="onImageSelected(this)"/>
-      <!-- Gallery input (no capture constraint) -->
-      <input type="file" id="galleryInput"
-        accept="image/*,image/heic,image/heif"
-        style="position:absolute;opacity:0;pointer-events:none"
-        onchange="onImageSelected(this)"/>
-      <!-- Empty state -->
-      <span class="capture-icon" id="captureIcon">📷</span>
-      <div id="captureText">
-        <div class="capture-title">Take photo</div>
-        <div class="capture-sub">or <label for="galleryInput" style="color:var(--accent);cursor:pointer;text-decoration:underline;pointer-events:all;position:relative;z-index:3">choose from gallery</label></div>
+        <!-- Weldswine exact pattern: input sits at inset:0 inside div, inner has pointer-events:none -->
+        <div class="scan-upload-area" id="cameraArea" style="flex:1">
+          <input type="file" id="captureInput" accept="image/*" capture="environment"/>
+          <div class="scan-upload-inner" style="pointer-events:none">
+            <div style="font-size:2.2rem">📷</div>
+            <div style="font-size:.95rem;font-weight:700;color:#111">Camera</div>
+          </div>
+        </div>
+        <div class="scan-upload-area" id="galleryArea" style="flex:1">
+          <input type="file" id="galleryInput" accept="image/*"/>
+          <div class="scan-upload-inner" style="pointer-events:none">
+            <div style="font-size:2.2rem">🖼</div>
+            <div style="font-size:.95rem;font-weight:700;color:#111">Gallery</div>
+          </div>
+        </div>
+
       </div>
-      <!-- Has-photo state (compact strip) -->
-      <img class="capture-preview" id="capturePreview" alt="Receipt"/>
-      <div id="capturePhotoInfo" style="display:none;flex:1;min-width:0">
-        <div style="font-size:.85rem;font-weight:600;color:var(--text)">Receipt captured ✓</div>
-        <div style="font-size:.72rem;color:var(--text-2);margin-top:1px">AI is reading it…</div>
-      </div>
-      <button class="capture-retake" id="captureRetake" onclick="retakePhoto(event)">↩ Retake</button>
     </div>
 
-    <!-- OCR loading — compact inline strip -->
-    <div class="ocr-loading" id="ocrLoading">
-      <div class="ocr-spinner"></div>
-      <div class="ocr-loading-text">Reading receipt…</div>
+    <!-- After photo taken -->
+    <div id="czHasPhoto" style="display:none">
+      <img id="czThumb" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid #e5e5e5"/>
+      <div id="czStatus" style="margin-top:10px">
+        <div style="font-size:.88rem;font-weight:700;color:#111">Receipt captured ✓</div>
+        <div id="czStatusSub" style="font-size:.78rem;color:#888;margin-top:2px">AI is reading it…</div>
+      </div>
+      <button id="czRetake" onclick="retake(event)" style="margin-top:8px;background:none;border:1.5px solid #ccc;border-radius:20px;padding:6px 14px;font-size:.8rem;font-weight:600;color:#555;cursor:pointer">↩ Retake</button>
     </div>
-
-    <!-- Confirm fields — shown immediately after OCR, no scroll needed -->
-    <div class="confirm-section" id="confirmSection">
-      <div id="confidenceBadge"></div>
-
+    <div class="ocr-bar" id="ocrBar">
+      <div class="ocr-spin"></div>
+      <div class="ocr-bar-text">Reading receipt…</div>
+    </div>
+    <div class="confirm-fields" id="confirmFields">
+      <div id="confBadge"></div>
       <div class="field-group">
-        <label class="field-label">Merchant / Supplier *</label>
-        <input class="form-input" id="cfMerchant" placeholder="e.g. Tesco, Screwfix, AWS"/>
+        <label class="field-label">Merchant *</label>
+        <input class="form-input" id="cfMerchant" placeholder="e.g. Tesco, Screwfix, AWS" autocomplete="off"/>
       </div>
-
       <div class="field-row">
         <div class="field-group">
-          <label class="field-label">Total Amount *</label>
+          <label class="field-label">Amount *</label>
           <div class="amount-wrap">
             <span class="amount-prefix">£</span>
-            <input class="form-input indented" id="cfAmount" type="number"
-              placeholder="0.00" step="0.01" min="0" inputmode="decimal"/>
+            <input class="form-input pl" id="cfAmount" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
           </div>
         </div>
         <div class="field-group">
@@ -1116,125 +344,128 @@ img { display: block; max-width: 100%; }
             <option value="GBP" selected>GBP £</option>
             <option value="USD">USD $</option>
             <option value="EUR">EUR €</option>
-            <option value="OTHER">Other</option>
           </select>
         </div>
       </div>
-
       <div class="field-group">
         <label class="field-label">Date</label>
         <input class="form-input" id="cfDate" type="date"/>
       </div>
-
-      <div class="field-group" id="notesGroup" style="display:none">
-        <label class="field-label">Notes</label>
-        <input class="form-input" id="cfNotes" placeholder="Business purpose, project, etc."/>
-      </div>
     </div>
   </div>
-
-  <!-- Save bar -->
-  <div class="save-bar" id="saveBar" style="display:none">
-    <button class="btn btn-secondary" style="flex:0 0 auto" onclick="goHome()">Cancel</button>
-    <button class="btn btn-primary btn-full" id="btnSave" onclick="saveReceipt()">
-      Save Receipt
-    </button>
+  <div class="save-bar" id="saveBar">
+    <button class="btn-cancel" onclick="goHome()">Cancel</button>
+    <button class="btn-save" id="btnSave" onclick="saveReceipt()">Save Receipt</button>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════════
-     DETAIL SHEET
-════════════════════════════════════════════════════════ -->
-<div class="sheet-overlay" id="detailSheet" onclick="closeDetail(event)">
-  <div class="sheet" id="detailSheetInner">
-    <div class="sheet-handle"></div>
-    <div class="sheet-body" id="detailBody"></div>
-  </div>
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✅</div>
+  <div class="success-amount" id="successAmount">£0.00</div>
+  <div class="success-title" id="successTitle">Receipt saved</div>
+  <div class="success-divider"></div>
+  <div class="success-sub" id="successSub">Receipt logged successfully</div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════════
-     MENU SHEET
-════════════════════════════════════════════════════════ -->
-<div class="sheet-overlay" id="menuSheet" onclick="closeMenu(event)">
+<!-- MENU -->
+<div class="sheet-bg" id="menuSheet" onclick="closeMenu(event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <button class="menu-item" onclick="openScan();closeMenuNow()">
-      <span class="mi-icon">📷</span> Scan new receipt
-    </button>
-    <button class="menu-item" onclick="exportCSV();closeMenuNow()">
-      <span class="mi-icon">⬇</span> Export CSV
-    </button>
-    <div class="menu-divider"></div>
-    <button class="menu-item" id="menuUserBtn" style="cursor:default;color:var(--text-2);font-size:.85rem">
-      <span class="mi-icon">👤</span> <span id="menuEmail">—</span>
-    </button>
-    <button class="menu-item danger" onclick="doSignout()">
-      <span class="mi-icon">→</span> Sign out
-    </button>
+    <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sheet-item-icon">📸</span>Scan receipt</button>
+    <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sheet-item-icon">⬇</span>Export CSV</button>
+    <div class="sheet-divider"></div>
+    <div class="sheet-item muted" style="cursor:default"><span class="sheet-item-icon">👤</span><span id="menuEmail">—</span></div>
+    <button class="sheet-item danger" onclick="doSignout()"><span class="sheet-item-icon">→</span>Sign out</button>
   </div>
 </div>
 
-
-<!-- Reset password modal (triggered by email link) -->
-<div class="sheet-overlay" id="newPassSheet">
+<!-- RESET PASSWORD SHEET -->
+<div class="sheet-bg" id="resetPassSheet">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-body">
-      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px">Set new password</div>
-      <p style="font-size:.88rem;color:var(--text-2);margin-bottom:20px;line-height:1.5">Choose a new password for your account.</p>
-      <div class="form-field">
-        <label class="form-label">New password</label>
-        <input class="form-input" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/>
+      <h3>Set new password</h3>
+      <p>Choose a new password for your account.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div><label class="field-label">New password</label>
+          <input class="text-input" id="npPass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+        <div><label class="field-label">Confirm password</label>
+          <input class="text-input" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/></div>
+        <div class="auth-msg" id="npMsg"></div>
+        <button class="btn-primary" id="btnNewPass" onclick="doSetPassword()">Update password →</button>
       </div>
-      <div class="form-field">
-        <label class="form-label">Confirm password</label>
-        <input class="form-input" id="npConfirm" type="password" placeholder="Repeat password" autocomplete="new-password"/>
-      </div>
-      <div class="auth-msg" id="npMsg"></div>
-      <button class="btn btn-primary btn-full" style="margin-top:8px" id="btnNewPass" onclick="doSetPassword()">
-        Update password →
-      </button>
     </div>
   </div>
 </div>
 
-
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
 
-<!-- ══════════════════════════════════════════════════════
-     APP LOGIC
-════════════════════════════════════════════════════════ -->
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-/* ─── CONFIG — fill in before deploying ───────────────────
-   Supabase: Dashboard → Settings → API
-   Worker:   your new Cloudflare Worker URL               */
+/* ── CONFIG ─────────────────────────────────────────────── */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
-const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3a2Fzd2x6enF6aml1dWp5dXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQwNDUsImV4cCI6MjA5MDE0MDA0NX0.DpM1H4LXGl9gdci9Qrzjam2yqScZy10M1VLE1-0XnO8';
-const WORKER_URL        = 'https://snapreceipt.james-weld.workers.dev';
-
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3a2Fzd2x6enF6aml1dWp5dXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQwNDUsImV4cCI6MjA5MDE0MDA0NX0.DpM1H4LXGl9gdci9Qrzjam2yqScZy10M1VLE1-0XnO8';
+const WORKER_URL   = 'https://snapreceipt.james-weld.workers.dev';
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ─── STATE ──────────────────────────────────────────────── */
-let _user      = null;
-let _receipts  = [];
-let _imageB64  = null;   // base64 of scanned image (for save)
-let _editId    = null;   // non-null when editing existing receipt
-let _detailId  = null;
+/* ── STATE ──────────────────────────────────────────────── */
+let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 
-/* ─── AUTH STATE ─────────────────────────────────────────── */
-sb.auth.onAuthStateChange((event, session) => {
-  if (event === 'PASSWORD_RECOVERY') {
-    document.getElementById('newPassSheet').classList.add('open');
+/* ── AUTH STATE ─────────────────────────────────────────── */
+// ── File input listeners — both 'change' and 'input' (iOS Safari fix) ──
+// Reset value before each open so iOS always fires even if same file selected
+// This is exactly the pattern used in weldswine which works on all mobile browsers
+function _initFileInputs() {
+  // Weldswine exact pattern
+  ['change','input'].forEach(function(evt) {
+    document.getElementById('captureInput').addEventListener(evt, function(e) {
+      if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
+    });
+    document.getElementById('galleryInput').addEventListener(evt, function(e) {
+      if (e.target.files && e.target.files[0]) window.onFileSelected(e.target);
+    });
+  });
+  // Reset value on area click — weldswine iOS fix
+  document.getElementById('cameraArea').addEventListener('click', function() {
+    document.getElementById('captureInput').value = '';
+  });
+  document.getElementById('galleryArea').addEventListener('click', function() {
+    document.getElementById('galleryInput').value = '';
+  });
+}
+// Init file inputs at DOM ready
+document.addEventListener('DOMContentLoaded', function() { _initFileInputs(); });
+
+// Intercept browser back button — go to home instead of leaving app
+window.addEventListener('popstate', (e) => {
+  // Ignore popstate events fired when camera/file picker returns on Android
+  // Only navigate home if we explicitly pushed a 'scan' state AND no file is being processed
+  const scanActive = g('scanScreen').classList.contains('active');
+  if (scanActive) {
+    // If OCR is running or confirm fields are shown, ignore — camera just returned
+    const ocrActive = g('ocrBar').classList.contains('active');
+    const fieldsShown = g('confirmFields').style.display && g('confirmFields').style.display !== 'none';
+    const hasPhoto = g('czHasPhoto').style.display !== 'none';
+    if (ocrActive || fieldsShown || hasPhoto) {
+      // Camera returned — push state again to restore and do nothing
+      history.pushState({snap:'scan'}, '');
+      return;
+    }
+    goHome();
     return;
   }
+  history.pushState({snap:'home'}, '');
+});
+history.replaceState({snap:'home'}, '');
+
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') { g('resetPassSheet').classList.add('open'); return; }
   _user = session?.user ?? null;
   if (_user) {
-    document.getElementById('menuEmail').textContent = _user.email || '';
+    g('menuEmail').textContent = _user.email || '';
     show('homeScreen');
     loadReceipts();
   } else {
@@ -1243,512 +474,435 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 });
 
-/* ─── AUTH FUNCTIONS ─────────────────────────────────────── */
+/* ── AUTH ───────────────────────────────────────────────── */
 window.authTab = (tab) => {
   ['signin','signup','reset'].forEach(t => {
-    document.getElementById('form' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('hidden', t !== tab);
-    document.getElementById('tab'  + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    g('form'+cap(t)).classList.toggle('hidden', t!==tab);
+    g('tab'+cap(t)).classList.toggle('active', t===tab);
   });
 };
-
 window.doSignin = async () => {
-  const email = v('siEmail'), pass = v('siPass');
-  const msg = el('siMsg'), btn = el('btnSignin');
-  msg.className = 'auth-msg';
-  if (!email || !pass) return setMsg(msg, 'err', 'Please fill in both fields.');
-  btn.disabled = true; btn.textContent = 'Signing in…';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) setMsg(msg, 'err', friendlyErr(error));
-  btn.disabled = false; btn.textContent = 'Sign in →';
+  const [email,pass,msg,btn] = [val('siEmail'),val('siPass'),g('siMsg'),g('btnSignin')];
+  msg.className='auth-msg';
+  if(!email||!pass) return setMsg(msg,'err','Please fill in both fields.');
+  btn.disabled=true; btn.textContent='Signing in…';
+  const {error} = await sb.auth.signInWithPassword({email,password:pass});
+  if(error) setMsg(msg,'err',friendlyErr(error));
+  btn.disabled=false; btn.textContent='Sign in →';
 };
-
 window.doSignup = async () => {
-  const email = v('suEmail'), pass = v('suPass');
-  const msg = el('suMsg'), btn = el('btnSignup');
-  msg.className = 'auth-msg';
-  if (!email || !pass) return setMsg(msg, 'err', 'Please fill in both fields.');
-  btn.disabled = true; btn.textContent = 'Creating account…';
-  const { error } = await sb.auth.signUp({ email, password: pass });
-  if (error) setMsg(msg, 'err', friendlyErr(error));
-  else       setMsg(msg, 'ok',  'Account created! Check your email to confirm.');
-  btn.disabled = false; btn.textContent = 'Create account →';
+  const [email,pass,msg,btn] = [val('suEmail'),val('suPass'),g('suMsg'),g('btnSignup')];
+  msg.className='auth-msg';
+  if(!email||!pass) return setMsg(msg,'err','Please fill in both fields.');
+  btn.disabled=true; btn.textContent='Creating account…';
+  const {error} = await sb.auth.signUp({email,password:pass});
+  if(error) setMsg(msg,'err',friendlyErr(error));
+  else      setMsg(msg,'ok','Account created! Check your email to confirm.');
+  btn.disabled=false; btn.textContent='Create account →';
 };
-
 window.doReset = async () => {
-  const email = v('rstEmail');
-  const msg = el('rstMsg'), btn = el('btnReset');
-  msg.className = 'auth-msg';
-  if (!email) return setMsg(msg, 'err', 'Please enter your email.');
-  btn.disabled = true; btn.textContent = 'Sending…';
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://snapreceipt.co.uk'
-  });
-  if (error) setMsg(msg, 'err', error.message);
-  else       setMsg(msg, 'ok',  'Reset link sent! Check your email.');
-  btn.disabled = false; btn.textContent = 'Send reset link →';
+  const [email,msg,btn] = [val('rstEmail'),g('rstMsg'),g('btnReset')];
+  msg.className='auth-msg';
+  if(!email) return setMsg(msg,'err','Please enter your email.');
+  btn.disabled=true; btn.textContent='Sending…';
+  const {error} = await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://snapreceipt.co.uk'});
+  if(error) setMsg(msg,'err',error.message);
+  else      setMsg(msg,'ok','Reset link sent! Check your email.');
+  btn.disabled=false; btn.textContent='Send reset link →';
 };
-
 window.doSetPassword = async () => {
-  const pass = v('npPass'), confirm = v('npConfirm');
-  const msg = el('npMsg'), btn = el('btnNewPass');
-  msg.className = 'auth-msg';
-  if (!pass || pass.length < 6) return setMsg(msg, 'err', 'Password must be at least 6 characters.');
-  if (pass !== confirm)         return setMsg(msg, 'err', 'Passwords do not match.');
-  btn.disabled = true; btn.textContent = 'Saving…';
-  const { error } = await sb.auth.updateUser({ password: pass });
-  if (error) { setMsg(msg, 'err', error.message); }
-  else {
-    setMsg(msg, 'ok', 'Password updated! You are now signed in.');
-    setTimeout(() => document.getElementById('newPassSheet').classList.remove('open'), 1800);
-  }
-  btn.disabled = false; btn.textContent = 'Update password →';
+  const [pass,confirm,msg,btn] = [val('npPass'),val('npConfirm'),g('npMsg'),g('btnNewPass')];
+  msg.className='auth-msg';
+  if(!pass||pass.length<6) return setMsg(msg,'err','Password must be at least 6 characters.');
+  if(pass!==confirm)        return setMsg(msg,'err','Passwords do not match.');
+  btn.disabled=true; btn.textContent='Saving…';
+  const {error} = await sb.auth.updateUser({password:pass});
+  if(error) setMsg(msg,'err',error.message);
+  else { setMsg(msg,'ok','Password updated!'); setTimeout(()=>g('resetPassSheet').classList.remove('open'),1600); }
+  btn.disabled=false; btn.textContent='Update password →';
 };
+window.doSignout = async () => { closeMenu(); await sb.auth.signOut(); };
 
-window.doSignout = async () => {
-  closeMenuNow();
-  await sb.auth.signOut();
-};
-
-/* ─── LOAD RECEIPTS ──────────────────────────────────────── */
+/* ── DATA ───────────────────────────────────────────────── */
 async function loadReceipts() {
-  if (!_user) return;
-  renderList(null); // show skeletons
-  const { data, error } = await sb
-    .from('receipts')
-    .select('id, merchant, amount, currency, date, image_url, ocr_raw, created_at')
-    .eq('user_id', _user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) { toast('Error loading receipts'); return; }
-  _receipts = data || [];
-  renderList(_receipts);
-  updateSummary();
+  if(!_user) return;
+  renderSkeleton();
+  const {data,error} = await sb.from('receipts')
+    .select('id,merchant,amount,currency,date,image_url,ocr_raw,created_at')
+    .eq('user_id',_user.id).order('created_at',{ascending:false});
+  if(error){toast('Error loading receipts');return;}
+  _receipts = data||[];
+  renderHome();
 }
 
-/* ─── RENDER LIST ────────────────────────────────────────── */
-function renderList(receipts) {
-  const list = el('receiptList');
+function renderHome() { updateStats(); renderList(); }
 
-  if (receipts === null) {
-    // Skeleton
-    list.innerHTML = [1,2,3].map(() => `
-      <div class="receipt-item" style="pointer-events:none">
-        <div class="receipt-thumb"><div class="skeleton" style="width:100%;height:100%;border-radius:7px"></div></div>
-        <div class="receipt-info">
-          <div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:4px"></div>
-          <div class="skeleton" style="height:11px;width:45%;border-radius:4px"></div>
-        </div>
-        <div class="skeleton" style="height:18px;width:52px;border-radius:4px"></div>
-      </div>`).join('');
-    return;
-  }
-
-  if (!receipts.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🧾</div>
-        <div class="empty-title">No receipts yet</div>
-        <div class="empty-sub">Tap the button below to scan your first receipt and start logging expenses.</div>
-      </div>`;
-    return;
-  }
-
-  list.innerHTML = receipts.map(r => {
-    const thumbHtml = r.image_url
-      ? `<div class="receipt-thumb"><img src="${r.image_url}" alt="" loading="lazy"/></div>`
-      : `<div class="receipt-thumb">🧾</div>`;
-    return `
-      <div class="receipt-item" onclick="openDetail('${r.id}')">
-        ${thumbHtml}
-        <div class="receipt-info">
-          <div class="receipt-merchant">${esc(r.merchant || 'Unknown merchant')}</div>
-          <div class="receipt-date">${fmtDate(r.date || r.created_at)}</div>
-        </div>
-        <div>
-          <div class="receipt-amount">${fmtAmount(r.amount, r.currency)}</div>
-          <div class="receipt-currency">${r.currency || 'GBP'}</div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function updateSummary() {
-  el('sumTotal').textContent = _receipts.length;
-
+function updateStats() {
   const now = new Date();
-  const thisMonth = _receipts.filter(r => {
-    const d = new Date(r.date || r.created_at);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  const taxStart = now.getMonth()>=3
+    ? new Date(now.getFullYear(),3,6)
+    : new Date(now.getFullYear()-1,3,6);
+  const monthRs = _receipts.filter(r=>{
+    const d=new Date(r.date||r.created_at);
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
   });
-  const taxStart = now.getMonth() >= 3
-    ? new Date(now.getFullYear(), 3, 6)
-    : new Date(now.getFullYear() - 1, 3, 6);
-  const taxYear = _receipts.filter(r => new Date(r.date || r.created_at) >= taxStart);
-
-  el('sumMonth').textContent = '£' + sum(thisMonth).toFixed(2);
-  el('sumYear').textContent  = '£' + sum(taxYear).toFixed(2);
+  const yearRs = _receipts.filter(r=>new Date(r.date||r.created_at)>=taxStart);
+  g('statCount').textContent = _receipts.length;
+  g('statMonth').textContent = fmt(monthRs.reduce((s,r)=>s+parseFloat(r.amount||0),0));
+  g('statYear').textContent  = fmt(yearRs.reduce((s,r)=>s+parseFloat(r.amount||0),0));
+  g('statVAT').textContent   = '£'+yearRs.reduce((s,r)=>s+parseFloat(r.vat||0),0).toFixed(2);
 }
 
-function sum(rs) {
-  return rs.reduce((s, r) => s + parseFloat(r.amount || 0), 0);
+function renderSkeleton() {
+  g('receiptList').innerHTML = [1,2,3].map(()=>`
+    <div class="receipt-row" style="pointer-events:none">
+      <div class="receipt-row-main">
+        <div class="receipt-thumb"><div class="skeleton" style="width:100%;height:100%"></div></div>
+        <div class="receipt-info">
+          <div class="skeleton" style="height:14px;width:65%;margin-bottom:8px;border-radius:4px"></div>
+          <div class="skeleton" style="height:11px;width:40%;border-radius:4px"></div>
+        </div>
+        <div class="skeleton" style="height:18px;width:48px;border-radius:4px"></div>
+      </div>
+    </div>`).join('');
 }
 
-/* ─── DETAIL SHEET ───────────────────────────────────────── */
-window.openDetail = (id) => {
-  _detailId = id;
-  const r = _receipts.find(x => x.id === id);
-  if (!r) return;
-  const imgHtml = r.image_url
-    ? `<img class="sheet-img" src="${r.image_url}" alt="Receipt"/>`
-    : '';
-  const ocrHtml = r.ocr_raw
-    ? `<div style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Raw OCR text</div>
-       <div class="sheet-ocr visible">${esc(r.ocr_raw)}</div>`
-    : '';
-  el('detailBody').innerHTML = `
-    <div class="sheet-merchant">${esc(r.merchant || 'Unknown')}</div>
-    <div class="sheet-amount">${fmtAmount(r.amount, r.currency)}</div>
-    ${imgHtml}
-    <div class="sheet-meta">
-      <div class="sheet-meta-item">
-        <div class="sheet-meta-label">Date</div>
-        <div class="sheet-meta-val">${fmtDate(r.date || r.created_at)}</div>
+function renderList() {
+  const list = g('receiptList');
+  if(!_receipts.length){
+    list.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">🧾</div>
+      <div class="empty-title">No receipts yet</div>
+      <div class="empty-sub">Tap the button below to scan your first receipt.</div>
+    </div>`;
+    return;
+  }
+  // Pre-compute month totals in O(n) — avoids O(n²) filter loop
+  const monthTotals={};
+  _receipts.forEach(r=>{
+    const d=new Date(r.date||r.created_at);
+    const mk=d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    monthTotals[mk]=(monthTotals[mk]||0)+parseFloat(r.amount||0);
+  });
+
+  let lastMonth='', rows=[];
+  _receipts.forEach((r,i)=>{
+    const d = new Date(r.date||r.created_at);
+    const mk = d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    if(mk!==lastMonth){
+      rows.push(`<div class="month-header">
+        <span class="month-label">${mk}</span>
+        <span class="month-total">${fmt(monthTotals[mk])}</span>
+      </div>`);
+      lastMonth=mk;
+    }
+    rows.push(renderRow(r,i));
+  });
+  list.innerHTML=rows.join('');
+}
+
+function renderRow(r,i) {
+  const thumb = r.image_url
+    ? `<div class="receipt-thumb"><img src="${esc(r.image_url)}" alt="" loading="lazy"/></div>`
+    : `<div class="receipt-thumb">🧾</div>`;
+  const isExp = _expanded===r.id;
+  return `<div class="receipt-row${isExp?' expanded':''}" id="row-${esc(r.id)}" style="animation-delay:${i*0.03}s">
+    <div class="receipt-row-main" onclick="toggleRow('${esc(r.id)}')">
+      ${thumb}
+      <div class="receipt-info">
+        <div class="receipt-merchant">${esc(r.merchant||'Unknown')}</div>
+        <div class="receipt-date">${fmtDate(r.date||r.created_at)}</div>
       </div>
-      <div class="sheet-meta-item">
-        <div class="sheet-meta-label">Currency</div>
-        <div class="sheet-meta-val">${r.currency || 'GBP'}</div>
-      </div>
-      <div class="sheet-meta-item">
-        <div class="sheet-meta-label">Added</div>
-        <div class="sheet-meta-val">${fmtDate(r.created_at)}</div>
+      <div>
+        <div class="receipt-amount">${fmt(r.amount,r.currency)}</div>
+        <div class="receipt-currency">${r.currency||'GBP'}</div>
       </div>
     </div>
-    ${ocrHtml}
-    <div class="sheet-actions">
-      <button class="btn btn-danger btn-sm" onclick="deleteReceipt('${r.id}')">Delete</button>
-      <button class="btn btn-secondary btn-sm" style="flex:1" onclick="closeDetail()">Close</button>
-    </div>`;
-  el('detailSheet').classList.add('open');
-};
+    <div class="receipt-detail">
+      ${r.image_url?`<img class="receipt-detail-img" src="${esc(r.image_url)}" alt="Receipt"/>`:''}
+      <div class="detail-grid">
+        <div class="detail-cell"><div class="detail-cell-label">Date</div><div class="detail-cell-val">${fmtDate(r.date||r.created_at)}</div></div>
+        <div class="detail-cell"><div class="detail-cell-label">Amount</div><div class="detail-cell-val">${fmt(r.amount,r.currency)}</div></div>
+        <div class="detail-cell"><div class="detail-cell-label">Currency</div><div class="detail-cell-val">${r.currency||'GBP'}</div></div>
+        <div class="detail-cell"><div class="detail-cell-label">Added</div><div class="detail-cell-val">${fmtDate(r.created_at)}</div></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn-outline danger" onclick="deleteReceipt('${esc(r.id)}')">Delete</button>
+        <button class="btn-outline" onclick="toggleRow('${esc(r.id)}')">Close</button>
+      </div>
+    </div>
+  </div>`;
+}
 
-window.closeDetail = (e) => {
-  if (e && e.target !== el('detailSheet')) return;
-  el('detailSheet').classList.remove('open');
+window.toggleRow = (id) => {
+  _expanded = _expanded===id ? null : id;
+  renderList();
+  if(_expanded) setTimeout(()=>{
+    const row=g('row-'+id);
+    if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },60);
 };
 
 window.deleteReceipt = async (id) => {
-  if (!confirm('Delete this receipt?')) return;
-  await sb.from('receipts').delete().eq('id', id);
-  _receipts = _receipts.filter(r => r.id !== id);
-  renderList(_receipts);
-  updateSummary();
-  el('detailSheet').classList.remove('open');
+  if(!confirm('Delete this receipt?')) return;
+  await sb.from('receipts').delete().eq('id',id);
+  _receipts = _receipts.filter(r=>r.id!==id);
+  _expanded = null;
+  renderHome();
   toast('Receipt deleted');
 };
 
-/* ─── SCAN FLOW ──────────────────────────────────────────── */
+/* ── SCAN ───────────────────────────────────────────────── */
 window.openScan = () => {
-  _imageB64 = null;
-  _editId   = null;
-  // Reset UI
-  el('capturePreview').classList.remove('visible');
-  el('captureRetake').classList.remove('visible');
-  el('captureArea').classList.remove('has-photo');
-  el('captureInput').value = ''; el('galleryInput').value = '';
-  el('captureIcon').style.display = '';
-  el('captureText').style.display = '';
-  el('capturePhotoInfo').style.display = 'none';
-  el('ocrLoading').classList.remove('active');
-  el('confirmSection').style.cssText = 'display:none';
-  el('saveBar').style.cssText = 'display:none';
-  el('scanTitle').textContent = 'Scan Receipt';
-  // Clear fields
-  ['cfMerchant','cfAmount','cfNotes'].forEach(id => el(id).value = '');
-  el('cfDate').value     = today();
-  el('cfCurrency').value = 'GBP';
-  el('confidenceBadge').innerHTML = '';
+  _imgB64 = null;
+  g('czEmpty').style.display='';
+  g('czHasPhoto').style.display='none';
+  g('czThumb').src='';
+  // Reset file inputs — critical for iOS to re-fire change event
+  try{ g('captureInput').value=''; }catch(e){}
+  try{ g('galleryInput').value=''; }catch(e){}
+  g('ocrBar').classList.remove('active');
+  g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
+  g('saveBar').classList.remove('active');
+  g('confBadge').innerHTML='';
+  g('cfMerchant').value=''; g('cfAmount').value='';
+  g('cfCurrency').value='GBP'; g('cfDate').value=today();
   show('scanScreen');
+  history.pushState({snap:'scan'}, '');
 };
 
-window.goHome = () => {
-  show('homeScreen');
-  // Reload list in case a receipt was saved
-  if (_user) loadReceipts();
-};
+window.goHome = () => { show('homeScreen'); _debouncedLoad(); };
+let _loadTimer;
+function _debouncedLoad(){ clearTimeout(_loadTimer); _loadTimer=setTimeout(loadReceipts,120); }
 
-window.retakePhoto = (e) => {
+window.retake = (e) => {
   e.stopPropagation();
-  _imageB64 = null;
-  el('capturePreview').classList.remove('visible');
-  el('captureRetake').classList.remove('visible');
-  el('captureArea').classList.remove('has-photo');
-  el('captureInput').value  = '';
-  el('galleryInput').value  = '';
-  el('captureIcon').style.display = '';
-  el('captureText').style.display = '';
-  el('capturePhotoInfo').style.display = 'none';
-  el('confirmSection').style.cssText = 'display:none';
-  el('saveBar').style.cssText = 'display:none';
+  _imgB64=null;
+  g('czEmpty').style.display='';
+  g('czHasPhoto').style.display='none';
+  g('czThumb').src='';
+  try{ g('captureInput').value=''; }catch(e){}
+  try{ g('galleryInput').value=''; }catch(e){}
+  g('ocrBar').classList.remove('active');
+  g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
+  g('saveBar').classList.remove('active');
 };
 
-window.onImageSelected = async (input) => {
+window.onFileSelected = async (input) => {
   const file = input.files[0];
-  if (!file) return;
+  if (!file) { document.getElementById('debugLog') && (document.getElementById('debugLog').innerHTML += 'onFileSelected: NO FILE<br>'); return; }
+  const dbgEl = document.getElementById('debugLog');
+  if(dbgEl) dbgEl.innerHTML += 'onFileSelected: ' + file.name + ' ' + file.size + 'b<br>';
 
-  // Convert to JPEG via canvas (handles HEIC, WebP, etc.)
-  const b64 = await fileToJpegB64(file);
-  _imageB64 = b64;
+  // Show processing state immediately
+  g('czEmpty').style.display = 'none';
+  g('czHasPhoto').style.display = '';
+  g('czStatusSub').textContent = 'Processing image…';
+  g('ocrBar').classList.add('active');
 
-  // Show compact preview
-  el('capturePreview').src = b64;
-  el('capturePreview').classList.add('visible');
-  el('captureRetake').classList.add('visible');
-  el('captureArea').classList.add('has-photo');
-  el('captureIcon').style.display = 'none';
-  el('captureText').style.display = 'none';
-  el('capturePhotoInfo').style.display = '';
+  // Convert to JPEG using FileReader (weldswine pattern)
+  let b64;
+  try { b64 = await toJpeg(file); } catch(e) { b64 = null; }
 
-  // Start OCR immediately
+  if (!b64 || b64.length < 200) {
+    toast('Image could not be processed — fill in manually');
+    g('czStatusSub').textContent = 'Fill in details below';
+    g('ocrBar').classList.remove('active');
+    g('confBadge').innerHTML = '<div class="conf-badge low">⚠ Fill in manually</div>';
+    showConfirm();
+    return;
+  }
+
+  _imgB64 = b64;
+  g('czThumb').src = b64;
+  g('czStatusSub').textContent = 'AI is reading it…';
+
   await runOCR(b64);
 };
 
 async function runOCR(b64) {
-  // Show spinner, hide confirm
-  el('ocrLoading').classList.add('active');
-  el('confirmSection').style.cssText = 'display:none';
-  el('saveBar').style.cssText = 'display:none';
-
+  // ocrBar already active from onFileSelected
   try {
-    const { data: { session } } = await sb.auth.getSession();
+    const sessionRes = await sb.auth.getSession();
+    const session = sessionRes?.data?.session;
     if (!session) throw new Error('Not signed in');
 
     const raw = b64.includes(',') ? b64.split(',')[1] : b64;
+    const mediaType = b64.startsWith('data:')
+      ? (b64.match(/^data:([^;]+);/)?.[1] || 'image/jpeg')
+      : 'image/jpeg';
+
     const res = await fetch(WORKER_URL, {
-      method:  'POST',
+      method: 'POST',
       headers: {
         'Content-Type':  'application/json',
         'Authorization': `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ imageBase64: raw, mediaType: 'image/jpeg' }),
+      body: JSON.stringify({ imageBase64: raw, mediaType }),
     });
 
     if (!res.ok) throw new Error(`Worker error ${res.status}`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    // Fill fields
-    el('cfMerchant').value = data.merchant || '';
-    el('cfAmount').value   = data.amount   || '';
-    el('cfDate').value     = data.date ? isoDate(data.date) : today();
-    if (data.currency) el('cfCurrency').value = data.currency;
+    // Fill confirmed fields
+    g('cfMerchant').value = data.merchant || '';
+    g('cfAmount').value   = data.amount   || '';
+    g('cfDate').value     = data.date ? isoDate(data.date) : today();
+    if (data.currency) g('cfCurrency').value = data.currency;
 
-    // Confidence
     const conf = (data.confidence || 'medium').toLowerCase();
-    const labels = { high:'✓ High confidence', medium:'~ Review fields below', low:'⚠ Low confidence — check fields' };
-    el('confidenceBadge').innerHTML = `<div class="confidence-badge ${conf}">${labels[conf]||conf}</div>`;
+    const labels = { high: '✓ High confidence', medium: '~ Review fields', low: '⚠ Check fields carefully' };
+    g('confBadge').innerHTML = `<div class="conf-badge ${conf}">${labels[conf] || conf}</div>`;
+    if(g('czStatusSub')) g('czStatusSub').textContent = 'Review details below';
 
-    showConfirm();
-    toast(data.merchant ? `✓ ${data.merchant}` : '✓ Done — review fields below');
-
-  } catch (err) {
+  } catch(err) {
     console.error('OCR error:', err);
-    el('confidenceBadge').innerHTML = `<div class="confidence-badge low">⚠ Could not read receipt — fill in manually</div>`;
-    showConfirm();
-    toast('Could not read receipt — please fill in manually');
+    g('confBadge').innerHTML = `<div class="conf-badge low">⚠ Could not read — fill in manually</div>`;
+    if(g('czStatusSub')) g('czStatusSub').textContent = 'Fill in details below';
   } finally {
-    el('ocrLoading').classList.remove('active');
+    g('ocrBar').classList.remove('active');
+    showConfirm();
   }
 }
 
 function showConfirm() {
-  // Update capture strip info text
-  const info = el('capturePhotoInfo');
-  if (info) {
-    info.innerHTML = '<div style="font-size:.85rem;font-weight:600;color:var(--green)">✓ Receipt read</div><div style="font-size:.72rem;color:var(--text-2);margin-top:1px">Review &amp; save below</div>';
-  }
-  // Force confirm section visible
-  const cs = el('confirmSection');
-  cs.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
-  el('saveBar').style.cssText = 'display:flex;';
-  // Scroll to top so fields are immediately visible
-  try {
-    const body = document.querySelector('#scanScreen .scan-body');
-    if (body) body.scrollTop = 0;
-  } catch(e) {}
+  g('confirmFields').style.cssText='display:flex;flex-direction:column;gap:10px;';
+  g('confirmFields').classList.add('active');
+  g('saveBar').classList.add('active');
+  setTimeout(()=>{ try{g('scanBody').scrollTop=g('scanBody').scrollHeight;}catch(e){} },50);
 }
 
 window.saveReceipt = async () => {
-  const merchant = el('cfMerchant').value.trim();
-  const amount   = parseFloat(el('cfAmount').value) || 0;
-  const date     = el('cfDate').value;
-
-  if (!merchant) { toast('Please enter a merchant name'); el('cfMerchant').focus(); return; }
-  if (!amount)   { toast('Please enter an amount');        el('cfAmount').focus();   return; }
-
-  const btn = el('btnSave');
-  btn.disabled = true; btn.textContent = 'Saving…';
-
+  const merchant = g('cfMerchant').value.trim();
+  const amount   = parseFloat(g('cfAmount').value)||0;
+  const date     = g('cfDate').value;
+  if(!merchant){toast('Please enter a merchant name');g('cfMerchant').focus();return;}
+  if(!amount)  {toast('Please enter an amount');g('cfAmount').focus();return;}
+  const btn=g('btnSave'); btn.disabled=true; btn.textContent='Saving…';
   try {
-    const row = {
-      user_id:   _user.id,
-      merchant,
-      amount,
-      currency:  el('cfCurrency').value || 'GBP',
-      date:      date || null,
-      image_url: _imageB64 || null,
-      ocr_raw:   null, // stored in worker if needed
-    };
-
-    const { data, error } = await sb.from('receipts').insert(row).select().single();
-    if (error) throw error;
-
+    // Only store image if < 800KB to avoid Supabase row size limits
+    const imgToStore = (_imgB64 && _imgB64.length < 800000) ? _imgB64 : null;
+    const {data,error} = await sb.from('receipts').insert({
+      user_id:_user.id, merchant, amount,
+      currency:g('cfCurrency').value||'GBP',
+      date:date||null, image_url:imgToStore, ocr_raw:null,
+    }).select().single();
+    if(error) throw error;
     _receipts.unshift(data);
-    renderList(_receipts);
-    updateSummary();
-    toast('Receipt saved ✓');
-    show('homeScreen');
-
-  } catch (e) {
-    console.error(e);
-    toast('Error saving — please try again');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Save Receipt';
-  }
+    const now=new Date();
+    const monthName=now.toLocaleDateString('en-GB',{month:'long'});
+    const monthTotal=_receipts.filter(r=>{
+      const d=new Date(r.date||r.created_at);
+      return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    }).reduce((s,r)=>s+parseFloat(r.amount||0),0);
+    g('successAmount').textContent = fmt(amount);
+    g('successTitle').textContent  = esc(merchant);
+    g('successSub').textContent    = `${monthName} total now ${fmt(monthTotal)}`;
+    g('successOverlay').classList.add('show');
+    setTimeout(()=>{
+      g('successOverlay').classList.remove('show');
+      show('homeScreen'); renderHome();
+    },1800);
+  } catch(e) {
+    console.error(e); toast('Error saving — please try again');
+  } finally { btn.disabled=false; btn.textContent='Save Receipt'; }
 };
 
-/* ─── EXPORT CSV ─────────────────────────────────────────── */
+/* ── EXPORT ─────────────────────────────────────────────── */
 window.exportCSV = () => {
-  if (!_receipts.length) { toast('No receipts to export'); return; }
-  const headers = ['Date', 'Merchant', 'Amount', 'Currency', 'Added'];
-  const rows = _receipts.map(r => [
-    r.date || '',
-    `"${(r.merchant || '').replace(/"/g, '""')}"`,
-    (r.amount || 0).toFixed(2),
-    r.currency || 'GBP',
-    new Date(r.created_at).toISOString().slice(0, 10),
+  if(!_receipts.length){toast('No receipts to export');return;}
+  const rows = _receipts.map(r=>[
+    r.date||'',
+    `"${(r.merchant||'').replace(/"/g,'""')}"`,
+    parseFloat(r.amount||0).toFixed(2),
+    r.currency||'GBP',
+    parseFloat(r.vat||0).toFixed(2),
+    new Date(r.created_at).toISOString().slice(0,10),
   ]);
-  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `snapreceipt-${today()}.csv`;
+  const csv=[['Date','Merchant','Amount (£)','Currency','VAT (£)','Added'],...rows].map(r=>r.join(',')).join('\n');
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),
+    download:`snapreceipt-${today()}.csv`,
+  });
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(a.href); },1000);
   toast('CSV exported ✓');
 };
 
-/* ─── MENU ───────────────────────────────────────────────── */
-window.openMenu    = () => el('menuSheet').classList.add('open');
-window.closeMenu   = (e) => { if (e.target === el('menuSheet')) closeMenuNow(); };
-window.closeMenuNow = () => el('menuSheet').classList.remove('open');
+/* ── MENU ───────────────────────────────────────────────── */
+window.openMenu  = () => g('menuSheet').classList.add('open');
+window.closeMenu = (e) => { if(!e||e.target===g('menuSheet')) g('menuSheet').classList.remove('open'); };
 
-/* ─── HELPERS ────────────────────────────────────────────── */
-function show(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  el(screenId).classList.add('active');
+/* ── HELPERS ────────────────────────────────────────────── */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));g(id).classList.add('active');}
+function g(id)  {return document.getElementById(id);}
+// Camera/gallery triggered by label+input pattern (most reliable on iOS/Android)
+function val(id){return g(id).value.trim();}
+function cap(s) {return s.charAt(0).toUpperCase()+s.slice(1);}
+function esc(s) {return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmt(n,currency){
+  const sym={GBP:'£',USD:'$',EUR:'€'}[currency]||'£';
+  return sym+parseFloat(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 }
-
-function el(id) { return document.getElementById(id); }
-function v(id)  { return el(id).value.trim(); }
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function fmtDate(d) {
-  if (!d) return '—';
-  try { return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }); }
-  catch { return d; }
+function fmtDate(d){
+  if(!d) return '—';
+  try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+  catch{return d;}
 }
-
-function fmtAmount(amount, currency) {
-  const n = parseFloat(amount || 0);
-  const sym = { GBP:'£', USD:'$', EUR:'€' }[currency] || '';
-  return sym + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+function isoDate(s){
+  if(!s) return today();
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  const uk=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if(uk){const[,d,m,y]=uk;return`${y.length===2?'20'+y:y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+  try{return new Date(s).toISOString().slice(0,10);}catch{return today();}
 }
-
-function today() { return new Date().toISOString().slice(0, 10); }
-
-function isoDate(s) {
-  // Try to parse various date formats into YYYY-MM-DD
-  if (!s) return today();
-  // If already ISO
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-  // UK format DD/MM/YYYY or DD-MM-YYYY
-  const uk = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if (uk) {
-    const [, d, m, y] = uk;
-    const year = y.length === 2 ? '20' + y : y;
-    return `${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  try { return new Date(s).toISOString().slice(0,10); }
-  catch { return today(); }
+function setMsg(el,type,text){el.className='auth-msg '+type;el.textContent=text;}
+function friendlyErr(e){
+  const m=e.message||'';
+  if(m.includes('already registered')||m.includes('already exists')) return 'That email is already registered.';
+  if(m.includes('Invalid login')||m.includes('invalid_credentials'))  return 'Email or password is incorrect.';
+  if(m.includes('Password should')) return 'Password must be at least 6 characters.';
+  if(m.includes('Email not confirmed'))  return 'Please confirm your email first.';
+  return m||'Something went wrong.';
 }
-
-function setMsg(el, type, text) {
-  el.className = 'auth-msg ' + type;
-  el.textContent = text;
-}
-
-function friendlyErr(e) {
-  const m = e.message || '';
-  if (m.includes('already registered') || m.includes('already exists')) return 'That email is already registered.';
-  if (m.includes('Invalid login') || m.includes('invalid_credentials'))  return 'Email or password is incorrect.';
-  if (m.includes('Password should')) return 'Password must be at least 6 characters.';
-  if (m.includes('Email not confirmed'))  return 'Please confirm your email first.';
-  return m || 'Something went wrong.';
-}
-
 let _toastTimer;
-function toast(msg) {
-  const t = el('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
-}
-window.toast = toast;
-
-async function fileToJpegB64(file) {
-  return new Promise((resolve, reject) => {
+window.toast=function(msg){
+  const t=g('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+};
+// FileReader → canvas resize → JPEG — exactly the pattern weldswine uses
+function toJpeg(file){
+  return new Promise(resolve=>{
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = ev => {
+      const dataUrl = ev.target.result;
       const img = new Image();
       img.onload = () => {
         try {
-          const canvas = document.createElement('canvas');
-          // 1200px max — balances quality vs payload size on mobile
           const MAX = 1200;
           let w = img.width, h = img.height;
-          if (w > MAX || h > MAX) {
-            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-            else       { w = Math.round(w * MAX / h); h = MAX; }
+          if(w > MAX || h > MAX){
+            if(w > h){ h = Math.round(h * MAX / w); w = MAX; }
+            else      { w = Math.round(w * MAX / h); h = MAX; }
           }
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) { resolve(e.target.result); return; }
-          ctx.drawImage(img, 0, 0, w, h);
-          // Lower quality on mobile to reduce payload
-          const quality = w > 800 ? 0.75 : 0.85;
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        } catch(err) {
-          console.warn('Canvas error, using raw:', err);
-          resolve(e.target.result); // fallback to raw
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        } catch(e) {
+          resolve(dataUrl); // fallback: send original
         }
       };
-      img.onerror = () => {
-        console.warn('Image load error, using raw data');
-        resolve(e.target.result);
-      };
-      img.src = e.target.result;
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
     };
-    reader.onerror = reject;
+    reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
   });
 }
-
 </script>
-
-<!-- FILE INTEGRITY CHECK — file is complete if you see </html> below -->
-<script>function closeMobileMenu(){}</script>
-
 </body>
 </html>
