@@ -647,66 +647,87 @@ window.retake = (e) => {
 };
 
 window.onFileSelected = async (input) => {
-  const file = input.files[0]; if(!file) return;
+  const file = input.files[0];
+  if (!file) return;
 
-  // Kick off session fetch AND image conversion in parallel
-  const [b64] = await Promise.all([
-    toJpeg(file),
-    sb.auth.getSession(), // warms up the session cache
-  ]);
-
-  if(!b64){ toast('Could not read image — try again'); return; }
-  _imgB64 = b64;
-
-  // Show compact preview immediately
-  g('czThumb').src=b64; g('czThumb').classList.add('visible');
-  g('czEmpty').style.display='none';
+  // Show "processing" state immediately so user knows something happened
+  g('czEmpty').style.display = 'none';
   g('czStatus').classList.remove('hidden');
-  g('czStatusSub').textContent='AI is reading it…';
+  g('czStatusSub').textContent = 'Processing image…';
   g('czRetake').classList.remove('hidden');
   g('captureZone').classList.add('has-photo');
+  g('ocrBar').classList.add('active');
+
+  // Convert image to JPEG
+  let b64;
+  try {
+    b64 = await toJpeg(file);
+  } catch(e) {
+    b64 = null;
+  }
+
+  if (!b64 || b64.length < 200) {
+    // Show fields anyway — user can fill manually
+    toast('Image could not be processed — fill in manually');
+    g('czStatusSub').textContent = 'Fill in details below';
+    g('ocrBar').classList.remove('active');
+    g('confBadge').innerHTML = '<div class="conf-badge low">⚠ Fill in manually</div>';
+    showConfirm();
+    return;
+  }
+
+  _imgB64 = b64;
+  // Show thumbnail
+  g('czThumb').src = b64;
+  g('czThumb').classList.add('visible');
+  g('czStatusSub').textContent = 'AI is reading it…';
 
   await runOCR(b64);
 };
 
 async function runOCR(b64) {
-  g('ocrBar').classList.add('active');
-  g('confirmFields').style.cssText=''; g('confirmFields').classList.remove('active');
-  g('saveBar').classList.remove('active');
+  // ocrBar already active from onFileSelected
   try {
-    // Session was pre-fetched in onFileSelected — this hits cache immediately
-    const {data:{session}} = await sb.auth.getSession();
-    if(!session) throw new Error('Not signed in — please sign in again');
+    const sessionRes = await sb.auth.getSession();
+    const session = sessionRes?.data?.session;
+    if (!session) throw new Error('Not signed in');
+
     const raw = b64.includes(',') ? b64.split(',')[1] : b64;
-    if(!raw || raw.length < 100) throw new Error('Image conversion failed — please try again');
-    // Detect actual media type — HEIC files may have been sent as-is
     const mediaType = b64.startsWith('data:')
       ? (b64.match(/^data:([^;]+);/)?.[1] || 'image/jpeg')
       : 'image/jpeg';
-    const res = await fetch(WORKER_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-      body:JSON.stringify({imageBase64:raw,mediaType}),
+
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ imageBase64: raw, mediaType }),
     });
-    if(!res.ok) throw new Error(`Worker error ${res.status}`);
+
+    if (!res.ok) throw new Error(`Worker error ${res.status}`);
     const data = await res.json();
-    if(data.error) throw new Error(data.error);
-    g('cfMerchant').value = data.merchant||'';
-    g('cfAmount').value   = data.amount||'';
+    if (data.error) throw new Error(data.error);
+
+    // Fill confirmed fields
+    g('cfMerchant').value = data.merchant || '';
+    g('cfAmount').value   = data.amount   || '';
     g('cfDate').value     = data.date ? isoDate(data.date) : today();
-    if(data.currency) g('cfCurrency').value = data.currency;
-    const conf = (data.confidence||'medium').toLowerCase();
-    const labels = {high:'✓ High confidence',medium:'~ Review fields',low:'⚠ Check fields carefully'};
-    g('confBadge').innerHTML = `<div class="conf-badge ${conf}">${labels[conf]||conf}</div>`;
-    g('czStatusSub').textContent='Review details below';
-    showConfirm();
+    if (data.currency) g('cfCurrency').value = data.currency;
+
+    const conf = (data.confidence || 'medium').toLowerCase();
+    const labels = { high: '✓ High confidence', medium: '~ Review fields', low: '⚠ Check fields carefully' };
+    g('confBadge').innerHTML = `<div class="conf-badge ${conf}">${labels[conf] || conf}</div>`;
+    g('czStatusSub').textContent = 'Review details below';
+
   } catch(err) {
-    console.error('OCR error:',err);
-    g('confBadge').innerHTML=`<div class="conf-badge low">⚠ Could not read — fill in manually</div>`;
-    g('czStatusSub').textContent='Fill in details below';
-    showConfirm();
+    console.error('OCR error:', err);
+    g('confBadge').innerHTML = `<div class="conf-badge low">⚠ Could not read — fill in manually</div>`;
+    g('czStatusSub').textContent = 'Fill in details below';
   } finally {
     g('ocrBar').classList.remove('active');
+    showConfirm();
   }
 }
 
