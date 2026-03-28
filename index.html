@@ -208,12 +208,12 @@ img { display: block; max-width: 100%; }
 
 .form-input {
   width: 100%;
-  padding: 11px 13px;
+  padding: 9px 11px;
   border: 1.5px solid var(--border);
   border-radius: var(--r);
   background: var(--bg-2);
   color: var(--text);
-  font-size: .95rem;
+  font-size: .93rem;
   outline: none;
   transition: border-color .15s, background .15s;
   -webkit-appearance: none;
@@ -564,15 +564,16 @@ img { display: block; max-width: 100%; }
   flex-direction: column;
   height: 100dvh;
   height: 100vh;
+  overflow: hidden;
 }
 
 .scan-header {
-  height: 56px;
+  height: 52px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 14px;
   flex-shrink: 0;
 }
 
@@ -584,31 +585,32 @@ img { display: block; max-width: 100%; }
 
 .scan-body {
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding: 20px 16px 120px; /* large bottom pad so save bar never covers content */
+  padding: 12px 14px 90px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 /* Capture area */
 .capture-area {
   border: 2px dashed var(--border);
-  border-radius: var(--r-lg);
+  border-radius: var(--r);
   background: var(--bg-2);
-  min-height: 180px;
+  min-height: 80px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   transition: border-color .15s, background .15s;
   -webkit-tap-highlight-color: transparent;
+  padding: 10px 14px;
 }
 
 .capture-area:hover, .capture-area.dragover {
@@ -626,37 +628,47 @@ img { display: block; max-width: 100%; }
   z-index: 2;
 }
 
-.capture-icon { font-size: 2.2rem; line-height: 1; }
-.capture-title { font-size: .95rem; font-weight: 600; color: var(--text); }
-.capture-sub   { font-size: .8rem; color: var(--text-2); }
+.capture-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.capture-title { font-size: .9rem; font-weight: 600; color: var(--text); }
+.capture-sub   { font-size: .76rem; color: var(--text-2); margin-top: 2px; }
+
+/* Once photo taken: show compact thumbnail row */
+.capture-area.has-photo {
+  min-height: auto;
+  border-style: solid;
+  border-color: var(--border);
+  background: var(--bg);
+  padding: 8px 10px;
+}
 
 .capture-preview {
   display: none;
-  width: 100%;
-  max-height: 240px;
-  object-fit: contain;
-  border-radius: calc(var(--r-lg) - 2px);
+  width: 52px;
+  height: 66px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .capture-preview.visible { display: block; }
 
 .capture-retake {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0,0,0,.55);
-  color: #fff;
-  border: none;
+  display: none;
+  background: var(--bg-3);
+  color: var(--text);
+  border: 1.5px solid var(--border);
   border-radius: 20px;
   padding: 5px 12px;
   font-size: .78rem;
   font-weight: 600;
   cursor: pointer;
   z-index: 3;
-  display: none;
+  position: static;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.capture-retake.visible { display: block; }
+.capture-retake.visible { display: inline-flex; align-items: center; gap: 4px; }
 
 /* OCR state */
 .ocr-loading {
@@ -710,17 +722,17 @@ img { display: block; max-width: 100%; }
 .confidence-badge.medium { background: var(--amber-pale); color: var(--amber); }
 .confidence-badge.low    { background: var(--red-pale);   color: var(--red);   }
 
-.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group { display: flex; flex-direction: column; gap: 4px; }
 
 .field-label {
-  font-size: .78rem;
-  font-weight: 600;
+  font-size: .72rem;
+  font-weight: 700;
   color: var(--text-2);
   text-transform: uppercase;
   letter-spacing: .05em;
 }
 
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 .amount-wrap { position: relative; }
 .amount-prefix {
@@ -735,7 +747,7 @@ img { display: block; max-width: 100%; }
 }
 .form-input.indented { padding-left: 26px; }
 
-/* Save bar — fixed at bottom so scroll is never blocked */
+/* Save bar — fixed at bottom, never overlaps content */
 .save-bar {
   position: fixed;
   bottom: 0;
@@ -743,13 +755,13 @@ img { display: block; max-width: 100%; }
   right: 0;
   background: var(--bg);
   border-top: 2px solid var(--border);
-  padding: 10px 16px;
+  padding: 10px 14px;
   padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
   display: flex;
   gap: 10px;
   align-items: center;
   z-index: 50;
-  box-shadow: 0 -2px 12px rgba(0,0,0,.08);
+  box-shadow: 0 -4px 16px rgba(0,0,0,.10);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -1047,21 +1059,29 @@ img { display: block; max-width: 100%; }
     <!-- Capture -->
     <div>
       <div class="capture-area" id="captureArea">
-        <!-- Primary: camera capture (iOS + Android) -->
+        <!-- Camera input -->
         <input type="file" id="captureInput"
           accept="image/*,image/heic,image/heif"
           capture="environment"
           onchange="onImageSelected(this)"/>
-        <img class="capture-preview" id="capturePreview" alt="Receipt"/>
-        <button class="capture-retake" id="captureRetake" onclick="retakePhoto(event)">Retake ✕</button>
-        <span class="capture-icon">📷</span>
-        <span class="capture-title">Take photo</span>
-        <span class="capture-sub">or <label for="galleryInput" style="color:var(--accent);cursor:pointer;text-decoration:underline">choose from gallery</label></span>
-        <!-- Secondary: gallery picker (no capture constraint) -->
+        <!-- Gallery input (no capture) -->
         <input type="file" id="galleryInput"
           accept="image/*,image/heic,image/heif"
-          style="display:none"
+          style="position:absolute;opacity:0;pointer-events:none"
           onchange="onImageSelected(this)"/>
+        <!-- Empty state -->
+        <span class="capture-icon" id="captureIcon">📷</span>
+        <div id="captureText">
+          <div class="capture-title">Take photo</div>
+          <div class="capture-sub">or <label for="galleryInput" style="color:var(--accent);cursor:pointer;text-decoration:underline;pointer-events:all;position:relative;z-index:3">choose from gallery</label></div>
+        </div>
+        <!-- Has-photo state -->
+        <img class="capture-preview" id="capturePreview" alt="Receipt"/>
+        <div id="capturePhotoInfo" style="display:none;flex:1;min-width:0">
+          <div style="font-size:.88rem;font-weight:600;color:var(--text)">Receipt captured ✓</div>
+          <div style="font-size:.75rem;color:var(--text-2);margin-top:2px">AI is reading it…</div>
+        </div>
+        <button class="capture-retake" id="captureRetake" onclick="retakePhoto(event)">↩ Retake</button>
       </div>
     </div>
 
@@ -1105,8 +1125,8 @@ img { display: block; max-width: 100%; }
         <input class="form-input" id="cfDate" type="date"/>
       </div>
 
-      <div class="field-group">
-        <label class="field-label">Notes <span style="font-weight:400;text-transform:none;font-size:.78rem">(optional)</span></label>
+      <div class="field-group" id="notesGroup" style="display:none">
+        <label class="field-label">Notes</label>
         <input class="form-input" id="cfNotes" placeholder="Business purpose, project, etc."/>
       </div>
     </div>
@@ -1432,10 +1452,11 @@ window.openScan = () => {
   // Reset UI
   el('capturePreview').classList.remove('visible');
   el('captureRetake').classList.remove('visible');
+  el('captureArea').classList.remove('has-photo');
   el('captureInput').value = ''; el('galleryInput').value = '';
-  el('captureArea').querySelector('.capture-icon').style.display  = '';
-  el('captureArea').querySelector('.capture-title').style.display = '';
-  el('captureArea').querySelector('.capture-sub').style.display   = '';
+  el('captureIcon').style.display = '';
+  el('captureText').style.display = '';
+  el('capturePhotoInfo').style.display = 'none';
   el('ocrLoading').classList.remove('active');
   el('confirmSection').style.cssText = 'display:none';
   el('saveBar').style.cssText = 'display:none';
@@ -1455,11 +1476,12 @@ window.retakePhoto = (e) => {
   _imageB64 = null;
   el('capturePreview').classList.remove('visible');
   el('captureRetake').classList.remove('visible');
+  el('captureArea').classList.remove('has-photo');
   el('captureInput').value  = '';
   el('galleryInput').value  = '';
-  el('captureArea').querySelector('.capture-icon').style.display  = '';
-  el('captureArea').querySelector('.capture-title').style.display = '';
-  el('captureArea').querySelector('.capture-sub').style.display   = '';
+  el('captureIcon').style.display = '';
+  el('captureText').style.display = '';
+  el('capturePhotoInfo').style.display = 'none';
   el('confirmSection').style.cssText = 'display:none';
   el('saveBar').style.cssText = 'display:none';
 };
@@ -1468,20 +1490,18 @@ window.onImageSelected = async (input) => {
   const file = input.files[0];
   if (!file) return;
 
-  // Show immediate feedback so user knows something is happening
-  toast('Processing image…');
-
   // Convert to JPEG via canvas (handles HEIC, WebP, etc.)
   const b64 = await fileToJpegB64(file);
   _imageB64 = b64;
 
-  // Show preview
+  // Show compact preview
   el('capturePreview').src = b64;
   el('capturePreview').classList.add('visible');
   el('captureRetake').classList.add('visible');
-  el('captureArea').querySelector('.capture-icon').style.display  = 'none';
-  el('captureArea').querySelector('.capture-title').style.display = 'none';
-  el('captureArea').querySelector('.capture-sub').style.display   = 'none';
+  el('captureArea').classList.add('has-photo');
+  el('captureIcon').style.display = 'none';
+  el('captureText').style.display = 'none';
+  el('capturePhotoInfo').style.display = '';
 
   // Start OCR immediately
   await runOCR(b64);
@@ -1536,17 +1556,22 @@ async function runOCR(b64) {
 }
 
 function showConfirm() {
-  // Force the confirm section visible with inline style (beats any CSS specificity issues)
+  // Update capture area info text
+  const info = el('capturePhotoInfo');
+  if (info) {
+    info.innerHTML = '<div style="font-size:.88rem;font-weight:600;color:var(--green)">✓ Receipt read</div><div style="font-size:.75rem;color:var(--text-2);margin-top:2px">Review fields below</div>';
+  }
+  // Force the confirm section visible — inline style beats any CSS specificity
   const cs = el('confirmSection');
-  cs.style.cssText = 'display:flex !important; flex-direction:column; gap:14px;';
-  el('saveBar').style.cssText = 'display:flex !important;';
-  // Scroll the scan-body to show confirm fields
+  cs.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+  el('saveBar').style.cssText = 'display:flex;';
+  // Scroll scan-body to show fields
   setTimeout(() => {
     try {
       const body = document.querySelector('#scanScreen .scan-body');
       if (body) body.scrollTop = body.scrollHeight;
     } catch(e) {}
-  }, 80);
+  }, 60);
 }
 
 window.saveReceipt = async () => {
