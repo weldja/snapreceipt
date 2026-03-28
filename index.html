@@ -128,9 +128,7 @@ img{display:block;max-width:100%}
 .scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:10px;touch-action:pan-y}
 
 /* Capture zone */
-.capture-zone{border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);min-height:96px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative;overflow:hidden;cursor:pointer;transition:all .15s;padding:14px;-webkit-tap-highlight-color:transparent}
-.capture-zone:hover{border-color:var(--blue);background:var(--blue-lt)}
-.capture-zone input[type="file"]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2}
+.capture-zone{border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);min-height:120px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative;padding:16px;transition:all .15s}
 .capture-zone.has-photo{border-style:solid;border-color:var(--border);background:#fff;min-height:auto;padding:10px 12px}
 .cz-icon{font-size:1.7rem;flex-shrink:0}
 .cz-label{font-size:.92rem;font-weight:600;color:var(--black)}
@@ -140,8 +138,13 @@ img{display:block;max-width:100%}
 .cz-status{flex:1;min-width:0}
 .cz-status-title{font-size:.88rem;font-weight:700;color:var(--black)}
 .cz-status-sub{font-size:.74rem;color:var(--gray-5);margin-top:2px}
-.cz-retake{flex-shrink:0;height:32px;padding:0 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);display:none;align-items:center;gap:4px;z-index:3;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cz-retake{flex-shrink:0;height:36px;padding:0 14px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.82rem;font-weight:600;color:var(--gray-7);display:none;align-items:center;gap:4px;z-index:3;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .cz-retake.visible{display:flex}
+.cz-btn{flex:1;padding:12px 8px;border-radius:var(--r);font-size:.9rem;font-weight:700;cursor:pointer;touch-action:manipulation;border:none;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent}
+.cz-btn-primary{background:var(--black);color:#fff}
+.cz-btn-primary:active{opacity:.85}
+.cz-btn-secondary{background:var(--gray-1);color:var(--black);border:1.5px solid var(--border)}
+.cz-btn-secondary:active{background:var(--border)}
 
 /* OCR bar */
 .ocr-bar{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-lt);border-radius:var(--r);border:1px solid var(--blue-mid)}
@@ -279,17 +282,29 @@ img{display:block;max-width:100%}
     <div style="width:72px"></div>
   </header>
   <div class="scan-body" id="scanBody">
+    <!-- Hidden file inputs — triggered by buttons below -->
+    <input type="file" id="captureInput" accept="image/*,image/heic,image/heif,.heic,.heif"
+      capture="environment"
+      style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0"
+      onchange="onFileSelected(this)"/>
+    <input type="file" id="galleryInput" accept="image/*,image/heic,image/heif,.heic,.heif"
+      style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0"
+      onchange="onFileSelected(this)"/>
+
     <div class="capture-zone" id="captureZone">
-      <input type="file" id="captureInput" accept="image/*,image/heic,image/heif,.heic,.heif"
-        capture="environment" onchange="onFileSelected(this)"/>
-      <input type="file" id="galleryInput" accept="image/*,image/heic,image/heif,.heic,.heif"
-        style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0"
-        onchange="onFileSelected(this)"/>
-      <span class="cz-icon" id="czIcon">📷</span>
-      <div id="czText">
-        <div class="cz-label">Take photo</div>
-        <div class="cz-sub">or <span style="color:var(--blue);text-decoration:underline;cursor:pointer;position:relative;z-index:3" onclick="event.stopPropagation();g('captureInput').removeAttribute('capture');g('captureInput').click();setTimeout(()=>g('captureInput').setAttribute('capture','environment'),500)">choose from gallery</span></div>
+      <!-- Empty state: two buttons -->
+      <div id="czEmpty" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding:8px 0">
+        <span style="font-size:2rem">📷</span>
+        <div style="display:flex;gap:10px;width:100%;max-width:320px">
+          <button class="cz-btn cz-btn-primary" onclick="g('captureInput').click()">
+            📸 Take photo
+          </button>
+          <button class="cz-btn cz-btn-secondary" onclick="g('galleryInput').click()">
+            🖼 Gallery
+          </button>
+        </div>
       </div>
+      <!-- Has-photo state -->
       <img class="cz-thumb" id="czThumb" alt=""/>
       <div class="cz-status hidden" id="czStatus">
         <div class="cz-status-title">Receipt captured ✓</div>
@@ -389,6 +404,19 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 let _user = null, _receipts = [], _imgB64 = null, _expanded = null;
 
 /* ── AUTH STATE ─────────────────────────────────────────── */
+// Intercept browser back button — go to home instead of leaving app
+window.addEventListener('popstate', () => {
+  const scanActive = g('scanScreen').classList.contains('active');
+  if (scanActive) {
+    goHome();
+    return;
+  }
+  // Any other back — push state again to stay in app
+  history.pushState({snap:'home'}, '');
+});
+// Seed initial history entry so there's always something to pop back to
+history.replaceState({snap:'home'}, '');
+
 sb.auth.onAuthStateChange((event, session) => {
   if (event === 'PASSWORD_RECOVERY') { g('resetPassSheet').classList.add('open'); return; }
   _user = session?.user ?? null;
@@ -585,8 +613,7 @@ window.openScan = () => {
   _imgB64 = null;
   g('captureZone').classList.remove('has-photo');
   g('czThumb').classList.remove('visible'); g('czThumb').src='';
-  g('czIcon').classList.remove('hidden');
-  g('czText').classList.remove('hidden');
+  g('czEmpty').style.display='flex';
   g('czStatus').classList.add('hidden');
   g('czRetake').classList.add('hidden');
   g('captureInput').value=''; g('galleryInput').value='';
@@ -597,6 +624,8 @@ window.openScan = () => {
   g('cfMerchant').value=''; g('cfAmount').value='';
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
   show('scanScreen');
+  // Push a history entry so browser back button goes to home, not away
+  history.pushState({snap:'scan'}, '');
 };
 
 window.goHome = () => { show('homeScreen'); _debouncedLoad(); };
@@ -608,8 +637,7 @@ window.retake = (e) => {
   _imgB64=null;
   g('captureZone').classList.remove('has-photo');
   g('czThumb').classList.remove('visible');
-  g('czIcon').classList.remove('hidden');
-  g('czText').classList.remove('hidden');
+  g('czEmpty').style.display='flex';
   g('czStatus').classList.add('hidden');
   g('czRetake').classList.add('hidden');
   g('captureInput').value=''; g('galleryInput').value='';
@@ -632,7 +660,7 @@ window.onFileSelected = async (input) => {
 
   // Show compact preview immediately
   g('czThumb').src=b64; g('czThumb').classList.add('visible');
-  g('czIcon').classList.add('hidden'); g('czText').classList.add('hidden');
+  g('czEmpty').style.display='none';
   g('czStatus').classList.remove('hidden');
   g('czStatusSub').textContent='AI is reading it…';
   g('czRetake').classList.remove('hidden');
