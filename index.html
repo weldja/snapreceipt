@@ -258,6 +258,15 @@ img{display:block;max-width:100%}
 @keyframes shim{to{background-position:-200% 0}}
 .hidden{display:none!important}
 
+/* ── ONBOARDING ──────────────────────────────────────── */
+.onboard-banner{background:linear-gradient(135deg,#0052cc 0%,#0066ff 100%);border-radius:var(--r-lg);padding:20px;margin:12px 12px 0;color:#fff;position:relative;overflow:hidden}
+.onboard-banner::after{content:"🧾";position:absolute;right:-8px;top:-8px;font-size:5rem;opacity:.15;line-height:1}
+.onboard-title{font-size:1rem;font-weight:800;margin-bottom:4px;letter-spacing:-.02em}
+.onboard-sub{font-size:.82rem;opacity:.88;line-height:1.5;margin-bottom:14px}
+.onboard-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#fff;color:var(--blue);border:none;border-radius:20px;font-size:.85rem;font-weight:700;cursor:pointer;transition:opacity .15s}
+.onboard-btn:active{opacity:.85}
+.onboard-dismiss{position:absolute;top:10px;right:12px;background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;padding:4px;line-height:1}
+
 /* ── LANDING PAGE ─────────────────────────────────────── */
 #landingPage{display:none;flex-direction:column;min-height:100vh;background:#fff}
 #landingPage.active{display:flex}
@@ -551,6 +560,7 @@ img{display:block;max-width:100%}
       <div class="lfooter-links">
         <span class="lfooter-link" onclick="showAuth('signin')">Sign in</span>
         <span class="lfooter-link" onclick="showAuth('signup')">Create account</span>
+        <span class="lfooter-link" onclick="showPrivacy()">Privacy policy</span>
         <a class="lfooter-link" href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a>
       </div>
       <div class="lfooter-copy">© 2025 SnapReceipt — free receipt scanner app for UK freelancers. Built in the UK.</div>
@@ -562,6 +572,9 @@ img{display:block;max-width:100%}
 <!-- ═══ AUTH ═════════════════════════════════════════════ -->
 <div id="authScreen" class="screen">
   <div class="auth-wrap">
+    <div style="margin-bottom:8px">
+      <button onclick="showLanding()" style="background:none;border:none;color:var(--gray-5);font-size:.85rem;font-weight:600;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px">← Back</button>
+    </div>
     <div class="auth-brand">
       <div class="auth-brand-icon">🧾</div>
       <div class="auth-brand-name">SnapReceipt</div>
@@ -615,6 +628,13 @@ img{display:block;max-width:100%}
       <span class="search-icon">🔍</span>
       <input class="search-input" id="searchInput" type="search" placeholder="Search receipts…" oninput="filterReceipts(this.value)"/>
     </div>
+  </div>
+  <!-- First-run onboarding banner — hidden after first receipt or dismissed -->
+  <div class="onboard-banner" id="onboardBanner" style="display:none">
+    <button class="onboard-dismiss" onclick="dismissOnboard()" title="Dismiss">✕</button>
+    <div class="onboard-title">👋 Welcome to SnapReceipt</div>
+    <div class="onboard-sub">Scan your first receipt to get started. Just tap the button below, point your camera, and we'll read the details automatically.</div>
+    <button class="onboard-btn" onclick="openScan();dismissOnboard()">📸 Scan your first receipt</button>
   </div>
   <div id="rlist" class="rlist"></div>
   <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
@@ -670,19 +690,22 @@ img{display:block;max-width:100%}
         <label class="field-lbl">Merchant *</label>
         <input class="fi" id="cfMerchant" placeholder="e.g. Tesco, Screwfix, AWS" autocomplete="off"/>
       </div>
-      <div class="frow">
-        <div class="fg">
-          <label class="field-lbl">Amount *</label>
-          <div class="amtwrap"><span class="amtpfx">£</span>
+      <div class="fg">
+        <label class="field-lbl">Amount *</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="amtwrap" style="flex:1"><span class="amtpfx">£</span>
             <input class="fi pl" id="cfAmount" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
           </div>
+          <button type="button" onclick="toggleCurrency()" id="currencyToggle"
+            style="flex-shrink:0;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.82rem;font-weight:600;color:var(--gray-5);cursor:pointer;white-space:nowrap">
+            GBP £ ▾
+          </button>
         </div>
-        <div class="fg">
-          <label class="field-lbl">Currency</label>
-          <select class="fi" id="cfCurrency">
-            <option value="GBP" selected>GBP £</option>
-            <option value="USD">USD $</option>
-            <option value="EUR">EUR €</option>
+        <div id="currencyDropdown" style="display:none;margin-top:6px">
+          <select class="fi" id="cfCurrency" onchange="updateCurrencyBtn()">
+            <option value="GBP" selected>GBP £ — British Pound</option>
+            <option value="USD">USD $ — US Dollar</option>
+            <option value="EUR">EUR € — Euro</option>
           </select>
         </div>
       </div>
@@ -718,6 +741,7 @@ img{display:block;max-width:100%}
     <div class="sheet-handle"></div>
     <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
     <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV</button>
+    <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
     <div class="sdiv"></div>
     <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
       <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
@@ -771,6 +795,34 @@ img{display:block;max-width:100%}
   </div>
 </div>
 
+<!-- ═══ PRIVACY POLICY SHEET ════════════════════════════ -->
+<div class="sheet-bg" id="privacySheet" onclick="if(event.target===this)g('privacySheet').classList.remove('on')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sbody" style="padding-bottom:24px">
+      <h3 style="font-size:1.1rem;margin-bottom:16px">Privacy Policy</h3>
+      <div style="font-size:.85rem;color:var(--gray-7);line-height:1.8;display:flex;flex-direction:column;gap:12px">
+        <p><strong style="color:var(--black)">Last updated: March 2025</strong></p>
+        <p>SnapReceipt is operated by James Weld, based in the United Kingdom. We take your privacy seriously.</p>
+        <p><strong style="color:var(--black)">What we collect</strong><br/>
+        Your email address (for your account), and the receipt data you choose to scan and save — merchant names, amounts, dates and any notes you add. Receipt images may be stored to display thumbnails.</p>
+        <p><strong style="color:var(--black)">How we use it</strong><br/>
+        Solely to provide the SnapReceipt service to you. Your data is never sold, shared with third parties, or used for advertising.</p>
+        <p><strong style="color:var(--black)">Where it's stored</strong><br/>
+        Your data is stored on Supabase, which uses bank-level encryption and is hosted in the EU. Receipt images are processed by Anthropic's Claude AI to extract text — images are not stored by Anthropic.</p>
+        <p><strong style="color:var(--black)">How long we keep it</strong><br/>
+        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email hello@snapreceipt.co.uk.</p>
+        <p><strong style="color:var(--black)">Your rights (GDPR)</strong><br/>
+        You have the right to access, correct, or delete your personal data at any time. Contact hello@snapreceipt.co.uk to exercise these rights.</p>
+        <p><strong style="color:var(--black)">Cookies</strong><br/>
+        SnapReceipt uses only essential session cookies required for authentication. No tracking or advertising cookies are used.</p>
+        <p><strong style="color:var(--black)">Contact</strong><br/>
+        Questions about this policy? Email <a href="mailto:hello@snapreceipt.co.uk" style="color:var(--blue)">hello@snapreceipt.co.uk</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ RESET PASSWORD SHEET ══════════════════════════════ -->
 <div class="sheet-bg" id="resetPassSheet">
   <div class="sheet">
@@ -784,6 +836,21 @@ img{display:block;max-width:100%}
         <div class="amsg" id="npMsg"></div>
         <button class="btn-p" id="btnNewPass" type="submit">Update password →</button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DELETE CONFIRM SHEET ═════════════════════════════ -->
+<div class="sheet-bg" id="deleteSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sbody" style="padding-bottom:8px">
+      <h3>Delete receipt?</h3>
+      <p style="font-size:.88rem;color:var(--gray-5);line-height:1.5;margin-bottom:20px">This receipt will be permanently deleted and cannot be recovered.</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black)" onclick="g('deleteSheet').classList.remove('on')">Cancel</button>
+        <button class="btn-p" style="background:var(--red)" id="btnConfirmDelete" onclick="confirmDelete()">Delete</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1029,7 +1096,17 @@ async function loadReceipts() {
   renderHome();
 }
 
-function renderHome() { updateStats(); renderList(_receipts); }
+function renderHome() {
+  updateStats();
+  renderList(_receipts);
+  // Show onboarding banner for new users with no receipts
+  var banner = g('onboardBanner');
+  if (banner) {
+    var dismissed = false;
+    try { dismissed = !!localStorage.getItem('sr_onboard_dismissed'); } catch(e){}
+    banner.style.display = (!dismissed && _receipts.length === 0) ? 'block' : 'none';
+  }
+}
 
 function updateStats() {
   var now = new Date();
@@ -1173,6 +1250,11 @@ window.openScan = function() {
   g('cfMerchant').value=''; g('cfAmount').value='';
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
   if(g('cfNotes')) g('cfNotes').value='';
+  // Reset currency toggle
+  if(g('currencyToggle')) g('currencyToggle').textContent = 'GBP £ ▾';
+  if(g('currencyDropdown')) g('currencyDropdown').style.display = 'none';
+  var pfx = document.querySelector('.amtpfx');
+  if(pfx) pfx.textContent = '£';
   // Show as overlay — file inputs remain in DOM, events always fire
   g('scanScreen').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -1425,6 +1507,55 @@ window.copyEmailAddr = function() {
   }
 };
 window.closeMenu = function() { g('menuSheet').classList.remove('on'); };
+
+/* ── SHARE ─────────────────────────────────────────────── */
+window.shareApp = function() {
+  var data = {
+    title: 'SnapReceipt — Free Receipt Scanner',
+    text: 'Log expenses in seconds with AI. Free receipt scanner for UK freelancers.',
+    url: 'https://snapreceipt.co.uk'
+  };
+  if (navigator.share) {
+    navigator.share(data).catch(function(){});
+  } else {
+    navigator.clipboard && navigator.clipboard.writeText(data.url).then(function(){
+      toast('Link copied to clipboard!');
+    });
+  }
+};
+
+/* ── PRIVACY ────────────────────────────────────────────── */
+window.showPrivacy = function() { g('privacySheet').classList.add('on'); };
+
+/* ── DELETE CONFIRMATION ─────────────────────────────────── */
+var _deleteId = null;
+window.deleteReceipt = function(id) {
+  _deleteId = id;
+  g('deleteSheet').classList.add('on');
+};
+window.confirmDelete = async function() {
+  if (!_deleteId) return;
+  g('deleteSheet').classList.remove('on');
+  await sb.from('receipts').delete().eq('id', _deleteId);
+  _receipts = _receipts.filter(function(r){ return r.id !== _deleteId; });
+  _deleteId = null;
+  _expanded = null;
+  renderHome();
+  toast('Receipt deleted');
+};
+
+/* ── CURRENCY TOGGLE ─────────────────────────────────────── */
+window.toggleCurrency = function() {
+  var d = g('currencyDropdown');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+};
+window.updateCurrencyBtn = function() {
+  var sel = g('cfCurrency');
+  var labels = {GBP:'GBP £',USD:'USD $',EUR:'EUR €'};
+  g('currencyToggle').textContent = (labels[sel.value] || sel.value) + ' ▾';
+  var pfx = document.querySelector('.amtpfx');
+  if (pfx) pfx.textContent = {GBP:'£',USD:'$',EUR:'€'}[sel.value] || '£';
+};
 
 /* ── IMAGE PROCESSING ────────────────────────────────── 
    FileReader → canvas → JPEG
