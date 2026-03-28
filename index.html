@@ -296,10 +296,10 @@ img{display:block;max-width:100%}
       <div id="czEmpty" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding:8px 0">
         <span style="font-size:2rem">📷</span>
         <div style="display:flex;gap:10px;width:100%;max-width:320px">
-          <button class="cz-btn cz-btn-primary" onclick="g('captureInput').click()">
+          <button class="cz-btn cz-btn-primary" onclick="openCamera()">
             📸 Take photo
           </button>
-          <button class="cz-btn cz-btn-secondary" onclick="g('galleryInput').click()">
+          <button class="cz-btn cz-btn-secondary" onclick="openGallery()">
             🖼 Gallery
           </button>
         </div>
@@ -779,6 +779,8 @@ window.closeMenu = (e) => { if(!e||e.target===g('menuSheet')) g('menuSheet').cla
 /* ── HELPERS ────────────────────────────────────────────── */
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));g(id).classList.add('active');}
 function g(id)  {return document.getElementById(id);}
+window.openCamera  = () => g('captureInput').click();
+window.openGallery = () => g('galleryInput').click();
 function val(id){return g(id).value.trim();}
 function cap(s) {return s.charAt(0).toUpperCase()+s.slice(1);}
 function esc(s) {return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
