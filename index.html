@@ -557,6 +557,9 @@ img { display: block; max-width: 100%; }
 ───────────────────────────────────────────────────────── */
 #scanScreen {
   background: var(--bg);
+  height: 100dvh;
+  height: 100vh;
+  overflow: hidden; /* contain layout */
 }
 
 .scan-header {
@@ -579,10 +582,13 @@ img { display: block; max-width: 100%; }
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 20px 16px;
+  padding: 20px 16px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  /* Explicit height so scroll works on iOS/Android */
+  height: calc(100dvh - 56px - 70px);
+  height: calc(100vh - 56px - 70px);
 }
 
 /* Capture area */
@@ -729,7 +735,7 @@ img { display: block; max-width: 100%; }
 
 /* Save bar */
 .save-bar {
-  position: sticky;
+  position: relative;
   bottom: 0;
   background: var(--bg);
   border-top: 1px solid var(--border);
@@ -738,6 +744,8 @@ img { display: block; max-width: 100%; }
   display: flex;
   gap: 10px;
   flex-shrink: 0;
+  min-height: 70px;
+  align-items: center;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -901,7 +909,7 @@ img { display: block; max-width: 100%; }
 .text-center { text-align: center; }
 
 @media (min-width: 480px) {
-  .scan-body { max-width: 480px; margin: 0 auto; width: 100%; }
+  .scan-body { max-width: 480px; margin: 0 auto; width: 100%; height: auto; flex: 1; }
   .save-bar  { max-width: 480px; margin: 0 auto; width: 100%; }
 }
   </style>
@@ -1426,6 +1434,7 @@ window.openScan = () => {
   el('captureArea').querySelector('.capture-sub').style.display   = '';
   el('ocrLoading').classList.remove('active');
   el('confirmSection').classList.remove('active');
+  el('confirmSection').style.display = '';
   el('saveBar').style.display = 'none';
   el('scanTitle').textContent = 'Scan Receipt';
   // Clear fields
@@ -1449,6 +1458,7 @@ window.retakePhoto = (e) => {
   el('captureArea').querySelector('.capture-title').style.display = '';
   el('captureArea').querySelector('.capture-sub').style.display   = '';
   el('confirmSection').classList.remove('active');
+  el('confirmSection').style.display = '';
   el('saveBar').style.display = 'none';
 };
 
@@ -1512,17 +1522,23 @@ async function runOCR(b64) {
     el('confirmSection').style.display = 'flex';
     el('confirmSection').classList.add('active');
     el('saveBar').style.display = 'flex';
-    // Force reflow then scroll
-    el('confirmSection').offsetHeight;
-    el('scanScreen').querySelector('.scan-body').scrollTop = 9999;
-    toast(data.merchant ? `Found: ${data.merchant}` : '⚠ Check fields below');
+    // Scroll to confirm section — works on iOS and Android
+    requestAnimationFrame(() => {
+      const body = el('scanScreen').querySelector('.scan-body');
+      body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+    });
+    toast(data.merchant ? `✓ ${data.merchant} — review & save` : '⚠ Check fields below');
 
   } catch (err) {
     console.error('OCR error:', err);
     el('confidenceBadge').innerHTML = `<div class="confidence-badge low">⚠ Could not read receipt — enter details manually</div>`;
+    el('confirmSection').style.display = 'flex';
     el('confirmSection').classList.add('active');
     el('saveBar').style.display = 'flex';
-    setTimeout(() => el('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    requestAnimationFrame(() => {
+      const body = el('scanScreen').querySelector('.scan-body');
+      body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+    });
     el('cfMerchant').focus();
   } finally {
     el('ocrLoading').classList.remove('active');
