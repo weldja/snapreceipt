@@ -268,6 +268,19 @@ img{display:block;max-width:100%}
 .lcta-h2{font-size:clamp(1.5rem,4vw,2.4rem);font-weight:800;color:var(--black);letter-spacing:-.04em;margin-bottom:14px;line-height:1.2}
 .lcta-sub{font-size:1rem;color:var(--gray-7);margin-bottom:32px;line-height:1.6}
 
+/* FAQ */
+.lfaq{padding:72px 24px;background:var(--gray-0)}
+.lfaq-inner{max-width:680px;margin:0 auto}
+.lfaq-list{margin-top:48px;display:flex;flex-direction:column;gap:2px}
+.lfaq-item{background:#fff;border-radius:var(--r-lg);overflow:hidden;border:1.5px solid var(--border);transition:border-color .15s}
+.lfaq-item.open{border-color:var(--black)}
+.lfaq-q{width:100%;padding:18px 20px;background:none;border:none;text-align:left;font-size:.97rem;font-weight:700;color:var(--black);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.lfaq-q:hover{background:var(--gray-0)}
+.lfaq-chevron{font-size:.7rem;color:var(--gray-5);transition:transform .2s;flex-shrink:0}
+.lfaq-item.open .lfaq-chevron{transform:rotate(180deg)}
+.lfaq-a{display:none;padding:0 20px 18px;font-size:.9rem;color:var(--gray-7);line-height:1.7}
+.lfaq-item.open .lfaq-a{display:block}
+
 /* Footer */
 .lfooter{border-top:1px solid var(--border);padding:24px;text-align:center}
 .lfooter-inner{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;flex-wrap:wrap;gap:12px}
@@ -393,6 +406,73 @@ img{display:block;max-width:100%}
             <li>No complex accounting software needed</li>
           </ul>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="lfaq">
+    <div class="lfaq-inner">
+      <div class="lsection-label">FAQ</div>
+      <h2 class="lsection-h2">Common questions</h2>
+      <div class="lfaq-list">
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            Is SnapReceipt really free?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">Yes — free to sign up, no credit card required. You can scan and log receipts immediately. We'll introduce optional paid features in the future, but the core scanning and logging will always have a free tier.</div>
+        </div>
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            Is my financial data safe?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">Yes. Your data is stored securely using Supabase, which uses bank-level encryption and is fully GDPR compliant. Your receipts are private to your account — nobody else can see them. We never sell your data.</div>
+        </div>
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            Do I need to download an app?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">No. SnapReceipt runs entirely in your browser — just open snapreceipt.co.uk on your phone or laptop. For quick access, tap "Add to Home Screen" in your browser and it'll work just like a native app.</div>
+        </div>
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            Does it work on iPhone and Android?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">Yes. SnapReceipt works on iOS Safari, Android Chrome, and all desktop browsers. Camera scanning works on both iPhone and Android — just open the app and tap Scan Receipt.</div>
+        </div>
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            How accurate is the AI scanning?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">Very accurate for clearly photographed receipts. SnapReceipt uses Claude AI — one of the most capable vision models available — to read merchant names, totals, and dates. If it gets something wrong, you can edit any field before saving. Accuracy improves with good lighting and a straight-on photo.</div>
+        </div>
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            Does it replace my accountant or Xero?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">No — and it's not trying to. SnapReceipt is a simple receipt logger. It captures and organises your receipts, then lets you export a CSV that you can send to your accountant or import into any accounting software. Think of it as the bit that happens before the accounting.</div>
+        </div>
+
+        <div class="lfaq-item">
+          <button class="lfaq-q" onclick="toggleFaq(this)">
+            How long are my receipts stored?
+            <span class="lfaq-chevron">▼</span>
+          </button>
+          <div class="lfaq-a">Indefinitely while your account is active. HMRC requires you to keep business records for at least 6 years — SnapReceipt keeps them safe for you. You can export your full history to CSV at any time.</div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1251,6 +1331,15 @@ window.exportCSV = function() {
 
 /* ── MENU ────────────────────────────────────────────── */
 window.openMenu  = function() { g('menuSheet').classList.add('on'); };
+window.toggleFaq = function(btn) {
+  var item = btn.parentElement;
+  var isOpen = item.classList.contains('open');
+  // Close all open items
+  document.querySelectorAll('.lfaq-item.open').forEach(function(el){ el.classList.remove('open'); });
+  // Open this one if it was closed
+  if (!isOpen) item.classList.add('open');
+};
+
 window.copyEmailAddr = function() {
   var addr = 'receipts@snapreceipt.co.uk';
   if (navigator.clipboard && navigator.clipboard.writeText) {
