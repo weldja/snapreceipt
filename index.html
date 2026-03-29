@@ -300,6 +300,11 @@ img{display:block;max-width:100%}
 .dash-empty-title{font-size:.97rem;font-weight:700;color:var(--black);margin-bottom:6px}
 .dash-empty-sub{font-size:.82rem;color:var(--gray-5);line-height:1.6;max-width:260px;margin:0 auto 16px}
 .dash-mixed-note{font-size:.7rem;color:var(--gray-5);padding:2px 12px 8px;text-align:center}
+.dash-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-bottom:10px}
+.dash-chevron{font-size:.65rem;color:var(--gray-5);transition:transform .2s;flex-shrink:0;margin-left:8px}
+.dash.open .dash-chevron{transform:rotate(180deg)}
+.dash-expandable{display:none;flex-direction:column;gap:10px}
+.dash.open .dash-expandable{display:flex}
 
 /* ── ONBOARDING ──────────────────────────────────────── */
 .onboard-banner{background:linear-gradient(135deg,#0052cc 0%,#0066ff 100%);border-radius:var(--r-lg);padding:20px;margin:12px 12px 0;color:#fff;position:relative;overflow:hidden}
@@ -663,72 +668,80 @@ img{display:block;max-width:100%}
 
   <!-- ── DASHBOARD ── -->
   <div class="dash" id="dashboard">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="dash-period" id="dashPeriod">
-        <button class="dash-period-btn active" onclick="setDashPeriod(7)">7d</button>
-        <button class="dash-period-btn" onclick="setDashPeriod(30)">30d</button>
-        <button class="dash-period-btn" onclick="setDashPeriod(90)">3m</button>
-        <button class="dash-period-btn" onclick="setDashPeriod(0)">Tax yr</button>
-      </div>
-      <div id="dashMixedNote" class="dash-mixed-note" style="display:none">GBP only</div>
-    </div>
-    <div class="dash-kpis">
-      <div class="dash-kpi">
-        <div class="dash-kpi-val blue" id="dashTotal">£0</div>
-        <div class="dash-kpi-lbl">Total spent</div>
-      </div>
-      <div class="dash-kpi">
-        <div class="dash-kpi-val" id="dashAvg">£0</div>
-        <div class="dash-kpi-lbl">Daily avg</div>
-        <div class="dash-kpi-sub" id="dashAvgSub"></div>
-      </div>
-      <div class="dash-kpi">
-        <div class="dash-kpi-val green" id="dashCount">0</div>
-        <div class="dash-kpi-lbl">Receipts</div>
-        <div class="dash-kpi-sub" id="dashCountSub"></div>
-      </div>
-    </div>
-    <div class="dash-cards" id="dashCards" style="display:none">
-      <div class="dash-card">
-        <div class="dash-card-hdr">
-          <span class="dash-card-title">Spend over time</span>
-          <span class="dash-card-meta" id="dashBarMeta"></span>
+
+    <!-- Always-visible summary row — tap to expand -->
+    <div class="dash-summary" onclick="toggleDash()">
+      <div class="dash-kpis" style="flex:1">
+        <div class="dash-kpi">
+          <div class="dash-kpi-val blue" id="dashTotal">£0</div>
+          <div class="dash-kpi-lbl">Total spent</div>
         </div>
-        <div class="dash-bar-wrap"><canvas id="chartBar"></canvas></div>
-      </div>
-      <div class="dash-card" id="dashCatCard" style="display:none">
-        <div class="dash-card-hdr">
-          <span class="dash-card-title">By category</span>
-          <span class="dash-card-meta" id="dashDonutMeta"></span>
+        <div class="dash-kpi">
+          <div class="dash-kpi-val" id="dashAvg">£0</div>
+          <div class="dash-kpi-lbl">Daily avg</div>
         </div>
-        <div class="dash-donut-row">
-          <div class="dash-donut-wrap">
-            <canvas id="chartDonut"></canvas>
-            <div class="dash-donut-center">
-              <div class="dash-donut-center-val" id="dashDonutVal"></div>
-              <div class="dash-donut-center-lbl">total</div>
-            </div>
+        <div class="dash-kpi">
+          <div class="dash-kpi-val green" id="dashCount">0</div>
+          <div class="dash-kpi-lbl">Receipts</div>
+        </div>
+      </div>
+      <span class="dash-chevron">▼</span>
+    </div>
+
+    <!-- Expandable section -->
+    <div class="dash-expandable" id="dashExpandable">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="dash-period" id="dashPeriod">
+          <button class="dash-period-btn active" onclick="setDashPeriod(7);event.stopPropagation()">7d</button>
+          <button class="dash-period-btn" onclick="setDashPeriod(30);event.stopPropagation()">30d</button>
+          <button class="dash-period-btn" onclick="setDashPeriod(90);event.stopPropagation()">3m</button>
+          <button class="dash-period-btn" onclick="setDashPeriod(0);event.stopPropagation()">Tax yr</button>
+        </div>
+        <div id="dashMixedNote" class="dash-mixed-note" style="display:none">GBP only</div>
+      </div>
+      <div class="dash-cards" id="dashCards" style="display:none">
+        <div class="dash-card">
+          <div class="dash-card-hdr">
+            <span class="dash-card-title">Spend over time</span>
+            <span class="dash-card-meta" id="dashBarMeta"></span>
           </div>
-          <div class="dash-legend" id="dashLegend"></div>
+          <div class="dash-bar-wrap"><canvas id="chartBar"></canvas></div>
+        </div>
+        <div class="dash-card" id="dashCatCard" style="display:none">
+          <div class="dash-card-hdr">
+            <span class="dash-card-title">By category</span>
+            <span class="dash-card-meta" id="dashDonutMeta"></span>
+          </div>
+          <div class="dash-donut-row">
+            <div class="dash-donut-wrap">
+              <canvas id="chartDonut"></canvas>
+              <div class="dash-donut-center">
+                <div class="dash-donut-center-val" id="dashDonutVal"></div>
+                <div class="dash-donut-center-lbl">total</div>
+              </div>
+            </div>
+            <div class="dash-legend" id="dashLegend"></div>
+          </div>
+        </div>
+        <div class="dash-card" id="dashMerchCard" style="display:none">
+          <div class="dash-card-hdr">
+            <span class="dash-card-title">Top merchants</span>
+            <span class="dash-card-meta" id="dashMerchMeta"></span>
+          </div>
+          <div class="dash-merchants" id="dashMerchants"></div>
+        </div>
+        <div class="dash-insight" id="dashInsight" style="display:none">
+          <span class="dash-insight-icon">💡</span>
+          <span id="dashInsightText"></span>
         </div>
       </div>
-      <div class="dash-card" id="dashMerchCard" style="display:none">
-        <div class="dash-card-hdr">
-          <span class="dash-card-title">Top merchants</span>
-          <span class="dash-card-meta" id="dashMerchMeta"></span>
-        </div>
-        <div class="dash-merchants" id="dashMerchants"></div>
-      </div>
-      <div class="dash-insight" id="dashInsight" style="display:none">
-        <span class="dash-insight-icon">💡</span>
-        <span id="dashInsightText"></span>
+      <div class="dash-empty" id="dashEmpty" style="display:none">
+        <div class="dash-empty-title">Scan your receipts for a week</div>
+        <div class="dash-empty-sub">Log what you spend and SnapReceipt will show you exactly where your money goes — by category, merchant and day.</div>
+        <button style="background:var(--black);color:#fff;border-radius:20px;padding:10px 20px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px" onclick="openScan()">📸 Scan a receipt</button>
       </div>
     </div>
-    <div class="dash-empty" id="dashEmpty" style="display:none">
-      <div class="dash-empty-title">Scan your receipts for a week</div>
-      <div class="dash-empty-sub">Log what you spend and SnapReceipt will show you exactly where your money goes — by category, merchant and day.</div>
-      <button style="background:var(--black);color:#fff;border-radius:20px;padding:10px 20px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px" onclick="openScan()">📸 Scan a receipt</button>
-    </div>
+
   </div>
   <!-- ── END DASHBOARD ── -->
 
@@ -1251,6 +1264,14 @@ window.setDashPeriod = function(days) {
     btn.classList.toggle('active', days === 0 ? isTax : parseInt(btn.textContent) === days);
   });
   renderDashboard();
+  if (g('dashboard').classList.contains('open')) renderDashboardCharts();
+};
+
+window.toggleDash = function() {
+  var dash = g('dashboard');
+  var isOpen = dash.classList.toggle('open');
+  // Only render charts when opening — avoids rendering into hidden canvases
+  if (isOpen) renderDashboardCharts();
 };
 
 function getPeriodReceipts() {
@@ -1284,11 +1305,25 @@ function renderDashboard() {
   var days  = _dashPeriod === 0 ? daysSinceTaxStart() : _dashPeriod;
   var avg   = days > 0 ? total / days : 0;
 
-  g('dashTotal').textContent    = fmt(total);
-  g('dashAvg').textContent      = fmt(avg);
-  g('dashAvgSub').textContent   = 'per day';
-  g('dashCount').textContent    = rs.length;
-  g('dashCountSub').textContent = rs.length === 1 ? 'receipt' : 'receipts';
+  // Always update KPIs (visible even when collapsed)
+  g('dashTotal').textContent = fmt(total);
+  g('dashAvg').textContent   = fmt(avg);
+  g('dashCount').textContent = rs.length;
+
+  // Only render charts if expanded
+  if (g('dashboard').classList.contains('open')) {
+    renderDashboardCharts();
+  }
+}
+
+function renderDashboardCharts() {
+  var rs    = getPeriodReceipts();
+  var gbpRs = rs.filter(function(r){ return !r.currency || r.currency === 'GBP'; });
+  var hasMixed = rs.some(function(r){ return r.currency && r.currency !== 'GBP'; });
+  var total = gbpRs.reduce(function(s,r){ return s + parseFloat(r.amount||0); }, 0);
+  var days  = _dashPeriod === 0 ? daysSinceTaxStart() : _dashPeriod;
+  var avg   = days > 0 ? total / days : 0;
+
   g('dashMixedNote').style.display = hasMixed ? 'block' : 'none';
 
   if (!rs.length) {
@@ -1815,6 +1850,7 @@ window.saveEdit  = async function() {
   if (res.error) { setMsg(g('edMsg'),'err','Error saving — please try again.'); return; }
   var idx = _receipts.findIndex(function(x){return x.id===_editId;});
   if (idx>-1) Object.assign(_receipts[idx], update);
+  _expanded = null;
   closeEdit();
   renderHome();
   toast('Receipt updated ✓');
