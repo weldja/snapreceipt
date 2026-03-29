@@ -2349,6 +2349,10 @@ document.addEventListener('DOMContentLoaded', function() {
       var session = res.data && res.data.session;
       if (!session && pinIsSet()) {
         window.showLockScreen();
+      } else if (!session) {
+        // onAuthStateChange may not fire when there's no session — show landing as fallback
+        var anyActive = document.querySelector('.screen.active, #landingPage.active, #lockScreen.active');
+        if (!anyActive) showLanding();
       }
     });
   }, 100);
