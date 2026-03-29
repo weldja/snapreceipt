@@ -1585,9 +1585,11 @@ window.openScan = function() {
 window.goHome = function() {
   g('scanScreen').style.display = 'none';
   document.body.style.overflow = '';
-  // Make sure home is visible
   if (!g('homeScreen').classList.contains('active')) show('homeScreen');
-  setTimeout(loadReceipts, 100);
+  // Render immediately from in-memory state so dashboard updates at once
+  renderHome();
+  // Then background-refresh from Supabase (catches any remote changes)
+  setTimeout(loadReceipts, 300);
 };
 
 window.retake = function() {
