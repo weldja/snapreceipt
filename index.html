@@ -25,7 +25,7 @@
 <meta name="twitter:image" content="https://snapreceipt.co.uk/og-image.png"/>
 
 <!-- ── Twitter / X card ───────────────────────────────── -->
-<meta name="twitter:card" content="summary"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="SnapReceipt — Free Receipt Scanner App for UK Freelancers"/>
 <meta name="twitter:description" content="Scan any receipt in seconds. AI reads merchant, amount and date automatically. Free expense tracker for UK freelancers and small businesses."/>
 
@@ -68,6 +68,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="SnapReceipt"/>
+<link rel="manifest" href="/manifest.json"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧾</text></svg>"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1268,6 +1269,7 @@ sb.auth.onAuthStateChange(function(event, session) {
     g('landingPage').classList.remove('active');
     show('homeScreen');
     loadReceipts();
+    subscribeRealtime();
     updateMenuPinLabel();
     // Show lock screen if PIN is set and not yet unlocked this session
     if (pinIsSet() && !_lockUnlocked && !withinGracePeriod()) {
@@ -1351,6 +1353,7 @@ window.doSetPassword = async function() {
 
 window.doSignout = async function() {
   closeMenu();
+  unsubscribeRealtime();
   try { sessionStorage.removeItem(UNLOCK_GRACE_KEY); } catch(e){}
   _lockUnlocked = false;
   await sb.auth.signOut();
@@ -1367,6 +1370,47 @@ async function loadReceipts() {
   if (res.error) { toast('Error loading receipts'); return; }
   _receipts = res.data || [];
   renderHome();
+}
+
+/* ── REALTIME ────────────────────────────────────────────────
+   Subscribe to live receipt changes so email receipts appear
+   automatically without requiring a manual refresh.
+─────────────────────────────────────────────────────────────── */
+var _realtimeChannel = null;
+
+function subscribeRealtime() {
+  if (_realtimeChannel) { sb.removeChannel(_realtimeChannel); _realtimeChannel = null; }
+  if (!_user) return;
+  _realtimeChannel = sb.channel('receipts-changes')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'receipts',
+      filter: 'user_id=eq.' + _user.id,
+    }, function(payload) {
+      // New receipt arrived (e.g. via email) — prepend and refresh
+      if (payload.new && !_receipts.find(function(r){ return r.id === payload.new.id; })) {
+        _receipts.unshift(payload.new);
+        renderHome();
+        toast('New receipt received ✓');
+      }
+    })
+    .on('postgres_changes', {
+      event: 'DELETE',
+      schema: 'public',
+      table: 'receipts',
+      filter: 'user_id=eq.' + _user.id,
+    }, function(payload) {
+      if (payload.old && payload.old.id) {
+        _receipts = _receipts.filter(function(r){ return r.id !== payload.old.id; });
+        renderHome();
+      }
+    })
+    .subscribe();
+}
+
+function unsubscribeRealtime() {
+  if (_realtimeChannel) { sb.removeChannel(_realtimeChannel); _realtimeChannel = null; }
 }
 
 function renderHome() {
@@ -1468,10 +1512,16 @@ function renderDashboardCharts() {
   g('dashCards').style.display = 'flex';
   g('dashEmpty').style.display = 'none';
 
-  renderBarChart(gbpRs);
-  renderDonutChart(gbpRs);
-  renderMerchants(gbpRs);
-  renderInsight(gbpRs, total, avg);
+  try {
+    renderBarChart(gbpRs);
+    renderDonutChart(gbpRs);
+    renderMerchants(gbpRs);
+    renderInsight(gbpRs, total, avg);
+  } catch(e) {
+    console.error('Dashboard render error:', e);
+    // Chart.js may not be loaded — show KPIs only, hide chart cards
+    g('dashCards').style.display = 'none';
+  }
 }
 
 function renderBarChart(rs) {
@@ -2199,6 +2249,7 @@ window.hideLockScreen = async function() {
       g('menuEmail').textContent = _user.email || '';
       show('homeScreen');
       loadReceipts();
+      subscribeRealtime();
       updateMenuPinLabel();
     } else {
       // Session genuinely gone — send to sign in
