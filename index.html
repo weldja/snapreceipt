@@ -1262,17 +1262,7 @@ sb.auth.onAuthStateChange(function(event, session) {
   }
 });
 
-// Boot check — run once on load. getSession() is the reliable way to know
-// whether a persisted session exists before onAuthStateChange fires.
-sb.auth.getSession().then(function(res) {
-  var session = res.data && res.data.session;
-  if (!session && pinIsSet()) {
-    // No active session but PIN is set — show lock screen.
-    // hideLockScreen will getSession() again; by then the token refresh
-    // will have completed and _user will be set by onAuthStateChange.
-    window.showLockScreen();
-  }
-});
+// Boot check is deferred to DOMContentLoaded — see INIT block below.
 
 function authTab(tab) {
   ['signin','signup','reset'].forEach(function(t) {
@@ -2351,6 +2341,16 @@ function updateMenuPinLabel() {
 document.addEventListener('DOMContentLoaded', function() {
   initFileInputs();
   updateMenuPinLabel();
+
+  // Boot check — wait for DOM then check session.
+  // If no session but PIN is set, show lock screen.
+  sb.auth.getSession().then(function(res) {
+    var session = res.data && res.data.session;
+    if (!session && pinIsSet()) {
+      window.showLockScreen();
+    }
+  });
+
   // Re-lock when app returns from background
   document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'visible' && pinIsSet() && _lockUnlocked) {
