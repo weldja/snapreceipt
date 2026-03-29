@@ -2442,33 +2442,43 @@ window.confirmDeleteAccount = async function() {
   btn.disabled = true; btn.textContent = 'Deleting…';
 
   try {
-    // 1. Delete all receipts from storage and DB
     if (_user) {
-      // Delete receipt images from storage
+      // 1. Delete all receipt images from Supabase Storage
       var storageList = await sb.storage.from('receipt-images').list(_user.id);
       if (storageList.data && storageList.data.length) {
-        var paths = storageList.data.map(function(f){ return _user.id+'/'+f.name; });
+        var paths = storageList.data.map(function(f){ return _user.id + '/' + f.name; });
         await sb.storage.from('receipt-images').remove(paths);
       }
-      // Delete all receipts rows
-      await sb.from('receipts').delete().eq('user_id', _user.id);
-      // 2. Delete the Supabase auth user via RPC (requires delete_user function in Supabase)
-      await sb.rpc('delete_user');
+
+      // 2. Delete receipts + auth user via RPC (security definer function)
+      var rpcRes = await sb.rpc('delete_user');
+      if (rpcRes.error) throw rpcRes.error;
     }
-    // 3. Clear local data
+
+    // 3. Clear all local data
     try {
       localStorage.removeItem(PIN_KEY);
       localStorage.removeItem(PIN_CRED_KEY);
       sessionStorage.removeItem(UNLOCK_GRACE_KEY);
     } catch(e){}
-    // 4. Sign out
+
+    // 4. Sign out of Supabase session client-side
     await sb.auth.signOut();
+
+    // 5. Clear app state
+    _user = null;
+    _receipts = [];
+    _lockUnlocked = false;
+
     closeDeleteAccount();
-    toast('Account deleted');
+    showLanding();
+    toast('Account deleted — sorry to see you go');
+
   } catch(e) {
     console.error('Delete account error:', e);
-    setMsg(g('deleteAccountMsg'), 'err', 'Error deleting account. Please email hello@snapreceipt.co.uk');
     btn.disabled = false; btn.textContent = 'Delete everything';
+    setMsg(g('deleteAccountMsg'), 'err',
+      'Something went wrong. Email hello@snapreceipt.co.uk and we\'ll delete your account manually.');
   }
 };
 document.addEventListener('DOMContentLoaded', function() {
