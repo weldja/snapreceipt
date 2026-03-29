@@ -258,6 +258,49 @@ img{display:block;max-width:100%}
 @keyframes shim{to{background-position:-200% 0}}
 .hidden{display:none!important}
 
+/* ── DASHBOARD ───────────────────────────────────────── */
+.dash{background:var(--gray-0);border-bottom:1px solid var(--border);padding:14px 12px 0;display:flex;flex-direction:column;gap:10px}
+.dash-period{display:flex;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:3px;align-self:flex-start}
+.dash-period-btn{padding:5px 14px;border:none;background:none;border-radius:16px;font-size:.75rem;font-weight:700;color:var(--gray-5);cursor:pointer;transition:all .15s;white-space:nowrap}
+.dash-period-btn.active{background:var(--black);color:#fff}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dash-kpi{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.dash-kpi-val{font-size:1.1rem;font-weight:800;color:var(--black);letter-spacing:-.03em;line-height:1}
+.dash-kpi-val.blue{color:var(--blue)}
+.dash-kpi-val.green{color:var(--green)}
+.dash-kpi-lbl{font-size:.6rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
+.dash-kpi-sub{font-size:.66rem;color:var(--gray-5);margin-top:1px}
+.dash-cards{display:flex;flex-direction:column;gap:8px;padding-bottom:14px}
+.dash-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:14px}
+.dash-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dash-card-title{font-size:.72rem;font-weight:700;color:var(--black);text-transform:uppercase;letter-spacing:.07em}
+.dash-card-meta{font-size:.7rem;color:var(--gray-5);font-weight:600}
+.dash-bar-wrap{height:110px;position:relative}
+.dash-donut-row{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center}
+.dash-donut-wrap{width:110px;height:110px;position:relative}
+.dash-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.dash-donut-center-val{font-size:.92rem;font-weight:800;color:var(--black);letter-spacing:-.02em}
+.dash-donut-center-lbl{font-size:.58rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.06em}
+.dash-legend{display:flex;flex-direction:column;gap:5px}
+.dash-legend-item{display:flex;align-items:center;gap:7px}
+.dash-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dash-legend-lbl{font-size:.76rem;font-weight:600;color:var(--black);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-legend-val{font-size:.76rem;font-weight:700;color:var(--black);flex-shrink:0}
+.dash-merchants{display:flex;flex-direction:column;gap:7px}
+.dash-merchant-row{display:flex;align-items:center;gap:8px}
+.dash-merchant-rank{font-size:.66rem;font-weight:800;color:var(--gray-3);width:12px;text-align:right;flex-shrink:0}
+.dash-merchant-bar-wrap{flex:1;height:22px;position:relative;border-radius:4px;overflow:hidden;background:var(--gray-1)}
+.dash-merchant-fill{height:100%;border-radius:4px;min-width:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.dash-merchant-name{position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;font-size:.74rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px;pointer-events:none}
+.dash-merchant-amt{font-size:.76rem;font-weight:700;color:var(--black);flex-shrink:0;min-width:46px;text-align:right}
+.dash-insight{background:var(--blue-lt);border:1px solid var(--blue-mid);border-radius:var(--r);padding:9px 12px;display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--black);line-height:1.5}
+.dash-insight-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.dash-insight strong{font-weight:700}
+.dash-empty{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:28px 20px;text-align:center;margin-bottom:14px}
+.dash-empty-title{font-size:.97rem;font-weight:700;color:var(--black);margin-bottom:6px}
+.dash-empty-sub{font-size:.82rem;color:var(--gray-5);line-height:1.6;max-width:260px;margin:0 auto 16px}
+.dash-mixed-note{font-size:.7rem;color:var(--gray-5);padding:2px 12px 8px;text-align:center}
+
 /* ── ONBOARDING ──────────────────────────────────────── */
 .onboard-banner{background:linear-gradient(135deg,#0052cc 0%,#0066ff 100%);border-radius:var(--r-lg);padding:20px;margin:12px 12px 0;color:#fff;position:relative;overflow:hidden}
 .onboard-banner::after{content:"🧾";position:absolute;right:-8px;top:-8px;font-size:5rem;opacity:.15;line-height:1}
@@ -540,7 +583,7 @@ img{display:block;max-width:100%}
             How do I get help?
             <span class="lfaq-chevron">▼</span>
           </button>
-          <div class="lfaq-a">Email us at <a href="mailto:hello@snapreceipt.co.uk" style="color:var(--blue);font-weight:600">hello@snapreceipt.co.uk</a> — we're happy to help with any questions, feedback, or issues.</div>
+          <div class="lfaq-a">Email us at <a href="/cdn-cgi/l/email-protection#4f272a2323200f3c212e3f3d2a2c2a263f3b612c20613a24" style="color:var(--blue);font-weight:600"><span class="__cf_email__" data-cfemail="1f777a7373705f6c717e6f6d7a7c7a766f6b317c70316a74">[email&#160;protected]</span></a> — we're happy to help with any questions, feedback, or issues.</div>
         </div>
 
       </div>
@@ -561,7 +604,7 @@ img{display:block;max-width:100%}
         <span class="lfooter-link" onclick="showAuth('signin')">Sign in</span>
         <span class="lfooter-link" onclick="showAuth('signup')">Create account</span>
         <span class="lfooter-link" onclick="showPrivacy()">Privacy policy</span>
-        <a class="lfooter-link" href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a>
+        <a class="lfooter-link" href="/cdn-cgi/l/email-protection#39515c555556794a5758494b5c5a5c50494d175a56174c52"><span class="__cf_email__" data-cfemail="fd9598919192bd8e939c8d8f989e98948d89d39e92d38896">[email&#160;protected]</span></a>
       </div>
       <div class="lfooter-copy">© 2025 SnapReceipt — free receipt scanner app for UK freelancers. Built in the UK.</div>
     </div>
@@ -617,12 +660,98 @@ img{display:block;max-width:100%}
       <button class="hdr-btn" onclick="openMenu()">⋯</button>
     </div>
   </header>
-  <div class="stats-bar">
-    <div class="stat-item"><div class="stat-val" id="statCount">0</div><div class="stat-key">Receipts</div></div>
-    <div class="stat-item"><div class="stat-val blue" id="statMonth">£0.00</div><div class="stat-key">This month</div></div>
-    <div class="stat-item"><div class="stat-val" id="statYear">£0.00</div><div class="stat-key">Tax year</div></div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="dash" id="dashboard">
+
+    <!-- Period toggle -->
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="dash-period" id="dashPeriod">
+        <button class="dash-period-btn active" onclick="setDashPeriod(7)">7d</button>
+        <button class="dash-period-btn" onclick="setDashPeriod(30)">30d</button>
+        <button class="dash-period-btn" onclick="setDashPeriod(90)">3m</button>
+        <button class="dash-period-btn" onclick="setDashPeriod(0)">Tax yr</button>
+      </div>
+      <div id="dashMixedNote" class="dash-mixed-note" style="display:none">GBP only</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="dash-kpis">
+      <div class="dash-kpi">
+        <div class="dash-kpi-val blue" id="dashTotal">£0</div>
+        <div class="dash-kpi-lbl">Total spent</div>
+      </div>
+      <div class="dash-kpi">
+        <div class="dash-kpi-val" id="dashAvg">£0</div>
+        <div class="dash-kpi-lbl">Daily avg</div>
+        <div class="dash-kpi-sub" id="dashAvgSub"></div>
+      </div>
+      <div class="dash-kpi">
+        <div class="dash-kpi-val green" id="dashCount">0</div>
+        <div class="dash-kpi-lbl">Receipts</div>
+        <div class="dash-kpi-sub" id="dashCountSub"></div>
+      </div>
+    </div>
+
+    <!-- Charts & insights — hidden until there's data -->
+    <div class="dash-cards" id="dashCards" style="display:none">
+
+      <!-- Spend over time -->
+      <div class="dash-card">
+        <div class="dash-card-hdr">
+          <span class="dash-card-title">Spend over time</span>
+          <span class="dash-card-meta" id="dashBarMeta"></span>
+        </div>
+        <div class="dash-bar-wrap">
+          <canvas id="chartBar"></canvas>
+        </div>
+      </div>
+
+      <!-- Category breakdown -->
+      <div class="dash-card" id="dashCatCard" style="display:none">
+        <div class="dash-card-hdr">
+          <span class="dash-card-title">By category</span>
+          <span class="dash-card-meta" id="dashDonutMeta"></span>
+        </div>
+        <div class="dash-donut-row">
+          <div class="dash-donut-wrap">
+            <canvas id="chartDonut"></canvas>
+            <div class="dash-donut-center">
+              <div class="dash-donut-center-val" id="dashDonutVal"></div>
+              <div class="dash-donut-center-lbl">total</div>
+            </div>
+          </div>
+          <div class="dash-legend" id="dashLegend"></div>
+        </div>
+      </div>
+
+      <!-- Top merchants -->
+      <div class="dash-card" id="dashMerchCard" style="display:none">
+        <div class="dash-card-hdr">
+          <span class="dash-card-title">Top merchants</span>
+          <span class="dash-card-meta" id="dashMerchMeta"></span>
+        </div>
+        <div class="dash-merchants" id="dashMerchants"></div>
+      </div>
+
+      <!-- AI insight chip -->
+      <div class="dash-insight" id="dashInsight" style="display:none">
+        <span class="dash-insight-icon">💡</span>
+        <span id="dashInsightText"></span>
+      </div>
+
+    </div>
+
+    <!-- Empty state (no data for period) -->
+    <div class="dash-empty" id="dashEmpty" style="display:none">
+      <div class="dash-empty-title">Scan your receipts for a week</div>
+      <div class="dash-empty-sub">Log what you spend and SnapReceipt will show you exactly where your money goes — by category, merchant and day.</div>
+      <button class="onboard-btn" style="background:var(--black);color:#fff;border-radius:20px;padding:10px 20px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px" onclick="openScan()">📸 Scan a receipt</button>
+    </div>
 
   </div>
+  <!-- ── END DASHBOARD ── -->
+
   <div class="search-wrap">
     <div class="search-inner">
       <span class="search-icon">🔍</span>
@@ -714,6 +843,23 @@ img{display:block;max-width:100%}
         <input class="fi" id="cfDate" type="date"/>
       </div>
 
+      <div class="frow">
+        <div class="fg">
+          <label class="field-lbl">Category</label>
+          <select class="fi" id="cfCategory">
+            <option value="">— none —</option>
+            <option>Travel</option><option>Meals</option><option>Office</option>
+            <option>Software</option><option>Equipment</option>
+            <option>Marketing</option><option>Professional</option>
+            <option>Utilities</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="field-lbl">VAT</label>
+          <input class="fi" id="cfVat" type="number" placeholder="0.00" step="0.01" min="0" inputmode="decimal" autocomplete="off"/>
+        </div>
+      </div>
+
       <div class="fg">
         <label class="field-lbl">Notes / Purpose</label>
         <input class="fi" id="cfNotes" placeholder="e.g. Client meeting, home office" autocomplete="off"/>
@@ -745,7 +891,7 @@ img{display:block;max-width:100%}
     <div class="sdiv"></div>
     <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
       <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
-      <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em">receipts@snapreceipt.co.uk</div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b0c2d5d3d5d9c0c4c3f0c3ded1c0c2d5d3d5d9c0c49ed3df9ec5db">[email&#160;protected]</a></div>
       <div style="font-size:.74rem;color:var(--gray-5);line-height:1.4">Forward any receipt email or attach a photo — it'll appear in your list automatically.</div>
       <button onclick="copyEmailAddr()" style="margin-top:4px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer" id="copyEmailBtn">Copy address</button>
     </div>
@@ -802,7 +948,7 @@ img{display:block;max-width:100%}
     <div class="sbody" style="padding-bottom:24px">
       <h3 style="font-size:1.1rem;margin-bottom:16px">Privacy Policy</h3>
       <div style="font-size:.85rem;color:var(--gray-7);line-height:1.8;display:flex;flex-direction:column;gap:12px">
-        <p><strong style="color:var(--black)">Last updated: March 2025</strong></p>
+        <p><strong style="color:var(--black)">Last updated: March 2026</strong></p>
         <p>SnapReceipt is a UK-based service. We take your privacy seriously.</p>
         <p><strong style="color:var(--black)">What we collect</strong><br/>
         Your email address (for your account), and the receipt data you choose to scan and save — merchant names, amounts, dates and any notes you add. Receipt images may be stored to display thumbnails.</p>
@@ -811,13 +957,13 @@ img{display:block;max-width:100%}
         <p><strong style="color:var(--black)">Where it's stored</strong><br/>
         Your data is stored on Supabase, which uses bank-level encryption and is hosted in the EU. Receipt images are processed by Anthropic's Claude AI to extract text — images are not stored by Anthropic.</p>
         <p><strong style="color:var(--black)">How long we keep it</strong><br/>
-        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email hello@snapreceipt.co.uk.</p>
+        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7018151c1c1f30031e1100021513151900045e131f5e051b">[email&#160;protected]</a>.</p>
         <p><strong style="color:var(--black)">Your rights (GDPR)</strong><br/>
-        You have the right to access, correct, or delete your personal data at any time. Contact hello@snapreceipt.co.uk to exercise these rights.</p>
+        You have the right to access, correct, or delete your personal data at any time. Contact <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3b535e5757547b48555a4b495e585e524b4f155854154e50">[email&#160;protected]</a> to exercise these rights.</p>
         <p><strong style="color:var(--black)">Cookies</strong><br/>
         SnapReceipt uses only essential session cookies required for authentication. No tracking or advertising cookies are used.</p>
         <p><strong style="color:var(--black)">Contact</strong><br/>
-        Questions about this policy? Email <a href="mailto:hello@snapreceipt.co.uk" style="color:var(--blue)">hello@snapreceipt.co.uk</a></p>
+        Questions about this policy? Email <a href="/cdn-cgi/l/email-protection#036b666f6f6c43706d6273716660666a73772d606c2d7668" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="a9c1ccc5c5c6e9dac7c8d9dbcccaccc0d9dd87cac687dcc2">[email&#160;protected]</span></a></p>
       </div>
     </div>
   </div>
@@ -862,7 +1008,8 @@ img{display:block;max-width:100%}
      This is critical: type="module" breaks file input events
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 'use strict';
 
@@ -1097,7 +1244,7 @@ async function loadReceipts() {
 }
 
 function renderHome() {
-  updateStats();
+  renderDashboard();
   renderList(_receipts);
   // Show onboarding banner for new users with no receipts
   var banner = g('onboardBanner');
@@ -1109,19 +1256,285 @@ function renderHome() {
 }
 
 function updateStats() {
-  var now = new Date();
-  var taxStart = now.getMonth() >= 3
-    ? new Date(now.getFullYear(),3,6)
-    : new Date(now.getFullYear()-1,3,6);
-  var monthRs = _receipts.filter(function(r){
-    var d=new Date(r.date||r.created_at);
-    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-  });
-  var yearRs = _receipts.filter(function(r){ return new Date(r.date||r.created_at)>=taxStart; });
-  g('statCount').textContent = _receipts.length;
-  g('statMonth').textContent = fmt(monthRs.reduce(function(s,r){return s+parseFloat(r.amount||0);},0));
-  g('statYear').textContent  = fmt(yearRs.reduce(function(s,r){return s+parseFloat(r.amount||0);},0));
+  // Legacy no-op — dashboard now handles all stats display
+  renderDashboard();
+}
 
+/* ── DASHBOARD ───────────────────────────────────────────────
+   Chart instances stored here so we can destroy/recreate cleanly
+─────────────────────────────────────────────────────────────── */
+var _dashPeriod = 7;   // days; 0 = current UK tax year
+var _chartBar   = null;
+var _chartDonut = null;
+
+var CAT_COLOURS = {
+  'Travel':       '#0066ff',
+  'Meals':        '#f59e0b',
+  'Office':       '#8b5cf6',
+  'Software':     '#06b6d4',
+  'Equipment':    '#10b981',
+  'Marketing':    '#f43f5e',
+  'Professional': '#6366f1',
+  'Utilities':    '#84cc16',
+  'Other':        '#94a3b8',
+  '(uncat)':      '#d1d5db',
+};
+
+window.setDashPeriod = function(days) {
+  _dashPeriod = days;
+  // Update toggle buttons
+  g('dashPeriod').querySelectorAll('.dash-period-btn').forEach(function(btn){
+    var d = parseInt(btn.textContent);
+    var isTax = btn.textContent.indexOf('Tax') > -1;
+    btn.classList.toggle('active', days===0 ? isTax : d===days);
+  });
+  renderDashboard();
+};
+
+function getPeriodReceipts() {
+  var now   = new Date();
+  var start;
+  if (_dashPeriod === 0) {
+    // UK tax year: 6 April
+    start = now.getMonth() > 3 || (now.getMonth()===3 && now.getDate()>=6)
+      ? new Date(now.getFullYear(), 3, 6)
+      : new Date(now.getFullYear()-1, 3, 6);
+  } else {
+    start = new Date(now);
+    start.setDate(start.getDate() - _dashPeriod + 1);
+    start.setHours(0,0,0,0);
+  }
+  return _receipts.filter(function(r){
+    return new Date(r.date||r.created_at) >= start;
+  });
+}
+
+function renderDashboard() {
+  var rs = getPeriodReceipts();
+  var gbpRs = rs.filter(function(r){ return !r.currency || r.currency==='GBP'; });
+  var hasMixed = rs.some(function(r){ return r.currency && r.currency!=='GBP'; });
+
+  // KPIs
+  var total   = gbpRs.reduce(function(s,r){ return s+parseFloat(r.amount||0); }, 0);
+  var days    = _dashPeriod===0 ? daysSinceTaxStart() : _dashPeriod;
+  var avg     = days > 0 ? total/days : 0;
+
+  g('dashTotal').textContent    = fmt(total);
+  g('dashAvg').textContent      = fmt(avg);
+  g('dashAvgSub').textContent   = 'per day';
+  g('dashCount').textContent    = rs.length;
+  g('dashCountSub').textContent = rs.length===1 ? 'receipt' : 'receipts';
+  g('dashMixedNote').style.display = hasMixed ? 'block' : 'none';
+
+  if (!rs.length) {
+    g('dashCards').style.display = 'none';
+    g('dashEmpty').style.display = 'block';
+    return;
+  }
+  g('dashCards').style.display = 'flex';
+  g('dashEmpty').style.display = 'none';
+
+  renderBarChart(gbpRs);
+  renderDonutChart(gbpRs);
+  renderMerchants(gbpRs);
+  renderInsight(gbpRs, total, days, avg);
+}
+
+function daysSinceTaxStart() {
+  var now  = new Date();
+  var taxStart = now.getMonth() > 3 || (now.getMonth()===3 && now.getDate()>=6)
+    ? new Date(now.getFullYear(), 3, 6)
+    : new Date(now.getFullYear()-1, 3, 6);
+  return Math.max(1, Math.ceil((now - taxStart)/(1000*60*60*24)));
+}
+
+function renderBarChart(rs) {
+  // Build buckets: 7d → daily, 30d → daily, 90d → weekly, tax yr → monthly
+  var buckets, labelFn, countBuckets;
+  var now = new Date();
+  now.setHours(23,59,59,999);
+
+  if (_dashPeriod === 7 || _dashPeriod === 30) {
+    countBuckets = _dashPeriod === 7 ? 7 : 30;
+    buckets = [];
+    for (var i=countBuckets-1; i>=0; i--) {
+      var d = new Date(); d.setDate(d.getDate()-i); d.setHours(0,0,0,0);
+      buckets.push({ key: d.toISOString().slice(0,10), label: _dashPeriod===7
+        ? d.toLocaleDateString('en-GB',{weekday:'short'})
+        : d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), total: 0 });
+    }
+    rs.forEach(function(r){
+      var k = (r.date||r.created_at.slice(0,10));
+      var b = buckets.find(function(x){ return x.key===k; });
+      if (b) b.total += parseFloat(r.amount||0);
+    });
+  } else if (_dashPeriod === 90) {
+    // Weekly buckets
+    var weekMap = {};
+    rs.forEach(function(r){
+      var d = new Date(r.date||r.created_at);
+      // Monday of that week
+      var day = d.getDay()||7;
+      var mon = new Date(d); mon.setDate(d.getDate()-(day-1)); mon.setHours(0,0,0,0);
+      var wk = mon.toISOString().slice(0,10);
+      weekMap[wk] = (weekMap[wk]||0) + parseFloat(r.amount||0);
+    });
+    buckets = Object.keys(weekMap).sort().map(function(k){
+      var d = new Date(k);
+      return { key:k, label: d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), total: weekMap[k] };
+    });
+  } else {
+    // Monthly buckets for tax year
+    var monMap = {};
+    rs.forEach(function(r){
+      var d = new Date(r.date||r.created_at);
+      var mk = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      monMap[mk] = (monMap[mk]||0) + parseFloat(r.amount||0);
+    });
+    buckets = Object.keys(monMap).sort().map(function(k){
+      var d = new Date(k+'-01');
+      return { key:k, label: d.toLocaleDateString('en-GB',{month:'short',year:'2-digit'}), total: monMap[k] };
+    });
+  }
+
+  var labels = buckets.map(function(b){ return b.label; });
+  var data   = buckets.map(function(b){ return parseFloat(b.total.toFixed(2)); });
+  var maxVal = Math.max.apply(null, data);
+
+  // Bar meta label
+  g('dashBarMeta').textContent = _dashPeriod===0 ? 'this tax year' :
+    _dashPeriod===90 ? 'weekly' : 'daily';
+
+  if (_chartBar) { _chartBar.destroy(); _chartBar = null; }
+  var ctx = g('chartBar').getContext('2d');
+  _chartBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: data.map(function(v){ return v===maxVal && maxVal>0 ? '#111' : '#0066ff'; }),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{display:false}, tooltip:{
+        callbacks:{ label: function(ctx){ return ' '+fmt(ctx.parsed.y); } }
+      }},
+      scales: {
+        x: { grid:{display:false}, ticks:{
+          font:{size:10,weight:'600'}, color:'#888',
+          maxTicksLimit: _dashPeriod<=7 ? 7 : 6,
+          maxRotation: 0,
+        }},
+        y: { display:false, grid:{display:false}, beginAtZero:true }
+      }
+    }
+  });
+}
+
+function renderDonutChart(rs) {
+  // Category totals
+  var catMap = {};
+  rs.forEach(function(r){
+    var cat = r.category || '(uncat)';
+    catMap[cat] = (catMap[cat]||0) + parseFloat(r.amount||0);
+  });
+  var entries = Object.entries(catMap).sort(function(a,b){ return b[1]-a[1]; });
+  if (!entries.length) { g('dashCatCard').style.display='none'; return; }
+  g('dashCatCard').style.display = 'block';
+
+  var total  = entries.reduce(function(s,e){ return s+e[1]; }, 0);
+  var labels = entries.map(function(e){ return e[0]; });
+  var vals   = entries.map(function(e){ return parseFloat(e[1].toFixed(2)); });
+  var colours= labels.map(function(l){ return CAT_COLOURS[l]||'#94a3b8'; });
+
+  g('dashDonutVal').textContent  = fmt(total);
+  g('dashDonutMeta').textContent = entries.length+' categor'+(entries.length===1?'y':'ies');
+
+  if (_chartDonut) { _chartDonut.destroy(); _chartDonut = null; }
+  var ctx = g('chartDonut').getContext('2d');
+  _chartDonut = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: labels, datasets:[{ data: vals, backgroundColor: colours, borderWidth:2, borderColor:'#fff', hoverOffset:4 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins:{ legend:{display:false}, tooltip:{
+        callbacks:{ label: function(ctx){ return ' '+ctx.label+': '+fmt(ctx.parsed); } }
+      }}
+    }
+  });
+
+  // Legend (top 5)
+  var leg = g('dashLegend');
+  leg.innerHTML = entries.slice(0,5).map(function(e){
+    var pct = total>0 ? Math.round(e[1]/total*100) : 0;
+    return '<div class="dash-legend-item">'
+      +'<div class="dash-legend-dot" style="background:'+( CAT_COLOURS[e[0]]||'#94a3b8')+'">'+'</div>'
+      +'<span class="dash-legend-lbl">'+esc(e[0])+'</span>'
+      +'<span class="dash-legend-val">'+pct+'%</span>'
+      +'</div>';
+  }).join('');
+}
+
+function renderMerchants(rs) {
+  var mmap = {};
+  rs.forEach(function(r){
+    var m = r.merchant||'Unknown';
+    mmap[m] = (mmap[m]||0) + parseFloat(r.amount||0);
+  });
+  var entries = Object.entries(mmap).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+  if (!entries.length) { g('dashMerchCard').style.display='none'; return; }
+  g('dashMerchCard').style.display = 'block';
+  g('dashMerchMeta').textContent = 'top '+entries.length;
+
+  var maxVal = entries[0][1];
+  var MERCH_COLOURS = ['#111','#0066ff','#8b5cf6','#06b6d4','#10b981'];
+
+  g('dashMerchants').innerHTML = entries.map(function(e,i){
+    var pct = maxVal>0 ? Math.max(6, Math.round(e[1]/maxVal*100)) : 6;
+    return '<div class="dash-merchant-row">'
+      +'<span class="dash-merchant-rank">'+(i+1)+'</span>'
+      +'<div class="dash-merchant-bar-wrap">'
+        +'<div class="dash-merchant-fill" style="width:'+pct+'%;background:'+(MERCH_COLOURS[i]||'#94a3b8')+'"></div>'
+        +'<span class="dash-merchant-name">'+esc(e[0])+'</span>'
+      +'</div>'
+      +'<span class="dash-merchant-amt">'+fmt(e[1])+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+function renderInsight(rs, total, days, avg) {
+  if (!rs.length) { g('dashInsight').style.display='none'; return; }
+  g('dashInsight').style.display = 'flex';
+
+  // Pick the most interesting insight
+  var catMap = {};
+  rs.forEach(function(r){
+    var c = r.category||'(uncat)'; catMap[c]=(catMap[c]||0)+parseFloat(r.amount||0);
+  });
+  var topCat = Object.entries(catMap).sort(function(a,b){ return b[1]-a[1]; })[0];
+
+  var mmap = {};
+  rs.forEach(function(r){ var m=r.merchant||'Unknown'; mmap[m]=(mmap[m]||0)+1; });
+  var freqMerch = Object.entries(mmap).sort(function(a,b){ return b[1]-a[1]; })[0];
+
+  var text = '';
+  if (topCat && topCat[0] !== '(uncat)') {
+    var pct = total>0 ? Math.round(topCat[1]/total*100) : 0;
+    text = '<strong>'+esc(topCat[0])+'</strong> is your biggest spend category — '
+      + pct+'% of your total ('+fmt(topCat[1])+').';
+  } else if (freqMerch && freqMerch[1] > 1) {
+    text = 'You\'ve visited <strong>'+esc(freqMerch[0])+'</strong> '+freqMerch[1]+' times in this period.';
+  } else if (avg > 0) {
+    text = 'Your daily average spend is <strong>'+fmt(avg)+'</strong>. '
+      + 'That\'s <strong>'+fmt(avg*365)+'</strong> a year if it continues.';
+  } else {
+    text = 'Keep scanning — insights will appear as you log more receipts.';
+  }
+  g('dashInsightText').innerHTML = text;
 }
 
 function renderSkeleton() {
@@ -1197,20 +1610,16 @@ function renderRow(r, i) {
 
 window.toggleRow = function(id) {
   _expanded = (_expanded===id) ? null : id;
+  // If a search is active, clear it so the expanded row is always visible
+  var si = g('searchInput');
+  if (si && si.value) { si.value = ''; }
   renderList(_receipts);
   if (_expanded) setTimeout(function(){
     var row=g('row-'+id); if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
   },60);
 };
 
-window.deleteReceipt = async function(id) {
-  if (!confirm('Delete this receipt?')) return;
-  await sb.from('receipts').delete().eq('id',id);
-  _receipts = _receipts.filter(function(r){return r.id!==id;});
-  _expanded = null;
-  renderHome();
-  toast('Receipt deleted');
-};
+
 
 window.filterReceipts = function(q) {
   q = q.toLowerCase().trim();
@@ -1249,6 +1658,8 @@ window.openScan = function() {
   g('cbadge').innerHTML = '';
   g('cfMerchant').value=''; g('cfAmount').value='';
   g('cfCurrency').value='GBP'; g('cfDate').value=today();
+  if(g('cfCategory')) g('cfCategory').value='';
+  if(g('cfVat')) g('cfVat').value='';
   if(g('cfNotes')) g('cfNotes').value='';
   // Reset currency toggle
   if(g('currencyToggle')) g('currencyToggle').textContent = 'GBP £ ▾';
@@ -1426,6 +1837,8 @@ window.saveReceipt = async function() {
       amount:   amount,
       currency: g('cfCurrency').value || 'GBP',
       date:     date || null,
+      category: g('cfCategory').value || null,
+      vat:      parseFloat(g('cfVat').value) || null,
       notes:    g('cfNotes').value.trim() || null,
       image_url: imageUrl,
       ocr_raw:  null,
@@ -1616,31 +2029,4 @@ function toJpeg(file, callback) {
     img.onload = function() {
       try {
         var MAX = 1200;
-        var w = img.width, h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else       { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        var c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        callback(c.toDataURL('image/jpeg', 0.82));
-      } catch(e) {
-        callback(dataUrl); // fallback: send original
-      }
-    };
-    img.onerror = function() { callback(dataUrl); };
-    img.src = dataUrl;
-  };
-  reader.onerror = function() { callback(''); };
-  reader.readAsDataURL(file);
-}
-
-/* ── INIT ────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', function() {
-  initFileInputs();
-});
-
-</script>
-</body>
-</html>
+        var w = img.width, h =
