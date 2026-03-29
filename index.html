@@ -204,7 +204,7 @@ img{display:block;max-width:100%}
 .scan-hdr{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;background:#fff}
 .scan-back{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.85rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:5px;transition:all .15s}
 .scan-title{font-size:.95rem;font-weight:700;color:var(--black)}
-.scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;gap:12px;touch-action:pan-y}
+.scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px;touch-action:pan-y}
 
 /* Upload areas — weldswine proven pattern */
 .upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);overflow:hidden;cursor:pointer;transition:all .2s;flex:1}
@@ -213,7 +213,7 @@ img{display:block;max-width:100%}
 .upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px;pointer-events:none}
 
 /* After photo taken */
-.captured-strip{display:none;align-items:center;gap:12px;padding:10px 12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg)}
+.captured-strip{display:none;align-items:center;gap:12px;padding:10px 12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);width:100%}
 .captured-strip.show{display:flex}
 .cap-thumb{width:48px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0}
 .cap-info{flex:1;min-width:0}
@@ -221,13 +221,13 @@ img{display:block;max-width:100%}
 .cap-sub{font-size:.74rem;color:var(--gray-5);margin-top:2px}
 .cap-retake{flex-shrink:0;padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer}
 
-.ocr-bar{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-lt);border-radius:var(--r);border:1px solid var(--blue-mid)}
+.ocr-bar{display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-lt);border-radius:var(--r);border:1px solid var(--blue-mid);width:100%}
 .ocr-bar.on{display:flex}
 .ocr-spin{width:16px;height:16px;border:2px solid var(--blue-mid);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ocr-text{font-size:.85rem;font-weight:600;color:var(--blue)}
 
-.cfields{display:none;flex-direction:column;gap:12px}
+.cfields{display:none;flex-direction:column;gap:12px;width:100%}
 .cfields.on{display:flex}
 .cbadge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:700;width:fit-content}
 .cbadge.high{background:var(--green-lt);color:var(--green)}
@@ -797,19 +797,21 @@ img{display:block;max-width:100%}
   <div class="scan-body" id="scanBody">
 
     <!-- Upload buttons — file inputs sit inside divs at inset:0, inner has pointer-events:none -->
-    <div id="uploadZone" style="display:flex;gap:10px">
-      <div class="upload-area" id="cameraArea">
+    <div id="uploadZone" style="display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div class="upload-area" id="cameraArea" style="width:100%;max-width:340px;flex:none">
         <input type="file" id="captureInput" accept="image/*" capture="environment"/>
-        <div class="upload-inner" style="pointer-events:none">
-          <div style="font-size:1.8rem">📷</div>
-          <div style="font-size:.88rem;font-weight:700;color:#111;margin-top:2px">Camera</div>
+        <div class="upload-inner" style="pointer-events:none;padding:28px 12px">
+          <div style="font-size:2.2rem">📷</div>
+          <div style="font-size:.95rem;font-weight:700;color:#111;margin-top:4px">Take a photo</div>
+          <div style="font-size:.78rem;color:var(--gray-5);margin-top:2px">Use your camera</div>
         </div>
       </div>
-      <div class="upload-area" id="galleryArea">
+      <div class="upload-area" id="galleryArea" style="width:100%;max-width:340px;flex:none">
         <input type="file" id="galleryInput" accept="image/*"/>
-        <div class="upload-inner" style="pointer-events:none">
-          <div style="font-size:1.8rem">🖼</div>
-          <div style="font-size:.88rem;font-weight:700;color:#111;margin-top:2px">Gallery</div>
+        <div class="upload-inner" style="pointer-events:none;padding:28px 12px">
+          <div style="font-size:2.2rem">🖼</div>
+          <div style="font-size:.95rem;font-weight:700;color:#111;margin-top:4px">Choose from gallery</div>
+          <div style="font-size:.78rem;color:var(--gray-5);margin-top:2px">Pick an existing photo</div>
         </div>
       </div>
     </div>
@@ -1246,8 +1248,13 @@ sb.auth.onAuthStateChange(function(event, session) {
     }
   } else {
     _receipts = [];
-    // Show landing page for logged-out visitors
-    // If they came via a direct link with #signin or #signup, skip to auth
+    // If PIN is set, the user is likely just locked out of an existing session
+    // (e.g. Supabase token refreshing). Show lock screen — they can sign out from there.
+    // Only fall through to landing/auth if there's genuinely no PIN set.
+    if (pinIsSet() && event === 'INITIAL_SESSION') {
+      window.showLockScreen();
+      return;
+    }
     var hash = window.location.hash;
     if (hash === '#signin' || hash === '#signup') {
       showAuth(hash.slice(1));
@@ -2133,9 +2140,23 @@ window.showLockScreen = async function() {
   }
 };
 
-window.hideLockScreen = function() {
+window.hideLockScreen = async function() {
   _lockUnlocked = true;
   g('lockScreen').classList.remove('active');
+  // If session expired while locked, re-authenticate silently via Supabase token refresh
+  if (!_user) {
+    var res = await sb.auth.getSession();
+    if (res.data && res.data.session) {
+      _user = res.data.session.user;
+      g('menuEmail').textContent = _user.email || '';
+      show('homeScreen');
+      loadReceipts();
+      updateMenuPinLabel();
+    } else {
+      // Session genuinely gone — send to sign in
+      showAuth('signin');
+    }
+  }
 };
 
 window.lockSignout = async function() {
