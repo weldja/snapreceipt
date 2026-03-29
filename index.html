@@ -800,7 +800,7 @@ img{display:block;max-width:100%}
     <div id="uploadZone" style="display:flex;flex-direction:column;gap:10px;align-items:center">
       <div class="upload-area" id="cameraArea" style="width:100%;max-width:340px;flex:none">
         <input type="file" id="captureInput" accept="image/*" capture="environment"/>
-        <div class="upload-inner" style="pointer-events:none;padding:28px 12px">
+        <div class="upload-inner">
           <div style="font-size:2.2rem">📷</div>
           <div style="font-size:.95rem;font-weight:700;color:#111;margin-top:4px">Take a photo</div>
           <div style="font-size:.78rem;color:var(--gray-5);margin-top:2px">Use your camera</div>
@@ -808,7 +808,7 @@ img{display:block;max-width:100%}
       </div>
       <div class="upload-area" id="galleryArea" style="width:100%;max-width:340px;flex:none">
         <input type="file" id="galleryInput" accept="image/*"/>
-        <div class="upload-inner" style="pointer-events:none;padding:28px 12px">
+        <div class="upload-inner">
           <div style="font-size:2.2rem">🖼</div>
           <div style="font-size:.95rem;font-weight:700;color:#111;margin-top:4px">Choose from gallery</div>
           <div style="font-size:.78rem;color:var(--gray-5);margin-top:2px">Pick an existing photo</div>
@@ -2343,13 +2343,15 @@ document.addEventListener('DOMContentLoaded', function() {
   updateMenuPinLabel();
 
   // Boot check — wait for DOM then check session.
-  // If no session but PIN is set, show lock screen.
-  sb.auth.getSession().then(function(res) {
-    var session = res.data && res.data.session;
-    if (!session && pinIsSet()) {
-      window.showLockScreen();
-    }
-  });
+  // Small delay ensures first paint completes on mobile before lock screen shows.
+  setTimeout(function() {
+    sb.auth.getSession().then(function(res) {
+      var session = res.data && res.data.session;
+      if (!session && pinIsSet()) {
+        window.showLockScreen();
+      }
+    });
+  }, 100);
 
   // Re-lock when app returns from background
   document.addEventListener('visibilitychange', function() {
