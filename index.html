@@ -1327,6 +1327,8 @@ window.doSetPassword = async function() {
 
 window.doSignout = async function() {
   closeMenu();
+  try { sessionStorage.removeItem(UNLOCK_GRACE_KEY); } catch(e){}
+  _lockUnlocked = false;
   await sb.auth.signOut();
 };
 
@@ -2183,6 +2185,7 @@ window.hideLockScreen = async function() {
 window.lockSignout = async function() {
   g('lockScreen').classList.remove('active');
   try { sessionStorage.removeItem(UNLOCK_GRACE_KEY); } catch(e){}
+  _lockUnlocked = false;
   await sb.auth.signOut();
 };
 
