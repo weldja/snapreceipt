@@ -1246,8 +1246,10 @@ sb.auth.onAuthStateChange(function(event, session) {
     loadReceipts();
     updateMenuPinLabel();
     // Show lock screen if PIN is set and not yet unlocked this session
-    if (pinIsSet() && !_lockUnlocked) {
+    if (pinIsSet() && !_lockUnlocked && !withinGracePeriod()) {
       window.showLockScreen();
+    } else if (withinGracePeriod()) {
+      _lockUnlocked = true; // treat grace period as already unlocked
     }
   } else {
     _receipts = [];
@@ -2110,9 +2112,11 @@ function toJpeg(file, callback) {
 ─────────────────────────────────────────────────────────── */
 var PIN_KEY      = 'sr_pin_hash';
 var PIN_CRED_KEY = 'sr_webauthn_cred';
+var UNLOCK_GRACE_KEY = 'sr_unlocked_at';
+var UNLOCK_GRACE_MS  = 5 * 60 * 1000; // 5 minutes
 var _lockInput   = '';
 var _setupInput  = '';
-var _setupFirst  = '';   // stores first PIN entry during confirm step
+var _setupFirst  = '';
 var _lockUnlocked = false;
 
 async function hashPin(pin) {
@@ -2125,7 +2129,14 @@ function pinIsSet() {
   try { return !!localStorage.getItem(PIN_KEY); } catch(e){ return false; }
 }
 
-/* ── LOCK SCREEN ── */
+function withinGracePeriod() {
+  try {
+    var t = sessionStorage.getItem(UNLOCK_GRACE_KEY);
+    return t && (Date.now() - parseInt(t)) < UNLOCK_GRACE_MS;
+  } catch(e) { return false; }
+}
+
+
 window.showLockScreen = async function() {
   _lockInput = '';
   updateLockDots();
@@ -2145,6 +2156,8 @@ window.showLockScreen = async function() {
 
 window.hideLockScreen = async function() {
   _lockUnlocked = true;
+  // Write grace period timestamp — survives pull-to-refresh but not tab close
+  try { sessionStorage.setItem(UNLOCK_GRACE_KEY, Date.now().toString()); } catch(e){}
   g('lockScreen').classList.remove('active');
   // _user may already be set by onAuthStateChange firing in parallel.
   // If not, wait briefly then check session directly.
@@ -2169,6 +2182,7 @@ window.hideLockScreen = async function() {
 
 window.lockSignout = async function() {
   g('lockScreen').classList.remove('active');
+  try { sessionStorage.removeItem(UNLOCK_GRACE_KEY); } catch(e){}
   await sb.auth.signOut();
 };
 
@@ -2353,16 +2367,19 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!session && pinIsSet()) {
         window.showLockScreen();
       } else if (!session) {
-        // onAuthStateChange may not fire when there's no session — show landing as fallback
         var anyActive = document.querySelector('.screen.active, #landingPage.active, #lockScreen.active');
         if (!anyActive) showLanding();
+      }
+      // If PIN is set but we're within grace period, mark as unlocked
+      if (pinIsSet() && withinGracePeriod()) {
+        _lockUnlocked = true;
       }
     });
   }, 100);
 
-  // Re-lock when app returns from background
+  // Re-lock when app returns from background (but not within grace period)
   document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible' && pinIsSet() && _lockUnlocked) {
+    if (document.visibilityState === 'visible' && pinIsSet() && _lockUnlocked && !withinGracePeriod()) {
       _lockUnlocked = false;
       window.showLockScreen();
     }
