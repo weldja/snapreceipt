@@ -19,6 +19,10 @@
 <meta property="og:description" content="Scan any receipt in seconds. AI reads the details automatically. Log expenses, track totals and export CSV for your Self Assessment tax return. Free to use, no download needed."/>
 <meta property="og:url" content="https://snapreceipt.co.uk/"/>
 <meta property="og:locale" content="en_GB"/>
+<meta property="og:image" content="https://snapreceipt.co.uk/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:image" content="https://snapreceipt.co.uk/og-image.png"/>
 
 <!-- ── Twitter / X card ───────────────────────────────── -->
 <meta name="twitter:card" content="summary"/>
@@ -719,8 +723,8 @@ img{display:block;max-width:100%}
     <div class="dash-expandable" id="dashExpandable">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div class="dash-period" id="dashPeriod">
-          <button class="dash-period-btn active" onclick="setDashPeriod(7);event.stopPropagation()">7d</button>
-          <button class="dash-period-btn" onclick="setDashPeriod(30);event.stopPropagation()">30d</button>
+          <button class="dash-period-btn" onclick="setDashPeriod(7);event.stopPropagation()">7d</button>
+          <button class="dash-period-btn active" onclick="setDashPeriod(30);event.stopPropagation()">30d</button>
           <button class="dash-period-btn" onclick="setDashPeriod(90);event.stopPropagation()">3m</button>
           <button class="dash-period-btn" onclick="setDashPeriod(0);event.stopPropagation()">Tax yr</button>
         </div>
@@ -921,6 +925,7 @@ img{display:block;max-width:100%}
     </div>
     <div class="sdiv"></div>
     <div class="sheet-item muted" style="cursor:default"><span class="sicon">👤</span><span id="menuEmail">—</span></div>
+    <button class="sheet-item" onclick="openDeleteAccount();closeMenu()"><span class="sicon">🗑</span>Delete my account</button>
     <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
   </div>
 </div>
@@ -1027,6 +1032,24 @@ img{display:block;max-width:100%}
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══ DELETE ACCOUNT SHEET ══════════════════════════════ -->
+<div class="sheet-bg" id="deleteAccountSheet" onclick="if(event.target===this)closeDeleteAccount()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sbody" style="padding-bottom:24px">
+      <h3 style="color:var(--red)">Delete account?</h3>
+      <p style="font-size:.88rem;color:var(--gray-5);line-height:1.6;margin-bottom:16px">This will permanently delete your account and <strong style="color:var(--black)">all your receipts</strong>. This cannot be undone.</p>
+      <p style="font-size:.85rem;color:var(--gray-5);margin-bottom:20px">Type <strong style="color:var(--black)">DELETE</strong> to confirm:</p>
+      <input class="ti" id="deleteAccountConfirm" placeholder="Type DELETE" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <div class="amsg" id="deleteAccountMsg" style="margin-top:8px"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black)" onclick="closeDeleteAccount()">Cancel</button>
+        <button class="btn-p" style="background:var(--red)" id="btnConfirmDeleteAccount" onclick="confirmDeleteAccount()">Delete everything</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ LOCK SCREEN ══════════════════════════════════════ -->
 <div id="lockScreen">
   <div class="lock-brand">
@@ -1087,6 +1110,7 @@ img{display:block;max-width:100%}
         <button class="pin-key pin-del" onclick="setupPinDel()">⌫</button>
       </div>
       <button class="lock-alt" style="margin-top:16px" onclick="closePinSetup()">Cancel</button>
+      <button class="lock-alt" id="removePinBtn" style="margin-top:8px;color:var(--red);display:none" onclick="startRemovePin()">Remove PIN lock</button>
     </div>
   </div>
 </div>
@@ -1357,7 +1381,7 @@ function renderHome() {
 }
 
 /* ── DASHBOARD ───────────────────────────────────────────────── */
-var _dashPeriod = 7;
+var _dashPeriod = 30;
 var _chartBar   = null;
 var _chartDonut = null;
 
@@ -1683,7 +1707,9 @@ window.filterReceipts = function(q) {
     return (r.merchant||'').toLowerCase().includes(q)
       || (r.category||'').toLowerCase().includes(q)
       || (r.notes||'').toLowerCase().includes(q)
-      || (r.date||'').includes(q);
+      || (r.date||'').includes(q)
+      || parseFloat(r.amount||0).toFixed(2).includes(q)
+      || String(r.amount||'').includes(q);
   });
   if (!filtered.length) {
     g('rlist').innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>'
@@ -2279,16 +2305,29 @@ function uint8ToBase64(arr) {
 
 /* ── PIN SETUP SHEET ── */
 window.openPinSetup = function() {
-  _setupInput=''; _setupFirst='';
+  _setupInput=''; _setupFirst=''; _removingPin=false;
   updateSetupDots();
-  g('pinSetupTitle').textContent = pinIsSet() ? 'Change PIN' : 'Set up PIN lock';
+  var isSet = pinIsSet();
+  g('pinSetupTitle').textContent = isSet ? 'Change PIN' : 'Set up PIN lock';
   g('pinSetupSub').textContent   = 'Choose a 4-digit PIN to lock the app.';
+  g('removePinBtn').style.display = isSet ? 'block' : 'none';
   g('pinSetupSheet').classList.add('on');
 };
 
 window.closePinSetup = function() {
   g('pinSetupSheet').classList.remove('on');
+  _setupInput=''; _setupFirst=''; _removingPin=false;
+};
+
+var _removingPin = false;
+
+window.startRemovePin = function() {
+  _removingPin = true;
   _setupInput=''; _setupFirst='';
+  updateSetupDots();
+  g('pinSetupTitle').textContent = 'Enter current PIN';
+  g('pinSetupSub').textContent   = 'Enter your current PIN to remove the lock.';
+  g('removePinBtn').style.display = 'none';
 };
 
 window.setupPinKey = function(digit) {
@@ -2312,6 +2351,31 @@ function updateSetupDots() {
 }
 
 async function handleSetupFour() {
+  // Remove PIN flow — verify current PIN then wipe
+  if (_removingPin) {
+    var entered = await hashPin(_setupInput);
+    var stored  = '';
+    try { stored = localStorage.getItem(PIN_KEY)||''; } catch(e){}
+    if (entered !== stored) {
+      for (var i=0;i<4;i++) { var d=g('sd'+i); d.classList.remove('filled'); d.classList.add('error'); }
+      g('setupDots').classList.add('pin-shake');
+      setTimeout(function(){
+        g('setupDots').classList.remove('pin-shake');
+        _setupInput=''; updateSetupDots();
+        g('pinSetupSub').textContent = 'Incorrect PIN — try again.';
+      }, 600);
+      return;
+    }
+    // Correct — remove PIN and biometric credential
+    try { localStorage.removeItem(PIN_KEY); localStorage.removeItem(PIN_CRED_KEY); } catch(e){}
+    try { sessionStorage.removeItem(UNLOCK_GRACE_KEY); } catch(e){}
+    _lockUnlocked = false;
+    updateMenuPinLabel();
+    closePinSetup();
+    toast('PIN lock removed');
+    return;
+  }
+
   if (!_setupFirst) {
     // First entry — ask to confirm
     _setupFirst  = _setupInput;
@@ -2357,7 +2421,56 @@ function updateMenuPinLabel() {
   if (lbl) lbl.textContent = pinIsSet() ? 'Change / remove PIN' : 'Set up PIN lock';
 }
 
-/* ── INIT ────────────────────────────────────────────── */
+/* ── DELETE ACCOUNT ──────────────────────────────────────── */
+window.openDeleteAccount = function() {
+  g('deleteAccountConfirm').value = '';
+  g('deleteAccountMsg').className = 'amsg';
+  g('deleteAccountSheet').classList.add('on');
+};
+
+window.closeDeleteAccount = function() {
+  g('deleteAccountSheet').classList.remove('on');
+};
+
+window.confirmDeleteAccount = async function() {
+  var val = g('deleteAccountConfirm').value.trim();
+  if (val !== 'DELETE') {
+    setMsg(g('deleteAccountMsg'), 'err', 'Please type DELETE to confirm.');
+    return;
+  }
+  var btn = g('btnConfirmDeleteAccount');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+
+  try {
+    // 1. Delete all receipts from storage and DB
+    if (_user) {
+      // Delete receipt images from storage
+      var storageList = await sb.storage.from('receipt-images').list(_user.id);
+      if (storageList.data && storageList.data.length) {
+        var paths = storageList.data.map(function(f){ return _user.id+'/'+f.name; });
+        await sb.storage.from('receipt-images').remove(paths);
+      }
+      // Delete all receipts rows
+      await sb.from('receipts').delete().eq('user_id', _user.id);
+      // 2. Delete the Supabase auth user via RPC (requires delete_user function in Supabase)
+      await sb.rpc('delete_user');
+    }
+    // 3. Clear local data
+    try {
+      localStorage.removeItem(PIN_KEY);
+      localStorage.removeItem(PIN_CRED_KEY);
+      sessionStorage.removeItem(UNLOCK_GRACE_KEY);
+    } catch(e){}
+    // 4. Sign out
+    await sb.auth.signOut();
+    closeDeleteAccount();
+    toast('Account deleted');
+  } catch(e) {
+    console.error('Delete account error:', e);
+    setMsg(g('deleteAccountMsg'), 'err', 'Error deleting account. Please email hello@snapreceipt.co.uk');
+    btn.disabled = false; btn.textContent = 'Delete everything';
+  }
+};
 document.addEventListener('DOMContentLoaded', function() {
   initFileInputs();
   updateMenuPinLabel();
