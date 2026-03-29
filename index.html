@@ -92,6 +92,32 @@ img{display:block;max-width:100%}
 /* scanScreen is a fixed overlay — not toggled by .screen/.active */
 #scanScreen{position:fixed;inset:0;z-index:200;background:#fff;display:none;flex-direction:column;overflow:hidden}
 #scanScreen.active{display:flex}
+/* lockScreen sits above everything */
+#lockScreen{position:fixed;inset:0;z-index:9000;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
+#lockScreen.active{display:flex}
+
+/* ── LOCK / PIN UI ───────────────────────────────── */
+.lock-brand{text-align:center;margin-bottom:32px}
+.lock-brand-icon{width:64px;height:64px;background:var(--black);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 12px}
+.lock-brand-name{font-size:1.3rem;font-weight:800;color:var(--black);letter-spacing:-.03em}
+.lock-title{font-size:1rem;font-weight:700;color:var(--black);margin-bottom:6px;text-align:center}
+.lock-sub{font-size:.85rem;color:var(--gray-5);text-align:center;margin-bottom:28px;line-height:1.5}
+.pin-dots{display:flex;gap:16px;justify-content:center;margin-bottom:28px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--gray-3);background:transparent;transition:all .15s}
+.pin-dot.filled{background:var(--black);border-color:var(--black)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px;justify-content:center}
+.pin-key{width:72px;height:72px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:1.3rem;font-weight:700;color:var(--black);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;line-height:1;gap:1px}
+.pin-key:active{background:var(--gray-1);transform:scale(.94)}
+.pin-key.pin-del{font-size:1.1rem;border-color:transparent;background:transparent}
+.pin-key.pin-empty{border-color:transparent;background:transparent;pointer-events:none}
+.pin-key-sub{font-size:.5rem;font-weight:700;color:var(--gray-5);letter-spacing:.08em;text-transform:uppercase}
+.pin-biometric{margin-top:16px;background:none;border:none;font-size:2rem;cursor:pointer;opacity:.7;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+.pin-biometric:active{opacity:.4}
+.lock-alt{margin-top:20px;font-size:.82rem;color:var(--gray-5);cursor:pointer;text-decoration:underline;background:none;border:none}
+.pin-setup-wrap{width:100%;max-width:320px}
+.pin-shake{animation:pinShake .35s ease}
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 
 /* ── AUTH ────────────────────────────────────────── */
 .auth-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 48px;max-width:420px;margin:0 auto;width:100%}
@@ -880,6 +906,7 @@ img{display:block;max-width:100%}
     <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
     <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV</button>
     <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
+    <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
     <div class="sdiv"></div>
     <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
       <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
@@ -994,6 +1021,70 @@ img{display:block;max-width:100%}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ═══ LOCK SCREEN ══════════════════════════════════════ -->
+<div id="lockScreen">
+  <div class="lock-brand">
+    <div class="lock-brand-icon">🧾</div>
+    <div class="lock-brand-name">SnapReceipt</div>
+  </div>
+  <div class="lock-title" id="lockTitle">Enter your PIN</div>
+  <div class="lock-sub" id="lockSub">Enter your 4-digit PIN to continue</div>
+  <div class="pin-dots" id="lockDots">
+    <div class="pin-dot" id="ld0"></div>
+    <div class="pin-dot" id="ld1"></div>
+    <div class="pin-dot" id="ld2"></div>
+    <div class="pin-dot" id="ld3"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2<span class="pin-key-sub">ABC</span></button>
+    <button class="pin-key" onclick="pinKey('3')">3<span class="pin-key-sub">DEF</span></button>
+    <button class="pin-key" onclick="pinKey('4')">4<span class="pin-key-sub">GHI</span></button>
+    <button class="pin-key" onclick="pinKey('5')">5<span class="pin-key-sub">JKL</span></button>
+    <button class="pin-key" onclick="pinKey('6')">6<span class="pin-key-sub">MNO</span></button>
+    <button class="pin-key" onclick="pinKey('7')">7<span class="pin-key-sub">PQRS</span></button>
+    <button class="pin-key" onclick="pinKey('8')">8<span class="pin-key-sub">TUV</span></button>
+    <button class="pin-key" onclick="pinKey('9')">9<span class="pin-key-sub">WXYZ</span></button>
+    <button class="pin-key pin-empty" disabled></button>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key pin-del" onclick="pinDel()">⌫</button>
+  </div>
+  <button class="pin-biometric" id="biometricBtn" style="display:none" onclick="tryBiometric()" title="Use biometrics">🪪</button>
+  <button class="lock-alt" id="lockAltBtn" onclick="lockSignout()">Sign out instead</button>
+</div>
+
+<!-- ═══ PIN SETUP SHEET ═══════════════════════════════════ -->
+<div class="sheet-bg" id="pinSetupSheet" onclick="if(event.target===this)closePinSetup()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sbody" style="padding-bottom:24px;display:flex;flex-direction:column;align-items:center">
+      <h3 style="width:100%;margin-bottom:4px" id="pinSetupTitle">Set up PIN lock</h3>
+      <p style="font-size:.85rem;color:var(--gray-5);line-height:1.5;margin-bottom:20px;width:100%" id="pinSetupSub">Choose a 4-digit PIN to lock the app.</p>
+      <div class="pin-dots" id="setupDots">
+        <div class="pin-dot" id="sd0"></div>
+        <div class="pin-dot" id="sd1"></div>
+        <div class="pin-dot" id="sd2"></div>
+        <div class="pin-dot" id="sd3"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="setupPinKey('1')">1</button>
+        <button class="pin-key" onclick="setupPinKey('2')">2<span class="pin-key-sub">ABC</span></button>
+        <button class="pin-key" onclick="setupPinKey('3')">3<span class="pin-key-sub">DEF</span></button>
+        <button class="pin-key" onclick="setupPinKey('4')">4<span class="pin-key-sub">GHI</span></button>
+        <button class="pin-key" onclick="setupPinKey('5')">5<span class="pin-key-sub">JKL</span></button>
+        <button class="pin-key" onclick="setupPinKey('6')">6<span class="pin-key-sub">MNO</span></button>
+        <button class="pin-key" onclick="setupPinKey('7')">7<span class="pin-key-sub">PQRS</span></button>
+        <button class="pin-key" onclick="setupPinKey('8')">8<span class="pin-key-sub">TUV</span></button>
+        <button class="pin-key" onclick="setupPinKey('9')">9<span class="pin-key-sub">WXYZ</span></button>
+        <button class="pin-key pin-empty" disabled></button>
+        <button class="pin-key" onclick="setupPinKey('0')">0</button>
+        <button class="pin-key pin-del" onclick="setupPinDel()">⌫</button>
+      </div>
+      <button class="lock-alt" style="margin-top:16px" onclick="closePinSetup()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════ 
      SUPABASE — plain script (not module) — same as weldswine
@@ -1148,6 +1239,11 @@ sb.auth.onAuthStateChange(function(event, session) {
     g('landingPage').classList.remove('active');
     show('homeScreen');
     loadReceipts();
+    updateMenuPinLabel();
+    // Show lock screen if PIN is set and not yet unlocked this session
+    if (pinIsSet() && !_lockUnlocked) {
+      window.showLockScreen();
+    }
   } else {
     _receipts = [];
     // Show landing page for logged-out visitors
@@ -1997,9 +2093,235 @@ function toJpeg(file, callback) {
   reader.readAsDataURL(file);
 }
 
+/* ── LOCK / PIN / BIOMETRIC ──────────────────────────────
+   PIN stored as SHA-256 hex hash in localStorage.
+   Biometrics via WebAuthn (platform authenticator).
+   Lock activates on app resume if PIN is set.
+─────────────────────────────────────────────────────────── */
+var PIN_KEY      = 'sr_pin_hash';
+var PIN_CRED_KEY = 'sr_webauthn_cred';
+var _lockInput   = '';
+var _setupInput  = '';
+var _setupFirst  = '';   // stores first PIN entry during confirm step
+var _lockUnlocked = false;
+
+async function hashPin(pin) {
+  var buf  = new TextEncoder().encode(pin + 'snapreceipt_salt');
+  var hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+function pinIsSet() {
+  try { return !!localStorage.getItem(PIN_KEY); } catch(e){ return false; }
+}
+
+/* ── LOCK SCREEN ── */
+window.showLockScreen = async function() {
+  _lockInput = '';
+  updateLockDots();
+  g('lockScreen').classList.add('active');
+  // Show biometric button if credential exists and platform supports it
+  var hasCred = false;
+  try { hasCred = !!localStorage.getItem(PIN_CRED_KEY); } catch(e){}
+  var bioBtn = g('biometricBtn');
+  if (hasCred && window.PublicKeyCredential) {
+    var avail = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(function(){ return false; });
+    bioBtn.style.display = avail ? 'block' : 'none';
+    if (avail) setTimeout(tryBiometric, 400); // auto-prompt on open
+  } else {
+    bioBtn.style.display = 'none';
+  }
+};
+
+window.hideLockScreen = function() {
+  _lockUnlocked = true;
+  g('lockScreen').classList.remove('active');
+};
+
+window.lockSignout = async function() {
+  g('lockScreen').classList.remove('active');
+  await sb.auth.signOut();
+};
+
+/* ── PIN ENTRY ── */
+window.pinKey = function(digit) {
+  if (_lockInput.length >= 4) return;
+  _lockInput += digit;
+  updateLockDots();
+  if (_lockInput.length === 4) setTimeout(checkPin, 80);
+};
+
+window.pinDel = function() {
+  _lockInput = _lockInput.slice(0,-1);
+  updateLockDots();
+};
+
+function updateLockDots() {
+  for (var i=0;i<4;i++) {
+    var d = g('ld'+i);
+    d.classList.toggle('filled', i < _lockInput.length);
+    d.classList.remove('error');
+  }
+}
+
+async function checkPin() {
+  var entered = await hashPin(_lockInput);
+  var stored  = '';
+  try { stored = localStorage.getItem(PIN_KEY)||''; } catch(e){}
+  if (entered === stored) {
+    hideLockScreen();
+  } else {
+    for (var i=0;i<4;i++) { var d=g('ld'+i); d.classList.remove('filled'); d.classList.add('error'); }
+    g('lockDots').classList.add('pin-shake');
+    setTimeout(function(){
+      g('lockDots').classList.remove('pin-shake');
+      _lockInput=''; updateLockDots();
+    }, 600);
+  }
+}
+
+/* ── BIOMETRICS (WebAuthn) ── */
+window.tryBiometric = async function() {
+  try {
+    var credId = localStorage.getItem(PIN_CRED_KEY);
+    if (!credId) return;
+    var challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    await navigator.credentials.get({
+      publicKey: {
+        challenge: challenge,
+        timeout: 60000,
+        allowCredentials: [{ type:'public-key', id: base64ToUint8(credId) }],
+        userVerification: 'required',
+      }
+    });
+    hideLockScreen();
+  } catch(e) {
+    // User cancelled or failed — fall through to PIN silently
+  }
+};
+
+async function registerBiometric(userId) {
+  try {
+    var challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    var userId8 = new TextEncoder().encode(userId.slice(0,32));
+    var cred = await navigator.credentials.create({
+      publicKey: {
+        challenge: challenge,
+        rp: { name:'SnapReceipt', id: location.hostname },
+        user: { id: userId8, name: 'SnapReceipt user', displayName: 'SnapReceipt' },
+        pubKeyCredParams: [{ type:'public-key', alg:-7 }, { type:'public-key', alg:-257 }],
+        authenticatorSelection: { authenticatorAttachment:'platform', userVerification:'required' },
+        timeout: 60000,
+      }
+    });
+    localStorage.setItem(PIN_CRED_KEY, uint8ToBase64(new Uint8Array(cred.rawId)));
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function base64ToUint8(b64) {
+  var bin = atob(b64); var arr = new Uint8Array(bin.length);
+  for (var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return arr;
+}
+function uint8ToBase64(arr) {
+  return btoa(String.fromCharCode.apply(null, arr));
+}
+
+/* ── PIN SETUP SHEET ── */
+window.openPinSetup = function() {
+  _setupInput=''; _setupFirst='';
+  updateSetupDots();
+  g('pinSetupTitle').textContent = pinIsSet() ? 'Change PIN' : 'Set up PIN lock';
+  g('pinSetupSub').textContent   = 'Choose a 4-digit PIN to lock the app.';
+  g('pinSetupSheet').classList.add('on');
+};
+
+window.closePinSetup = function() {
+  g('pinSetupSheet').classList.remove('on');
+  _setupInput=''; _setupFirst='';
+};
+
+window.setupPinKey = function(digit) {
+  if (_setupInput.length >= 4) return;
+  _setupInput += digit;
+  updateSetupDots();
+  if (_setupInput.length === 4) setTimeout(handleSetupFour, 80);
+};
+
+window.setupPinDel = function() {
+  _setupInput = _setupInput.slice(0,-1);
+  updateSetupDots();
+};
+
+function updateSetupDots() {
+  for (var i=0;i<4;i++) {
+    var d = g('sd'+i);
+    d.classList.toggle('filled', i < _setupInput.length);
+    d.classList.remove('error');
+  }
+}
+
+async function handleSetupFour() {
+  if (!_setupFirst) {
+    // First entry — ask to confirm
+    _setupFirst  = _setupInput;
+    _setupInput  = '';
+    updateSetupDots();
+    g('pinSetupTitle').textContent = 'Confirm PIN';
+    g('pinSetupSub').textContent   = 'Enter your PIN again to confirm.';
+    return;
+  }
+  // Confirm step
+  if (_setupInput !== _setupFirst) {
+    for (var i=0;i<4;i++) { var d=g('sd'+i); d.classList.remove('filled'); d.classList.add('error'); }
+    g('setupDots').classList.add('pin-shake');
+    setTimeout(function(){
+      g('setupDots').classList.remove('pin-shake');
+      _setupInput=''; _setupFirst=''; updateSetupDots();
+      g('pinSetupTitle').textContent = 'Set up PIN lock';
+      g('pinSetupSub').textContent   = "PINs didn't match — try again.";
+    }, 600);
+    return;
+  }
+  // Match — save hash
+  var hash = await hashPin(_setupInput);
+  try { localStorage.setItem(PIN_KEY, hash); } catch(e){}
+  updateMenuPinLabel();
+  closePinSetup();
+  toast('PIN lock enabled ✓');
+
+  // Offer biometrics if available
+  if (window.PublicKeyCredential && _user) {
+    var avail = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(function(){ return false; });
+    if (avail && !localStorage.getItem(PIN_CRED_KEY)) {
+      setTimeout(async function() {
+        var ok = await registerBiometric(_user.id);
+        if (ok) toast('Biometrics enabled ✓');
+      }, 500);
+    }
+  }
+}
+
+function updateMenuPinLabel() {
+  var lbl = g('menuPinLabel');
+  if (lbl) lbl.textContent = pinIsSet() ? 'Change / remove PIN' : 'Set up PIN lock';
+}
+
 /* ── INIT ────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
   initFileInputs();
+  updateMenuPinLabel();
+  // Re-lock when app returns from background
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && pinIsSet() && _lockUnlocked) {
+      _lockUnlocked = false;
+      window.showLockScreen();
+    }
+  });
 });
 
 </script>
