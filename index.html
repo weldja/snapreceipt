@@ -1755,7 +1755,29 @@ window.saveReceipt = async function() {
     }).select().single();
     if (res.error) throw res.error;
     _receipts.unshift(res.data);
- ──────────────────────── */
+    var now = new Date();
+    var monthName = now.toLocaleDateString('en-GB',{month:'long'});
+    var monthTotal = _receipts.filter(function(r){
+      var d=new Date(r.date||r.created_at);
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    }).reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
+    g('succAmt').textContent      = fmt(amount);
+    g('succMerchant').textContent = merchant;
+    g('succSub').textContent      = monthName+' total now '+fmt(monthTotal);
+    g('successOv').classList.add('on');
+    setTimeout(function(){
+      g('successOv').classList.remove('on');
+      goHome();
+    }, 1800);
+  } catch(e) {
+    console.error(e);
+    toast('Error saving — please try again');
+  } finally {
+    btn.disabled=false; btn.textContent='Save Receipt';
+  }
+};
+
+/* ── EDIT ────────────────────────────────────────────── */
 window.openEdit = function(id) {
   var r = _receipts.find(function(x){return x.id===id;});
   if (!r) return;
