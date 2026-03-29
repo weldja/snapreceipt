@@ -210,7 +210,7 @@ img{display:block;max-width:100%}
 .upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);overflow:hidden;cursor:pointer;transition:all .2s;flex:1}
 .upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
 .upload-area input[type="file"]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2}
-.upload-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px;pointer-events:none}
+.upload-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:22px 12px;pointer-events:none;min-height:110px}
 
 /* After photo taken */
 .captured-strip{display:none;align-items:center;gap:12px;padding:10px 12px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);width:100%}
@@ -1248,19 +1248,29 @@ sb.auth.onAuthStateChange(function(event, session) {
     }
   } else {
     _receipts = [];
-    // If PIN is set, the user is likely just locked out of an existing session
-    // (e.g. Supabase token refreshing). Show lock screen — they can sign out from there.
-    // Only fall through to landing/auth if there's genuinely no PIN set.
-    if (pinIsSet() && event === 'INITIAL_SESSION') {
-      window.showLockScreen();
-      return;
-    }
+    // INITIAL_SESSION with null means Supabase hasn't resolved yet — ignore,
+    // the getSession() boot check below handles the initial state.
+    if (event === 'INITIAL_SESSION') return;
+    // SIGNED_OUT — clear lock state and go to landing
+    _lockUnlocked = false;
     var hash = window.location.hash;
     if (hash === '#signin' || hash === '#signup') {
       showAuth(hash.slice(1));
     } else {
       showLanding();
     }
+  }
+});
+
+// Boot check — run once on load. getSession() is the reliable way to know
+// whether a persisted session exists before onAuthStateChange fires.
+sb.auth.getSession().then(function(res) {
+  var session = res.data && res.data.session;
+  if (!session && pinIsSet()) {
+    // No active session but PIN is set — show lock screen.
+    // hideLockScreen will getSession() again; by then the token refresh
+    // will have completed and _user will be set by onAuthStateChange.
+    window.showLockScreen();
   }
 });
 
@@ -2143,7 +2153,11 @@ window.showLockScreen = async function() {
 window.hideLockScreen = async function() {
   _lockUnlocked = true;
   g('lockScreen').classList.remove('active');
-  // If session expired while locked, re-authenticate silently via Supabase token refresh
+  // _user may already be set by onAuthStateChange firing in parallel.
+  // If not, wait briefly then check session directly.
+  if (!_user) {
+    await new Promise(function(r){ setTimeout(r, 300); });
+  }
   if (!_user) {
     var res = await sb.auth.getSession();
     if (res.data && res.data.session) {
@@ -2154,6 +2168,7 @@ window.hideLockScreen = async function() {
       updateMenuPinLabel();
     } else {
       // Session genuinely gone — send to sign in
+      _lockUnlocked = false;
       showAuth('signin');
     }
   }
