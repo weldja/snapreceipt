@@ -341,6 +341,13 @@ img{display:block;max-width:100%}
 .dash-empty-title{font-size:.97rem;font-weight:700;color:var(--black);margin-bottom:6px}
 .dash-empty-sub{font-size:.82rem;color:var(--gray-5);line-height:1.6;max-width:260px;margin:0 auto 16px}
 .dash-mixed-note{font-size:.7rem;color:var(--gray-5);padding:2px 12px 8px;text-align:center}
+/* ── TAX YEAR PROGRESS BAR ───────────────────────────── */
+.tax-bar-wrap{padding:0 0 12px}
+.tax-bar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.tax-bar-lbl{font-size:.66rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em}
+.tax-bar-days{font-size:.66rem;font-weight:700;color:var(--gray-5)}
+.tax-bar-track{height:4px;background:var(--gray-1);border-radius:2px;overflow:hidden}
+.tax-bar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
 .dash-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-bottom:10px}
 .dash-chevron{font-size:.65rem;color:var(--gray-5);transition:transform .2s;flex-shrink:0;margin-left:8px}
 .dash.open .dash-chevron{transform:rotate(180deg)}
@@ -727,6 +734,17 @@ img{display:block;max-width:100%}
         </div>
       </div>
       <span class="dash-chevron">▼</span>
+    </div>
+
+    <!-- Tax year progress bar — always visible -->
+    <div class="tax-bar-wrap">
+      <div class="tax-bar-row">
+        <span class="tax-bar-lbl">Tax year</span>
+        <span class="tax-bar-days" id="taxBarDays"></span>
+      </div>
+      <div class="tax-bar-track">
+        <div class="tax-bar-fill" id="taxBarFill"></div>
+      </div>
     </div>
 
     <!-- Expandable section -->
@@ -1490,6 +1508,29 @@ function daysSinceTaxStart() {
   return Math.max(1, Math.ceil((now - taxStart) / 86400000));
 }
 
+function renderTaxBar() {
+  var now = new Date();
+  var m = now.getMonth(), d = now.getDate(), y = now.getFullYear();
+  var taxStart = (m > 3 || (m === 3 && d >= 6))
+    ? new Date(y, 3, 6) : new Date(y - 1, 3, 6);
+  var taxEnd = new Date(taxStart.getFullYear() + 1, 3, 5, 23, 59, 59);
+  var totalDays = Math.round((taxEnd - taxStart) / 86400000);
+  var elapsed   = Math.round((now - taxStart) / 86400000);
+  var remaining = Math.max(0, totalDays - elapsed);
+  var pct       = Math.min(100, Math.round((elapsed / totalDays) * 100));
+
+  var fill = g('taxBarFill');
+  var days = g('taxBarDays');
+  if (!fill || !days) return;
+
+  fill.style.width = pct + '%';
+  // Colour shifts to amber in last 30 days, red in last 7
+  fill.style.background = remaining <= 7 ? 'var(--red)' : remaining <= 30 ? '#f59e0b' : 'var(--blue)';
+  days.textContent = remaining === 0 ? 'Tax year ends today' :
+    remaining === 1 ? '1 day remaining' : remaining + ' days remaining';
+  days.style.color = remaining <= 7 ? 'var(--red)' : remaining <= 30 ? '#b45309' : 'var(--gray-5)';
+}
+
 function renderDashboard() {
   var rs    = getPeriodReceipts();
   var gbpRs = rs.filter(function(r){ return !r.currency || r.currency === 'GBP'; });
@@ -1502,6 +1543,7 @@ function renderDashboard() {
   g('dashTotal').textContent = fmt(total);
   g('dashAvg').textContent   = fmt(avg);
   g('dashCount').textContent = rs.length;
+  renderTaxBar();
 
   // Only render charts if expanded
   if (g('dashboard').classList.contains('open')) {
