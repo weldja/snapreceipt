@@ -204,11 +204,6 @@ img{display:block;max-width:100%}
 
 .scan-fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom,20px));left:50%;transform:translateX(-50%);z-index:100;background:var(--black);color:#fff;border:none;border-radius:100px;padding:16px 36px;font-size:1rem;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;box-shadow:0 4px 24px rgba(0,0,0,.22);white-space:nowrap;transition:transform .15s,box-shadow .15s}
 .scan-fab:active{transform:translateX(-50%) scale(.96);box-shadow:0 2px 12px rgba(0,0,0,.18)}
-.fwd-tip{position:fixed;bottom:max(74px,calc(env(safe-area-inset-bottom,0px)+74px));left:50%;transform:translateX(-50%);z-index:99;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px 8px 12px;font-size:.78rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:7px;box-shadow:var(--shadow);white-space:nowrap;transition:opacity .3s,transform .3s}
-.fwd-tip.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(8px)}
-.fwd-tip-icon{font-size:.9rem;flex-shrink:0}
-.fwd-tip-link{background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;-webkit-tap-highlight-color:transparent}
-.fwd-tip-dismiss{background:none;border:none;color:var(--gray-3);font-size:.85rem;cursor:pointer;padding:0 0 0 4px;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 
 /* ── SCAN ────────────────────────────────────────── */
 .scan-hdr{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;background:#fff}
@@ -290,10 +285,6 @@ img{display:block;max-width:100%}
 /* ── TOAST ───────────────────────────────────────── */
 .toast{position:fixed;bottom:max(90px,calc(env(safe-area-inset-bottom,0px)+90px));left:50%;transform:translateX(-50%) translateY(10px);background:var(--black);color:#fff;padding:9px 18px;border-radius:50px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:9999;opacity:0;transition:opacity .18s,transform .18s;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ── DEMO EMPTY STATE ────────────────────────────────── */
-.demo-state-hdr{padding:12px 12px 4px;display:flex;justify-content:center}
-.demo-state-tag{display:inline-block;padding:5px 14px;background:#fff8e1;color:#b45309;border:1px solid #fde68a;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 
 /* ── SKELETON ────────────────────────────────────── */
 .skel{background:linear-gradient(90deg,var(--gray-1) 25%,#ececec 50%,var(--gray-1) 75%);background-size:200% 100%;animation:shim 1.3s infinite;border-radius:6px}
@@ -629,7 +620,7 @@ img{display:block;max-width:100%}
             How do I get help?
             <span class="lfaq-chevron">▼</span>
           </button>
-          <div class="lfaq-a">Email us at <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;" style="color:var(--blue);font-weight:600"><span class="__cf_email__" data-cfemail="e8808d848487a89b8689989a8d8b8d81989cc68b87c69d83">[email&#160;protected]</span></a> — we're happy to help with any questions, feedback, or issues.</div>
+          <div class="lfaq-a">Email us at <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;" style="color:var(--blue);font-weight:600">hello@snapreceipt.co.uk</a> — we're happy to help with any questions, feedback, or issues.</div>
         </div>
 
       </div>
@@ -800,11 +791,6 @@ img{display:block;max-width:100%}
   </div>
   <div id="rlist" class="rlist"></div>
   <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
-  <div class="fwd-tip" id="fwdTip">
-    <span class="fwd-tip-icon">📧</span>
-    <span>Or <button class="fwd-tip-link" onclick="openMenu()">forward a receipt email</button> — it logs automatically</span>
-    <button class="fwd-tip-dismiss" onclick="dismissFwdTip()" title="Dismiss">✕</button>
-  </div>
 </div>
 
 <!-- ═══ SCAN ═══════════════════════════════════════════════ -->
@@ -934,7 +920,7 @@ img{display:block;max-width:100%}
     <div class="sdiv"></div>
     <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
       <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
-      <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7a5b2b4b2bea7a3a497a4b9b6a7a5b2b4b2bea7a3f9b4b8f9a2bc">[email&#160;protected]</a></div>
+      <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em">receipts@snapreceipt.co.uk</div>
       <div style="font-size:.74rem;color:var(--gray-5);line-height:1.4">Forward any receipt email or attach a photo — it'll appear in your list automatically.</div>
       <button onclick="copyEmailAddr()" style="margin-top:4px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer" id="copyEmailBtn">Copy address</button>
     </div>
@@ -1001,13 +987,13 @@ img{display:block;max-width:100%}
         <p><strong style="color:var(--black)">Where it's stored</strong><br/>
         Your data is stored on Supabase, which uses bank-level encryption and is hosted in the EU. Receipt images are processed by Anthropic's Claude AI to extract text — images are not stored by Anthropic.</p>
         <p><strong style="color:var(--black)">How long we keep it</strong><br/>
-        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;"><span class="__cf_email__" data-cfemail="8ee6ebe2e2e1cefde0effefcebedebe7fefaa0ede1a0fbe5">[email&#160;protected]</span></a>.</p>
+        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;">hello@snapreceipt.co.uk</a>.</p>
         <p><strong style="color:var(--black)">Your rights (GDPR)</strong><br/>
-        You have the right to access, correct, or delete your personal data at any time. Contact <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;"><span class="__cf_email__" data-cfemail="c5ada0a9a9aa85b6aba4b5b7a0a6a0acb5b1eba6aaebb0ae">[email&#160;protected]</span></a> to exercise these rights.</p>
+        You have the right to access, correct, or delete your personal data at any time. Contact <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;">hello@snapreceipt.co.uk</a> to exercise these rights.</p>
         <p><strong style="color:var(--black)">Cookies</strong><br/>
         SnapReceipt uses only essential session cookies required for authentication. No tracking or advertising cookies are used.</p>
         <p><strong style="color:var(--black)">Contact</strong><br/>
-        Questions about this policy? Email <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="9ff7faf3f3f0dfecf1feefedfafcfaf6efebb1fcf0b1eaf4">[email&#160;protected]</span></a></p>
+        Questions about this policy? Email <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;" style="color:var(--blue)">hello@snapreceipt.co.uk</a></p>
       </div>
     </div>
   </div>
@@ -1135,7 +1121,7 @@ img{display:block;max-width:100%}
      This is critical: type="module" breaks file input events
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 'use strict';
@@ -1430,7 +1416,6 @@ function unsubscribeRealtime() {
 function renderHome() {
   renderDashboard();
   renderList(_receipts);
-  updateFwdTip();
   var banner = g('onboardBanner');
   if (banner) {
     var dismissed = false;
@@ -1693,43 +1678,12 @@ function renderSkeleton() {
   }).join('');
 }
 
-var DEMO_RECEIPTS = [
-  {merchant:'Costa Coffee',     amount:'3.75',  date:'2026-03-28', category:'Meals',        note:'Coffee before client call'},
-  {merchant:'Shell',            amount:'62.40', date:'2026-03-26', category:'Travel',       note:'Fuel — site visit'},
-  {merchant:'Amazon Business',  amount:'24.99', date:'2026-03-24', category:'Office',       note:'Printer paper & envelopes'},
-  {merchant:'Zoom',             amount:'11.99', date:'2026-03-20', category:'Software',     note:'Monthly subscription'},
-  {merchant:'Pret A Manger',    amount:'8.50',  date:'2026-03-19', category:'Meals',        note:'Working lunch'},
-];
-
-function renderDemoReceipts(list) {
-  var now = new Date();
-  var monthLabel = now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-  var rows = ['<div class="demo-state-hdr"><span class="demo-state-tag">Example — your receipts will appear here</span></div>'];
-  rows.push('<div class="month-hdr"><span class="month-lbl">'+monthLabel+'</span><span class="month-tot" style="opacity:.3">£111.63</span></div>');
-  DEMO_RECEIPTS.forEach(function(r) {
-    var catColours = {Travel:'#0066ff',Meals:'#f59e0b',Office:'#8b5cf6',Software:'#06b6d4',Equipment:'#10b981',Marketing:'#f43f5e',Professional:'#6366f1',Utilities:'#84cc16',Other:'#94a3b8'};
-    var col = catColours[r.category]||'#94a3b8';
-    rows.push(
-      '<div class="rrow demo-receipt-row" style="opacity:.38;pointer-events:none;filter:blur(.4px)">'
-      +'<div class="rrow-main">'
-      +'<div class="rthumb" style="background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:1.3rem">🧾</div>'
-      +'<div class="rinfo">'
-      +'<div class="rmerchant">'+r.merchant+'</div>'
-      +'<div class="rdate">'+new Date(r.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</div>'
-      +'<span class="rcat" style="background:'+col+'22;color:'+col+';border-color:'+col+'44">'+r.category+'</span>'
-      +'</div>'
-      +'<div><div class="ramount">£'+r.amount+'</div><div class="rcurrency">GBP</div></div>'
-      +'</div>'
-      +'</div>'
-    );
-  });
-  list.innerHTML = rows.join('');
-}
-
 function renderList(rs) {
   var list = g('rlist');
   if (!rs.length) {
-    renderDemoReceipts(list);
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🧾</div>'
+      +'<div class="empty-title">No receipts yet</div>'
+      +'<div class="empty-sub">Tap the button below to scan your first receipt.</div></div>';
     return;
   }
   // Pre-compute month totals O(n)
@@ -2164,21 +2118,6 @@ window.shareApp = function() {
   }
 };
 
-/* ── FORWARD TIP ─────────────────────────────────────── */
-window.dismissFwdTip = function() {
-  try { localStorage.setItem('sr_fwd_tip_dismissed','1'); } catch(e){}
-  var tip = g('fwdTip');
-  if (tip) tip.classList.add('hidden');
-};
-
-function updateFwdTip() {
-  var tip = g('fwdTip');
-  if (!tip) return;
-  var dismissed = false;
-  try { dismissed = !!localStorage.getItem('sr_fwd_tip_dismissed'); } catch(e){}
-  tip.classList.toggle('hidden', dismissed);
-}
-
 /* ── PRIVACY ────────────────────────────────────────────── */
 window.showPrivacy = function() { g('privacySheet').classList.add('on'); };
 
@@ -2605,4 +2544,25 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!session && pinIsSet()) {
         window.showLockScreen();
       } else if (!session) {
-        var anyActive = document.querySelector('.
+        var anyActive = document.querySelector('.screen.active, #landingPage.active, #lockScreen.active');
+        if (!anyActive) showLanding();
+      }
+      // If PIN is set but we're within grace period, mark as unlocked
+      if (pinIsSet() && withinGracePeriod()) {
+        _lockUnlocked = true;
+      }
+    });
+  }, 100);
+
+  // Re-lock when app returns from background (but not within grace period)
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && pinIsSet() && _lockUnlocked && !withinGracePeriod()) {
+      _lockUnlocked = false;
+      window.showLockScreen();
+    }
+  });
+});
+
+</script>
+</body>
+</html>
