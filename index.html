@@ -1969,6 +1969,7 @@ function runOCR(b64) {
       g('cfAmount').value   = data.amount   || '';
       g('cfDate').value     = data.date ? isoDate(data.date) : today();
       if (data.currency) g('cfCurrency').value = data.currency;
+      if (data.category && g('cfCategory')) g('cfCategory').value = data.category;
 
       var conf   = (data.confidence||'medium').toLowerCase();
       var labels = {high:'✓ High confidence', medium:'~ Review fields', low:'⚠ Check fields carefully'};
