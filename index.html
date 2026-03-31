@@ -2026,13 +2026,62 @@ window.saveReceipt = async function() {
     _receipts.unshift(res.data);
     var now = new Date();
     var monthName = now.toLocaleDateString('en-GB',{month:'long'});
+    var category  = g('cfCategory').value || null;
+    var currency  = g('cfCurrency').value || 'GBP';
+
+    // Compute month total (GBP only)
     var monthTotal = _receipts.filter(function(r){
       var d=new Date(r.date||r.created_at);
-      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear()
+        && (!r.currency || r.currency === 'GBP');
     }).reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
-    g('succAmt').textContent      = fmt(amount);
+
+    // Compute tax year total (GBP only)
+    var taxM = now.getMonth(), taxD = now.getDate(), taxY = now.getFullYear();
+    var taxStart = (taxM > 3 || (taxM === 3 && taxD >= 6))
+      ? new Date(taxY, 3, 6) : new Date(taxY - 1, 3, 6);
+    var taxTotal = _receipts.filter(function(r){
+      return new Date(r.date||r.created_at) >= taxStart
+        && (!r.currency || r.currency === 'GBP');
+    }).reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
+
+    // Category spend this tax year
+    var catTotal = 0;
+    if (category) {
+      catTotal = _receipts.filter(function(r){
+        return r.category === category
+          && new Date(r.date||r.created_at) >= taxStart
+          && (!r.currency || r.currency === 'GBP');
+      }).reduce(function(s,r){return s+parseFloat(r.amount||0);},0);
+    }
+
+    // Receipt count this month
+    var monthCount = _receipts.filter(function(r){
+      var d=new Date(r.date||r.created_at);
+      return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    }).length;
+
+    // Pick the most useful insight
+    var insight = monthName + ' total now ' + fmt(monthTotal);
+    if (currency !== 'GBP') {
+      insight = monthName + ' total now ' + fmt(monthTotal);
+    } else if (category === 'Meals' && !g('cfNotes').value.trim()) {
+      insight = 'Tip: add a business purpose note to make this HMRC-ready';
+    } else if (category && catTotal > 0) {
+      insight = category + ' spend this tax year: ' + fmt(catTotal);
+    } else if (monthCount === 1) {
+      insight = 'First receipt of ' + monthName + ' — great start';
+    } else if (monthCount % 5 === 0) {
+      insight = monthCount + ' receipts logged this month 🔥';
+    } else if (taxTotal >= 1000 && monthCount <= 3) {
+      insight = 'Tax year total: ' + fmt(taxTotal);
+    } else {
+      insight = monthName + ' total now ' + fmt(monthTotal);
+    }
+
+    g('succAmt').textContent      = fmt(amount, currency);
     g('succMerchant').textContent = merchant;
-    g('succSub').textContent      = monthName+' total now '+fmt(monthTotal);
+    g('succSub').textContent      = insight;
     g('successOv').classList.add('on');
     setTimeout(function(){
       g('successOv').classList.remove('on');
