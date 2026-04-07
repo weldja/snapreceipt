@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage / app -->
   <url>
     <loc>https://snapreceipt.co.uk/</loc>
-    <lastmod>2025-03-28</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- Blog index -->
+  <url>
+    <loc>https://snapreceipt.co.uk/blog/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog post: How to track business expenses for UK Self Assessment -->
+  <url>
+    <loc>https://snapreceipt.co.uk/blog/how-to-track-expenses-self-assessment/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog post: What expenses can a UK sole trader claim? -->
+  <url>
+    <loc>https://snapreceipt.co.uk/blog/what-expenses-can-a-uk-sole-trader-claim/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
