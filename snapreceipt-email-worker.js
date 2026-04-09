@@ -183,6 +183,13 @@ function uint8ToBase64(bytes) {
 // ── OCR ─────────────────────────────────────────────────────────────────────
 
 async function runOCR(base64, mimeType, env) {
+  // Claude's image limit is ~5MB decoded (~6.8M base64 chars). Log and skip if too large.
+  const MAX_B64_CHARS = 6_800_000;
+  if (base64.length > MAX_B64_CHARS) {
+    console.warn(`Image too large for OCR: ${base64.length} chars — truncating to first ${MAX_B64_CHARS}`);
+    // Truncate to a valid base64 boundary (multiple of 4)
+    base64 = base64.slice(0, MAX_B64_CHARS - (MAX_B64_CHARS % 4));
+  }
   const prompt = `You are a receipt scanner. Extract these fields from the receipt image:
 1. merchant — business name
 2. amount — total paid, numeric only (e.g. 12.50)
@@ -314,7 +321,8 @@ async function saveReceipt({ userId, extracted, img, merchant, fromEmail, env })
   const receipt = {
     user_id:   userId,
     merchant:  (extracted?.merchant && extracted.merchant !== 'unknown') ? extracted.merchant : (merchant || 'Email receipt'),
-    amount:    (extracted?.amount && extracted.amount !== 'unknown') ? (parseFloat(extracted.amount) || null) : null,
+    // Fall back to 0 — DB has not-null constraint; user can edit the amount manually
+    amount:    (extracted?.amount && extracted.amount !== 'unknown') ? (parseFloat(extracted.amount) || 0) : 0,
     currency:  (extracted?.currency && extracted.currency !== 'unknown') ? extracted.currency : 'GBP',
     date:      (extracted?.date && extracted.date !== 'unknown' && /^\d{4}-\d{2}-\d{2}$/.test(extracted.date)) ? extracted.date : new Date().toISOString().slice(0, 10),
     notes:     `Received via email from ${fromEmail || 'unknown'}`,
