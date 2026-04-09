@@ -3472,6 +3472,36 @@ document.addEventListener('DOMContentLoaded', function() {
   initFileInputs();
   updateMenuPinLabel();
 
+  // ── BACK BUTTON HANDLER (PWA / mobile) ───────────────────────────────────
+  // Push a dummy state so there's always something to pop back to.
+  // On popstate (back button), close the topmost open sheet/screen instead of exiting.
+  history.pushState({ sr: true }, '');
+
+  window.addEventListener('popstate', function() {
+    // Re-push so the back button always has somewhere to go
+    history.pushState({ sr: true }, '');
+
+    // Close sheets in priority order (topmost first)
+    var sheets = [
+      'deleteTaxYearSheet','deleteAccountSheet','deleteSheet',
+      'importSheet','backupSheet','editSheet','privacySheet',
+      'resetPassSheet','pinSetupSheet','menuSheet'
+    ];
+    for (var i = 0; i < sheets.length; i++) {
+      var el = g(sheets[i]);
+      if (el && el.classList.contains('on')) {
+        el.classList.remove('on');
+        return;
+      }
+    }
+    // Close scan screen if open
+    if (g('scanScreen') && g('scanScreen').classList.contains('active')) {
+      goHome();
+      return;
+    }
+    // Close lock screen is not dismissible via back — do nothing
+  });
+
   // Boot check — wait for DOM then check session.
   // Small delay ensures first paint completes on mobile before lock screen shows.
   setTimeout(function() {
