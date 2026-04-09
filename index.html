@@ -387,6 +387,17 @@ img{display:block;max-width:100%}
 .toast{position:fixed;bottom:max(90px,calc(env(safe-area-inset-bottom,0px)+90px));left:50%;transform:translateX(-50%) translateY(10px);background:var(--black);color:#fff;padding:9px 18px;border-radius:50px;font-size:.85rem;font-weight:600;white-space:nowrap;z-index:9999;opacity:0;transition:opacity .18s,transform .18s;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ── EXIT CONFIRM MODAL ──────────────────────────── */
+.exit-modal-bg{position:fixed;inset:0;z-index:19999;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:24px}
+.exit-modal-bg.on{display:flex}
+.exit-modal{background:#fff;border-radius:20px;padding:28px 24px 20px;width:100%;max-width:300px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.exit-modal-icon{font-size:2rem;margin-bottom:10px}
+.exit-modal-title{font-size:1.1rem;font-weight:800;color:var(--black);margin-bottom:6px;letter-spacing:-.02em}
+.exit-modal-sub{font-size:.85rem;color:var(--gray-5);margin-bottom:22px;line-height:1.5}
+.exit-modal-btns{display:flex;gap:10px}
+.exit-modal-cancel{flex:1;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);background:#fff;font-size:.95rem;font-weight:700;color:var(--black);cursor:pointer}
+.exit-modal-exit{flex:1;padding:13px;border:none;border-radius:var(--r);background:var(--black);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer}
+
 /* ── DEMO EMPTY STATE ────────────────────────────────── */
 .demo-state-hdr{padding:12px 12px 4px;display:flex;justify-content:center}
 .demo-state-tag{display:inline-block;padding:5px 14px;background:#fff8e1;color:#b45309;border:1px solid #fde68a;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
@@ -1313,6 +1324,19 @@ img{display:block;max-width:100%}
   </div>
 </div>
 
+<!-- ═══ EXIT CONFIRM MODAL ════════════════════════════════ -->
+<div class="exit-modal-bg" id="exitModal">
+  <div class="exit-modal">
+    <div class="exit-modal-icon">🚪</div>
+    <div class="exit-modal-title">Exit SnapReceipt?</div>
+    <div class="exit-modal-sub">Your receipts are saved. You can come back any time.</div>
+    <div class="exit-modal-btns">
+      <button class="exit-modal-cancel" onclick="closeExitModal()">Cancel</button>
+      <button class="exit-modal-exit" onclick="confirmExit()">Exit</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- ═══ DELETE ACCOUNT SHEET ══════════════════════════════ -->
@@ -1561,22 +1585,54 @@ window.showAuth = function(tab) {
   window.scrollTo(0,0);
 };
 
-var _backPressedOnce = false;
-var _backPressTimer  = null;
+// ── BACK BUTTON / EXIT MODAL ─────────────────────────────────────────────
 
+function isStandalone() {
+  return window.navigator.standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches
+    || window.matchMedia('(display-mode: fullscreen)').matches;
+}
+
+window.closeExitModal = function() {
+  g('exitModal').classList.remove('on');
+  // Re-push a state so back still has somewhere to go after dismissing
+  history.pushState({snap:'home'}, '');
+};
+
+window.confirmExit = function() {
+  g('exitModal').classList.remove('on');
+  // Try every known exit method in order
+  try { if (window.navigator && window.navigator.app && window.navigator.app.exitApp) { window.navigator.app.exitApp(); return; } } catch(e){}
+  try { if (window.Android && window.Android.exitApp) { window.Android.exitApp(); return; } } catch(e){}
+  try { window.close(); } catch(e){}
+  // If window.close() didn't work (most browsers block it), fall back to toast
+  setTimeout(function() {
+    if (!document.hidden) toast('Use the home button to exit');
+  }, 300);
+};
+
+// Seed history with enough depth that the OS back gesture never drains it
 history.replaceState({snap:'home'}, '');
+history.pushState({snap:'home'}, '');
+
 window.addEventListener('popstate', function() {
-  // Camera/picker returning — restore state, let file input change event fire
+  // Camera/picker returning — repush and let the file input change event fire
   if (_cameraOpen) {
     _cameraOpen = false;
-    history.pushState({snap:'scan'}, '');
+    history.pushState({snap:'home'}, '');
     return;
   }
 
-  // Always re-push to keep the trap alive
+  // Always repush immediately so the stack never empties
   history.pushState({snap:'home'}, '');
 
-  // 1. Close topmost open sheet
+  // Dismiss exit modal if it somehow got a back press
+  if (g('exitModal').classList.contains('on')) {
+    g('exitModal').classList.remove('on');
+    return;
+  }
+
+  // Close topmost open sheet
   var sheets = [
     'deleteTaxYearSheet','deleteAccountSheet','deleteSheet',
     'importSheet','backupSheet','editSheet','privacySheet',
@@ -1586,35 +1642,23 @@ window.addEventListener('popstate', function() {
     var el = g(sheets[i]);
     if (el && el.classList.contains('on')) {
       el.classList.remove('on');
-      _backPressedOnce = false;
-      clearTimeout(_backPressTimer);
       return;
     }
   }
 
-  // 2. Close scan screen
+  // Close scan screen
   if (g('scanScreen').style.display === 'flex') {
     goHome();
-    _backPressedOnce = false;
-    clearTimeout(_backPressTimer);
     return;
   }
 
-  // 3. Lock screen — not dismissible
+  // Lock screen — not dismissible via back
   if (g('lockScreen') && g('lockScreen').classList.contains('active')) {
     return;
   }
 
-  // 4. Nothing open — double-back to exit
-  if (_backPressedOnce) {
-    clearTimeout(_backPressTimer);
-    _backPressedOnce = false;
-    toast('Press back once more or use home button to exit');
-    return;
-  }
-  _backPressedOnce = true;
-  toast('Press back again to exit SnapReceipt');
-  _backPressTimer = setTimeout(function() { _backPressedOnce = false; }, 2500);
+  // Home screen with nothing open — show exit confirmation modal
+  g('exitModal').classList.add('on');
 });
 
 /* ── AUTH ────────────────────────────────────────────── */
