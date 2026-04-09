@@ -1587,58 +1587,66 @@ window.showAuth = function(tab) {
 
 // ── BACK BUTTON / EXIT MODAL ─────────────────────────────────────────────
 
+var STACK_DEPTH = 20; // Keep this many history entries so Android never drains the stack
+
 function isStandalone() {
   return window.navigator.standalone === true
     || window.matchMedia('(display-mode: standalone)').matches
     || window.matchMedia('(display-mode: fullscreen)').matches;
 }
 
-// Seed history on first user touch — iOS standalone ignores pushState until a gesture
-var _historySeedDone = false;
-function seedHistory() {
-  if (_historySeedDone) return;
-  _historySeedDone = true;
-  history.replaceState({snap:'home'}, '');
-  history.pushState({snap:'home'}, '');
+function fillStack() {
+  // Push entries until we have STACK_DEPTH ahead of us
+  for (var i = 0; i < STACK_DEPTH; i++) {
+    history.pushState({snap:'home', i:i}, '');
+  }
 }
-document.addEventListener('touchstart', seedHistory, {once: true, passive: true});
-document.addEventListener('click', seedHistory, {once: true});
-// Also seed immediately for desktop/Android
-seedHistory();
+
+// Seed immediately and again on first touch (iOS needs gesture)
+history.replaceState({snap:'base'}, '');
+fillStack();
+document.addEventListener('touchstart', function() {
+  // Refill on first touch in case iOS discarded the states
+  fillStack();
+}, {once: true, passive: true});
 
 window.closeExitModal = function() {
   g('exitModal').classList.remove('on');
-  history.pushState({snap:'home'}, '');
 };
 
 window.confirmExit = function() {
   g('exitModal').classList.remove('on');
-  try { if (window.navigator && window.navigator.app && window.navigator.app.exitApp) { window.navigator.app.exitApp(); return; } } catch(e){}
+  // Try native bridge methods first (WebView / TWA)
+  try { if (window.navigator.app && window.navigator.app.exitApp) { window.navigator.app.exitApp(); return; } } catch(e){}
   try { if (window.Android && window.Android.exitApp) { window.Android.exitApp(); return; } } catch(e){}
-  // For TWA / standalone: navigate to a blank page then close, or just go to about:blank
-  if (isStandalone()) {
-    try { window.location.href = 'about:blank'; } catch(e){}
-  } else {
-    try { window.close(); } catch(e){}
-  }
+  // Chrome standalone/PWA: go back far enough to leave the app's history,
+  // then let the browser handle it. history.go(-N) where N > stack is the
+  // only approach that works without a native bridge.
+  history.go(-(STACK_DEPTH + 5));
+  // If still visible after 500ms, the browser blocked it — tell the user
   setTimeout(function() {
-    if (!document.hidden) toast('Use the home button to exit');
-  }, 400);
+    if (!document.hidden) {
+      g('exitModal').classList.remove('on');
+      toast('Press the home button to exit');
+    }
+  }, 500);
 };
 
-history.replaceState({snap:'home'}, '');
-history.pushState({snap:'home'}, '');
-
+var _popBusy = false;
 window.addEventListener('popstate', function() {
-  // Camera/picker returning — repush and let the file input change event fire
+  // Debounce — fillStack() triggers multiple popstate on some browsers
+  if (_popBusy) return;
+  _popBusy = true;
+  setTimeout(function() { _popBusy = false; }, 50);
+
+  // Always refill the stack immediately
+  fillStack();
+
+  // Camera returning — don't do anything else
   if (_cameraOpen) {
     _cameraOpen = false;
-    history.pushState({snap:'home'}, '');
     return;
   }
-
-  // Always repush immediately so the stack never empties
-  history.pushState({snap:'home'}, '');
 
   // Dismiss exit modal if open
   if (g('exitModal').classList.contains('on')) {
@@ -1678,7 +1686,7 @@ window.addEventListener('popstate', function() {
     return;
   }
 
-  // Home screen with nothing open — show exit confirmation modal
+  // Nothing open — show exit confirmation
   g('exitModal').classList.add('on');
 });
 
