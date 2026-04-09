@@ -1265,9 +1265,9 @@ img{display:block;max-width:100%}
     </div>
 
     <div class="sheet-footer">
-      <div style="display:flex;gap:10px">
-        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeBackupSheet()">Close</button>
-        <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="flex:1">⬇ Start backup</button>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="width:100%">⬇ Start backup</button>
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black);width:100%" onclick="closeBackupSheet()">Close</button>
       </div>
     </div>
   </div>
