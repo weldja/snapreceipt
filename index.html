@@ -1586,8 +1586,12 @@ window.showAuth = function(tab) {
 };
 
 // ── BACK BUTTON / EXIT MODAL ─────────────────────────────────────────────
+// Strategy: keep a deep history stack so Android/iOS never drain it before
+// popstate fires. fillStack() is always deferred (setTimeout 0) so its own
+// pushState calls never trigger the popstate handler.
 
-var STACK_DEPTH = 20; // Keep this many history entries so Android never drains the stack
+var STACK_DEPTH = 30;
+var _fillingStack = false;
 
 function isStandalone() {
   return window.navigator.standalone === true
@@ -1595,20 +1599,36 @@ function isStandalone() {
     || window.matchMedia('(display-mode: fullscreen)').matches;
 }
 
-function fillStack() {
-  // Push entries until we have STACK_DEPTH ahead of us
-  for (var i = 0; i < STACK_DEPTH; i++) {
-    history.pushState({snap:'home', i:i}, '');
-  }
+function isIOS() {
+  return /iP(hone|ad|od)/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-// Seed immediately and again on first touch (iOS needs gesture)
+function fillStack() {
+  if (_fillingStack) return;
+  _fillingStack = true;
+  // Defer so pushState calls here never cascade into our popstate handler
+  setTimeout(function() {
+    for (var i = 0; i < STACK_DEPTH; i++) {
+      history.pushState({snap:'pad', i:i}, '');
+    }
+    _fillingStack = false;
+  }, 0);
+}
+
+// Seed on load
 history.replaceState({snap:'base'}, '');
 fillStack();
-document.addEventListener('touchstart', function() {
-  // Refill on first touch in case iOS discarded the states
-  fillStack();
-}, {once: true, passive: true});
+
+// Re-seed on first touch — iOS standalone discards pre-gesture pushStates
+document.addEventListener('touchstart', fillStack, {once: true, passive: true});
+
+// Re-seed when app becomes visible (e.g. after lock screen, task switcher)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') fillStack();
+});
+
+// ── Exit modal helpers ────────────────────────────────────────────────────
 
 window.closeExitModal = function() {
   g('exitModal').classList.remove('on');
@@ -1616,77 +1636,95 @@ window.closeExitModal = function() {
 
 window.confirmExit = function() {
   g('exitModal').classList.remove('on');
-  // Try native bridge methods first (WebView / TWA)
+
+  // Native bridge (Cordova / custom Android WebView)
   try { if (window.navigator.app && window.navigator.app.exitApp) { window.navigator.app.exitApp(); return; } } catch(e){}
   try { if (window.Android && window.Android.exitApp) { window.Android.exitApp(); return; } } catch(e){}
-  // Chrome standalone/PWA: go back far enough to leave the app's history,
-  // then let the browser handle it. history.go(-N) where N > stack is the
-  // only approach that works without a native bridge.
-  history.go(-(STACK_DEPTH + 5));
-  // If still visible after 500ms, the browser blocked it — tell the user
+
+  if (isIOS()) {
+    // iOS cannot be exited programmatically — inform the user
+    toast('Swipe up to close the app');
+    return;
+  }
+
+  // Android / desktop standalone PWA — try in sequence
+  try { window.close(); } catch(e){}
+
   setTimeout(function() {
-    if (!document.hidden) {
-      g('exitModal').classList.remove('on');
-      toast('Press the home button to exit');
-    }
-  }, 500);
+    if (document.hidden) return; // window.close() worked
+    try { window.location.href = 'about:blank'; } catch(e){}
+    setTimeout(function() {
+      if (document.hidden) return;
+      history.go(-999); // drain history as last resort
+      setTimeout(function() {
+        if (!document.hidden) toast('Use the home button to exit');
+      }, 300);
+    }, 200);
+  }, 200);
 };
 
-var _popBusy = false;
-window.addEventListener('popstate', function() {
-  // Debounce — fillStack() triggers multiple popstate on some browsers
-  if (_popBusy) return;
-  _popBusy = true;
-  setTimeout(function() { _popBusy = false; }, 50);
+// Close modal on background click
+g('exitModal').addEventListener('click', function(e) {
+  if (e.target === this) window.closeExitModal();
+});
 
-  // Always refill the stack immediately
+// Close modal on Escape (desktop)
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && g('exitModal').classList.contains('on')) {
+    window.closeExitModal();
+  }
+});
+
+// ── Single popstate handler ───────────────────────────────────────────────
+
+window.addEventListener('popstate', function() {
+  // Ignore events fired by fillStack's own pushState calls
+  if (_fillingStack) return;
+
+  // Immediately schedule a refill (deferred, won't re-enter this handler)
   fillStack();
 
-  // Camera returning — don't do anything else
+  // In a normal browser tab (not standalone), don't trap — let it navigate
+  if (!isStandalone()) return;
+
+  // Camera returning — just refill, let the file input change event fire
   if (_cameraOpen) {
     _cameraOpen = false;
     return;
   }
 
-  // Dismiss exit modal if open
+  // 1. Exit modal open → close it
   if (g('exitModal').classList.contains('on')) {
     g('exitModal').classList.remove('on');
     return;
   }
 
-  // Close topmost open sheet
-  var sheets = [
-    'deleteTaxYearSheet','deleteAccountSheet','deleteSheet',
-    'importSheet','backupSheet','editSheet','privacySheet',
-    'resetPassSheet','pinSetupSheet','menuSheet'
-  ];
-  for (var i = 0; i < sheets.length; i++) {
-    var el = g(sheets[i]);
-    if (el && el.classList.contains('on')) {
-      el.classList.remove('on');
-      return;
-    }
+  // 2. Topmost open sheet (.sheet-bg.on) → close it
+  var openSheet = document.querySelector('.sheet-bg.on');
+  if (openSheet) {
+    openSheet.classList.remove('on');
+    return;
   }
 
-  // Close scan screen
+  // 3. Scan screen visible → close it
   if (g('scanScreen').style.display === 'flex') {
     goHome();
     return;
   }
 
-  // Close expanded receipt row
+  // 4. Expanded receipt row → collapse it
   if (_expanded) {
     _expanded = null;
     renderList(_receipts);
     return;
   }
 
-  // Lock screen — not dismissible via back
+  // 5. Lock screen → not dismissible
   if (g('lockScreen') && g('lockScreen').classList.contains('active')) {
     return;
   }
 
-  // Nothing open — show exit confirmation
+  // 6. Nothing open → show exit confirmation
   g('exitModal').classList.add('on');
 });
 
@@ -1694,7 +1732,6 @@ window.addEventListener('popstate', function() {
 sb.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
     g('resetPassSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
     return;
   }
   _user = session ? session.user : null;
@@ -2242,7 +2279,6 @@ window.toggleRow = function(id) {
   if (si && si.value) { si.value = ''; }
   renderList(_receipts);
   if (_expanded) {
-    history.pushState({snap:'row'}, '');
     setTimeout(function(){
       var row=g('row-'+id); if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
     },60);
@@ -2301,7 +2337,6 @@ window.openScan = function() {
   // Show as overlay — file inputs remain in DOM, events always fire
   g('scanScreen').style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  history.pushState({snap:'scan'}, '');
 };
 
 window.goHome = function() {
@@ -2565,7 +2600,6 @@ window.openEdit = function(id) {
   g('edNotes').value    = r.notes||'';
   g('edMsg').className  = 'amsg';
   g('editSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 window.closeEdit = function() { g('editSheet').classList.remove('on'); _editId=null; };
 window.saveEdit  = async function() {
@@ -2636,7 +2670,6 @@ window.openBackupSheet = function() {
   var btn = g('btnStartBackup');
   if (btn) { btn.disabled=false; btn.textContent='⬇ Start backup'; }
   g('backupSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 window.closeBackupSheet = function() { g('backupSheet').classList.remove('on'); };
 
@@ -2645,7 +2678,6 @@ window.openImportSheet = function() {
   var btn = g('btnChooseImport');
   if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
   g('importSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 window.closeImportSheet = function() { g('importSheet').classList.remove('on'); };
 
@@ -2990,7 +3022,6 @@ window.openMenu  = function() {
     el.innerHTML = '<a href="mailto:' + addr + '" style="color:var(--black);text-decoration:none">' + addr + '</a>';
   }
   g('menuSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 window.toggleFaq = function(btn) {
   var item = btn.parentElement;
@@ -3064,7 +3095,6 @@ var _deleteId = null;
 window.deleteReceipt = function(id) {
   _deleteId = id;
   g('deleteSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 window.confirmDelete = async function() {
   if (!_deleteId) return;
@@ -3302,7 +3332,6 @@ window.openPinSetup = function() {
   g('pinSetupSub').textContent   = 'Choose a 4-digit PIN to lock the app.';
   g('removePinBtn').style.display = isSet ? 'block' : 'none';
   g('pinSetupSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 
 window.closePinSetup = function() {
@@ -3457,7 +3486,6 @@ window.openDeleteTaxYear = function() {
   g('btnConfirmDeleteTaxYear').disabled = true;
   updateDeleteTaxYearCount();
   g('deleteTaxYearSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 
   sel.onchange = updateDeleteTaxYearCount;
 };
@@ -3540,7 +3568,6 @@ window.openDeleteAccount = function() {
   g('deleteAccountConfirm').value = '';
   g('deleteAccountMsg').className = 'amsg';
   g('deleteAccountSheet').classList.add('on');
-  history.pushState({snap:'sheet'}, '');
 };
 
 window.closeDeleteAccount = function() {
