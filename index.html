@@ -1593,25 +1593,39 @@ function isStandalone() {
     || window.matchMedia('(display-mode: fullscreen)').matches;
 }
 
+// Seed history on first user touch — iOS standalone ignores pushState until a gesture
+var _historySeedDone = false;
+function seedHistory() {
+  if (_historySeedDone) return;
+  _historySeedDone = true;
+  history.replaceState({snap:'home'}, '');
+  history.pushState({snap:'home'}, '');
+}
+document.addEventListener('touchstart', seedHistory, {once: true, passive: true});
+document.addEventListener('click', seedHistory, {once: true});
+// Also seed immediately for desktop/Android
+seedHistory();
+
 window.closeExitModal = function() {
   g('exitModal').classList.remove('on');
-  // Re-push a state so back still has somewhere to go after dismissing
   history.pushState({snap:'home'}, '');
 };
 
 window.confirmExit = function() {
   g('exitModal').classList.remove('on');
-  // Try every known exit method in order
   try { if (window.navigator && window.navigator.app && window.navigator.app.exitApp) { window.navigator.app.exitApp(); return; } } catch(e){}
   try { if (window.Android && window.Android.exitApp) { window.Android.exitApp(); return; } } catch(e){}
-  try { window.close(); } catch(e){}
-  // If window.close() didn't work (most browsers block it), fall back to toast
+  // For TWA / standalone: navigate to a blank page then close, or just go to about:blank
+  if (isStandalone()) {
+    try { window.location.href = 'about:blank'; } catch(e){}
+  } else {
+    try { window.close(); } catch(e){}
+  }
   setTimeout(function() {
     if (!document.hidden) toast('Use the home button to exit');
-  }, 300);
+  }, 400);
 };
 
-// Seed history with enough depth that the OS back gesture never drains it
 history.replaceState({snap:'home'}, '');
 history.pushState({snap:'home'}, '');
 
@@ -1626,7 +1640,7 @@ window.addEventListener('popstate', function() {
   // Always repush immediately so the stack never empties
   history.pushState({snap:'home'}, '');
 
-  // Dismiss exit modal if it somehow got a back press
+  // Dismiss exit modal if open
   if (g('exitModal').classList.contains('on')) {
     g('exitModal').classList.remove('on');
     return;
@@ -1652,6 +1666,13 @@ window.addEventListener('popstate', function() {
     return;
   }
 
+  // Close expanded receipt row
+  if (_expanded) {
+    _expanded = null;
+    renderList(_receipts);
+    return;
+  }
+
   // Lock screen — not dismissible via back
   if (g('lockScreen') && g('lockScreen').classList.contains('active')) {
     return;
@@ -1665,6 +1686,7 @@ window.addEventListener('popstate', function() {
 sb.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
     g('resetPassSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
     return;
   }
   _user = session ? session.user : null;
@@ -2206,13 +2228,17 @@ function renderRow(r, i) {
 }
 
 window.toggleRow = function(id) {
-  _expanded = (_expanded===id) ? null : id;
+  var wasExpanded = (_expanded === id);
+  _expanded = wasExpanded ? null : id;
   var si = g('searchInput');
   if (si && si.value) { si.value = ''; }
   renderList(_receipts);
-  if (_expanded) setTimeout(function(){
-    var row=g('row-'+id); if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
-  },60);
+  if (_expanded) {
+    history.pushState({snap:'row'}, '');
+    setTimeout(function(){
+      var row=g('row-'+id); if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },60);
+  }
 };
 
 
@@ -2531,6 +2557,7 @@ window.openEdit = function(id) {
   g('edNotes').value    = r.notes||'';
   g('edMsg').className  = 'amsg';
   g('editSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 window.closeEdit = function() { g('editSheet').classList.remove('on'); _editId=null; };
 window.saveEdit  = async function() {
@@ -2601,6 +2628,7 @@ window.openBackupSheet = function() {
   var btn = g('btnStartBackup');
   if (btn) { btn.disabled=false; btn.textContent='⬇ Start backup'; }
   g('backupSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 window.closeBackupSheet = function() { g('backupSheet').classList.remove('on'); };
 
@@ -2609,6 +2637,7 @@ window.openImportSheet = function() {
   var btn = g('btnChooseImport');
   if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
   g('importSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 window.closeImportSheet = function() { g('importSheet').classList.remove('on'); };
 
@@ -2953,6 +2982,7 @@ window.openMenu  = function() {
     el.innerHTML = '<a href="mailto:' + addr + '" style="color:var(--black);text-decoration:none">' + addr + '</a>';
   }
   g('menuSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 window.toggleFaq = function(btn) {
   var item = btn.parentElement;
@@ -3026,6 +3056,7 @@ var _deleteId = null;
 window.deleteReceipt = function(id) {
   _deleteId = id;
   g('deleteSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 window.confirmDelete = async function() {
   if (!_deleteId) return;
@@ -3263,6 +3294,7 @@ window.openPinSetup = function() {
   g('pinSetupSub').textContent   = 'Choose a 4-digit PIN to lock the app.';
   g('removePinBtn').style.display = isSet ? 'block' : 'none';
   g('pinSetupSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 
 window.closePinSetup = function() {
@@ -3417,6 +3449,7 @@ window.openDeleteTaxYear = function() {
   g('btnConfirmDeleteTaxYear').disabled = true;
   updateDeleteTaxYearCount();
   g('deleteTaxYearSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 
   sel.onchange = updateDeleteTaxYearCount;
 };
@@ -3499,6 +3532,7 @@ window.openDeleteAccount = function() {
   g('deleteAccountConfirm').value = '';
   g('deleteAccountMsg').className = 'amsg';
   g('deleteAccountSheet').classList.add('on');
+  history.pushState({snap:'sheet'}, '');
 };
 
 window.closeDeleteAccount = function() {
