@@ -339,7 +339,9 @@ img{display:block;max-width:100%}
 /* ── SHEETS ──────────────────────────────────────── */
 .sheet-bg{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
 .sheet-bg.on{display:flex}
-.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px));max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.sheet-scroll{flex:1;overflow-y:auto;padding:0 20px;-webkit-overflow-scrolling:touch}
+.sheet-footer{flex-shrink:0;padding:12px 20px max(20px,env(safe-area-inset-bottom,20px));border-top:1px solid var(--border);background:#fff}
 .sheet-handle{width:36px;height:4px;background:var(--gray-3);border-radius:2px;margin:12px auto 16px}
 
 /* ── BACKUP / IMPORT SHEETS ─────────────────────────────── */
@@ -375,7 +377,7 @@ img{display:block;max-width:100%}
 .sheet-item.muted{color:var(--gray-5);font-size:.85rem}
 .sheet-item.danger{color:var(--red)}
 .sdiv{height:1px;background:var(--border);margin:4px 0}
-.sbody{padding:0 20px 8px}
+.sbody{padding:0 20px 8px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sbody h3{font-size:1.05rem;font-weight:700;margin-bottom:14px;color:var(--black)}
 .sform{display:flex;flex-direction:column;gap:12px}
 .srow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1238,8 +1240,8 @@ img{display:block;max-width:100%}
 <div class="sheet-bg" id="backupSheet" onclick="if(event.target===this)closeBackupSheet()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sbody" style="padding-bottom:0;overflow-y:auto;max-height:70vh">
-      <h3 style="margin-bottom:12px">📦 Backup your receipts</h3>
+    <div class="sheet-scroll">
+      <h3 style="margin-bottom:12px;padding-top:4px">📦 Backup your receipts</h3>
 
       <div class="bk-reminder" style="margin-bottom:10px">
         <strong>💡 Back up monthly.</strong><br>
@@ -1258,12 +1260,14 @@ img{display:block;max-width:100%}
       </div>
 
       <div class="bk-log" id="bkLog"></div>
-      <div class="bk-result" id="bkResult"></div>
+      <div class="bk-result" id="bkResult" style="margin-bottom:8px"></div>
     </div>
 
-    <div style="display:flex;gap:10px;padding:12px 20px 20px;border-top:1px solid var(--border)">
-      <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeBackupSheet()">Close</button>
-      <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="flex:1">⬇ Start backup</button>
+    <div class="sheet-footer">
+      <div style="display:flex;gap:10px">
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeBackupSheet()">Close</button>
+        <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="flex:1">⬇ Start backup</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1273,8 +1277,8 @@ img{display:block;max-width:100%}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <input type="file" id="importFileInput" accept=".zip,.csv" style="display:none" onchange="handleImport(this)"/>
-    <div class="sbody" style="padding-bottom:16px;overflow-y:auto;max-height:70vh">
-      <h3 style="margin-bottom:12px">⬆ Restore a backup</h3>
+    <div class="sheet-scroll">
+      <h3 style="margin-bottom:12px;padding-top:4px">⬆ Restore a backup</h3>
 
       <div class="bk-warn" style="margin-bottom:10px">
         <strong>⚠ Adds to existing receipts — does not replace.</strong><br>
@@ -1293,12 +1297,14 @@ img{display:block;max-width:100%}
       </div>
 
       <div class="bk-log" id="imLog"></div>
-      <div class="bk-result" id="imResult"></div>
+      <div class="bk-result" id="imResult" style="margin-bottom:8px"></div>
     </div>
 
-    <div style="display:flex;gap:10px;padding:12px 20px 20px;border-top:1px solid var(--border)">
-      <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeImportSheet()">Close</button>
-      <button class="btn-p" id="btnChooseImport" onclick="triggerImport()" style="flex:1">⬆ Choose backup file</button>
+    <div class="sheet-footer">
+      <div style="display:flex;gap:10px">
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeImportSheet()">Close</button>
+        <button class="btn-p" id="btnChooseImport" onclick="triggerImport()" style="flex:1">⬆ Choose backup file</button>
+      </div>
     </div>
   </div>
 </div>
