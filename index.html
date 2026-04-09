@@ -1592,6 +1592,7 @@ window.showAuth = function(tab) {
 
 var STACK_DEPTH = 30;
 var _fillingStack = false;
+var _exiting = false;
 
 function isStandalone() {
   return window.navigator.standalone === true
@@ -1605,14 +1606,16 @@ function isIOS() {
 }
 
 function fillStack() {
-  if (_fillingStack) return;
+  if (_fillingStack || _exiting) return;
   _fillingStack = true;
-  // Defer so pushState calls here never cascade into our popstate handler
   setTimeout(function() {
+    if (_exiting) { _fillingStack = false; return; }
     for (var i = 0; i < STACK_DEPTH; i++) {
       history.pushState({snap:'pad', i:i}, '');
     }
-    _fillingStack = false;
+    // Reset flag only after a further tick so all the pushed popstate
+    // events fire (and get ignored) before we clear the guard
+    setTimeout(function() { _fillingStack = false; }, 50);
   }, 0);
 }
 
@@ -1625,7 +1628,7 @@ document.addEventListener('touchstart', fillStack, {once: true, passive: true});
 
 // Re-seed when app becomes visible (e.g. after lock screen, task switcher)
 document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'visible') fillStack();
+  if (document.visibilityState === 'visible' && !_exiting) fillStack();
 });
 
 // ── Exit modal helpers ────────────────────────────────────────────────────
@@ -1642,25 +1645,35 @@ window.confirmExit = function() {
   try { if (window.Android && window.Android.exitApp) { window.Android.exitApp(); return; } } catch(e){}
 
   if (isIOS()) {
-    // iOS cannot be exited programmatically — inform the user
     toast('Swipe up to close the app');
     return;
   }
 
-  // Android / desktop standalone PWA — try in sequence
+  // Stop fillStack refilling the history while we drain it
+  _exiting = true;
+
+  // Try window.close() first (works in TWA and some WebViews)
   try { window.close(); } catch(e){}
 
+  // Drain history — go back further than we ever pushed
   setTimeout(function() {
-    if (document.hidden) return; // window.close() worked
-    try { window.location.href = 'about:blank'; } catch(e){}
-    setTimeout(function() {
-      if (document.hidden) return;
-      history.go(-999); // drain history as last resort
-      setTimeout(function() {
-        if (!document.hidden) toast('Use the home button to exit');
-      }, 300);
-    }, 200);
-  }, 200);
+    if (document.hidden) return;
+    history.go(-(STACK_DEPTH + 10));
+  }, 100);
+
+  // Belt-and-braces second drain attempt
+  setTimeout(function() {
+    if (document.hidden) return;
+    history.go(-999);
+  }, 400);
+
+  // If still visible, tell the user
+  setTimeout(function() {
+    if (!document.hidden) {
+      _exiting = false; // allow normal operation again
+      toast('Use the home button to exit');
+    }
+  }, 800);
 };
 
 // Close modal on background click
@@ -1678,16 +1691,16 @@ document.addEventListener('keydown', function(e) {
 // ── Single popstate handler ───────────────────────────────────────────────
 
 window.addEventListener('popstate', function() {
-  // Ignore events fired by fillStack's own pushState calls
+  // While fillStack is running, ignore the cascade of events it generates
   if (_fillingStack) return;
 
-  // Immediately schedule a refill (deferred, won't re-enter this handler)
+  // While exiting, do not refill or show modal — let history drain
+  if (_exiting) return;
+
+  // Refill the stack for next back press
   fillStack();
 
-  // In a normal browser tab (not standalone), don't trap — let it navigate
-  if (!isStandalone()) return;
-
-  // Camera returning — just refill, let the file input change event fire
+  // Camera returning — let the file input change event handle it
   if (_cameraOpen) {
     _cameraOpen = false;
     return;
@@ -1699,7 +1712,7 @@ window.addEventListener('popstate', function() {
     return;
   }
 
-  // 2. Topmost open sheet (.sheet-bg.on) → close it
+  // 2. Topmost open sheet → close it
   var openSheet = document.querySelector('.sheet-bg.on');
   if (openSheet) {
     openSheet.classList.remove('on');
@@ -1724,7 +1737,15 @@ window.addEventListener('popstate', function() {
     return;
   }
 
-  // 6. Nothing open → show exit confirmation
+  // 6. In a normal browser tab with real back history, allow normal navigation
+  // (history.length > 2 means there were real pages before this one,
+  //  accounting for our own seed entry)
+  if (!isStandalone() && history.length > 2) {
+    history.go(-1);
+    return;
+  }
+
+  // 7. Nothing to go back to — show exit confirmation
   g('exitModal').classList.add('on');
 });
 
