@@ -3475,7 +3475,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // ── BACK BUTTON HANDLER (PWA / mobile) ───────────────────────────────────
   // Push a dummy state so there's always something to pop back to.
   // On popstate (back button), close the topmost open sheet/screen instead of exiting.
+  // If nothing is open, require a second back press within 2 seconds to exit.
   history.pushState({ sr: true }, '');
+
+  var _backPressedOnce = false;
+  var _backPressTimer  = null;
 
   window.addEventListener('popstate', function() {
     // Re-push so the back button always has somewhere to go
@@ -3499,7 +3503,22 @@ document.addEventListener('DOMContentLoaded', function() {
       goHome();
       return;
     }
-    // Close lock screen is not dismissible via back — do nothing
+    // Lock screen is not dismissible via back
+    if (g('lockScreen') && g('lockScreen').classList.contains('active')) {
+      return;
+    }
+    // Nothing open — require double-back to exit
+    if (_backPressedOnce) {
+      clearTimeout(_backPressTimer);
+      // Let the browser navigate away naturally — remove our trap state first
+      history.back();
+      return;
+    }
+    _backPressedOnce = true;
+    toast('Press back again to exit');
+    _backPressTimer = setTimeout(function() {
+      _backPressedOnce = false;
+    }, 2000);
   });
 
   // Boot check — wait for DOM then check session.
