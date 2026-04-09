@@ -1598,8 +1598,8 @@ window.showAuth = function(tab) {
 };
 
 // ── BACK BUTTON / EXIT MODAL ────────────────────────────────────────────────
-// Pattern: keep exactly ONE trap entry above the real page.
-// On popstate: re-push immediately (so trap is always there), then handle UI.
+// Android Chrome PWA silently exits when history.length reaches 1 WITHOUT
+// firing popstate. Fix: keep the stack at least 3 deep at all times.
 // history.pushState does NOT fire popstate — safe to call inside handler.
 
 var _exiting = false;
@@ -1609,8 +1609,22 @@ function isIOS() {
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-// Plant the trap
-history.pushState({snap:'trap'}, '');
+// Plant 3 trap entries so Android must fire popstate before stack empties
+history.pushState({snap:'trap',d:1}, '');
+history.pushState({snap:'trap',d:2}, '');
+history.pushState({snap:'trap',d:3}, '');
+
+function rePlant() {
+  // Re-push 3 entries. pushState never fires popstate so this is always safe.
+  history.pushState({snap:'trap',d:1}, '');
+  history.pushState({snap:'trap',d:2}, '');
+  history.pushState({snap:'trap',d:3}, '');
+}
+
+// Re-plant after any visibility restore (returning from task switcher drains stack)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && !_exiting) rePlant();
+});
 
 window.closeExitModal = function() {
   g('exitModal').classList.remove('on');
@@ -1639,8 +1653,8 @@ document.addEventListener('keydown', function(e) {
 window.addEventListener('popstate', function() {
   if (_exiting) return;
 
-  // Re-plant the trap so it’s always there for the next back press
-  history.pushState({snap:'trap'}, '');
+  // Re-plant 3 entries so Android must fire popstate before the stack empties
+  rePlant();
 
   if (_cameraOpen) { _cameraOpen = false; return; }
 
