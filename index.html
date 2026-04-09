@@ -1124,7 +1124,7 @@ img{display:block;max-width:100%}
       <div class="sdiv"></div>
       <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
         <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
-        <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7a5b2b4b2bea7a3a497a4b9b6a7a5b2b4b2bea7a3f9b4b8f9a2bc">[email&#160;protected]</a></div>
+        <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em" id="menuReceiptEmail"></div>
         <div style="font-size:.74rem;color:var(--gray-5);line-height:1.4">Forward any receipt email or attach a photo — it'll appear in your list automatically.</div>
         <button onclick="copyEmailAddr()" style="margin-top:4px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer" id="copyEmailBtn">Copy address</button>
       </div>
@@ -1195,13 +1195,13 @@ img{display:block;max-width:100%}
         <p><strong style="color:var(--black)">Where it's stored</strong><br/>
         Your data is stored on Supabase, which uses bank-level encryption and is hosted in the EU. Receipt images are processed by Anthropic's Claude AI to extract text — images are not stored by Anthropic.</p>
         <p><strong style="color:var(--black)">How long we keep it</strong><br/>
-        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;"><span class="__cf_email__" data-cfemail="8ee6ebe2e2e1cefde0effefcebedebe7fefaa0ede1a0fbe5">[email&#160;protected]</span></a>.</p>
+        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a>.</p>
         <p><strong style="color:var(--black)">Your rights (GDPR)</strong><br/>
-        You have the right to access, correct, or delete your personal data at any time. Contact <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;"><span class="__cf_email__" data-cfemail="c5ada0a9a9aa85b6aba4b5b7a0a6a0acb5b1eba6aaebb0ae">[email&#160;protected]</span></a> to exercise these rights.</p>
+        You have the right to access, correct, or delete your personal data at any time. Contact <a href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a> to exercise these rights.</p>
         <p><strong style="color:var(--black)">Cookies</strong><br/>
         SnapReceipt uses only essential session cookies required for authentication. No tracking or advertising cookies are used.</p>
         <p><strong style="color:var(--black)">Contact</strong><br/>
-        Questions about this policy? Email <a href="#" onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk';return false;" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="9ff7faf3f3f0dfecf1feefedfafcfaf6efebb1fcf0b1eaf4">[email&#160;protected]</span></a></p>
+        Questions about this policy? Email <a href="mailto:hello@snapreceipt.co.uk" style="color:var(--blue)">hello@snapreceipt.co.uk</a></p>
       </div>
     </div>
   </div>
@@ -2860,7 +2860,14 @@ function parseCSVRow(line) {
 }
 
 /* ── MENU ────────────────────────────────────────────── */
-window.openMenu  = function() { g('menuSheet').classList.add('on'); };
+window.openMenu  = function() {
+  var el = g('menuReceiptEmail');
+  if (el && !el.innerHTML) {
+    var addr = 'receipts@snap' + 'receipt.co.uk';
+    el.innerHTML = '<a href="mailto:' + addr + '" style="color:var(--black);text-decoration:none">' + addr + '</a>';
+  }
+  g('menuSheet').classList.add('on');
+};
 window.toggleFaq = function(btn) {
   var item = btn.parentElement;
   var isOpen = item.classList.contains('open');
@@ -2871,7 +2878,7 @@ window.toggleFaq = function(btn) {
 };
 
 window.copyEmailAddr = function() {
-  var addr = 'receipts@snapreceipt.co.uk';
+  var addr = 'receipts@snap' + 'receipt.co.uk';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(addr).then(function() {
       var btn = g('copyEmailBtn');
