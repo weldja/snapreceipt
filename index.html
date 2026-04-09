@@ -1115,24 +1115,27 @@ img{display:block;max-width:100%}
 <div class="sheet-bg" id="menuSheet" onclick="if(event.target===this)closeMenu()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
-    <button class="sheet-item" onclick="openBackupSheet();closeMenu()"><span class="sicon">⬇</span>Backup — export receipts</button>
-    <button class="sheet-item" onclick="openImportSheet();closeMenu()"><span class="sicon">⬆</span>Restore — import backup</button>
-    <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
-    <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
-    <div class="sdiv"></div>
-    <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
-      <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
-      <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7a5b2b4b2bea7a3a497a4b9b6a7a5b2b4b2bea7a3f9b4b8f9a2bc">[email&#160;protected]</a></div>
-      <div style="font-size:.74rem;color:var(--gray-5);line-height:1.4">Forward any receipt email or attach a photo — it'll appear in your list automatically.</div>
-      <button onclick="copyEmailAddr()" style="margin-top:4px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer" id="copyEmailBtn">Copy address</button>
+    <div class="sheet-scroll" style="padding:0">
+      <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
+      <button class="sheet-item" onclick="openBackupSheet();closeMenu()"><span class="sicon">⬇</span>Backup — export receipts</button>
+      <button class="sheet-item" onclick="openImportSheet();closeMenu()"><span class="sicon">⬆</span>Restore — import backup</button>
+      <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
+      <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
+      <div class="sdiv"></div>
+      <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📧 Email receipts to</div>
+        <div style="font-size:.9rem;font-weight:700;color:var(--black);letter-spacing:-.01em"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7a5b2b4b2bea7a3a497a4b9b6a7a5b2b4b2bea7a3f9b4b8f9a2bc">[email&#160;protected]</a></div>
+        <div style="font-size:.74rem;color:var(--gray-5);line-height:1.4">Forward any receipt email or attach a photo — it'll appear in your list automatically.</div>
+        <button onclick="copyEmailAddr()" style="margin-top:4px;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:#fff;font-size:.78rem;font-weight:600;color:var(--gray-7);cursor:pointer" id="copyEmailBtn">Copy address</button>
+      </div>
+      <div class="sdiv"></div>
+      <button class="sheet-item danger" onclick="openDeleteTaxYear();closeMenu()"><span class="sicon">🗑</span>Delete tax year receipts</button>
+      <div class="sdiv"></div>
+      <div class="sheet-item muted" style="cursor:default"><span class="sicon">👤</span><span id="menuEmail">—</span></div>
+      <button class="sheet-item" onclick="openDeleteAccount();closeMenu()"><span class="sicon">🗑</span>Delete my account</button>
+      <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
+      <div style="text-align:center;padding:12px 20px 16px;font-size:.72rem;color:var(--gray-3);letter-spacing:.02em">🔒 Encrypted · GDPR compliant · Never sold</div>
     </div>
-    <button class="sheet-item danger" onclick="openDeleteTaxYear();closeMenu()"><span class="sicon">🗑</span>Delete tax year receipts</button>
-    <div class="sdiv"></div>
-    <div class="sheet-item muted" style="cursor:default"><span class="sicon">👤</span><span id="menuEmail">—</span></div>
-    <button class="sheet-item" onclick="openDeleteAccount();closeMenu()"><span class="sicon">🗑</span>Delete my account</button>
-    <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
-    <div style="text-align:center;padding:12px 20px 4px;font-size:.72rem;color:var(--gray-3);letter-spacing:.02em">🔒 Encrypted · GDPR compliant · Never sold</div>
   </div>
 </div>
 
