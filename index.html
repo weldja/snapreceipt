@@ -3473,16 +3473,13 @@ document.addEventListener('DOMContentLoaded', function() {
   updateMenuPinLabel();
 
   // ── BACK BUTTON HANDLER (PWA / mobile) ───────────────────────────────────
-  // Push a dummy state so there's always something to pop back to.
-  // On popstate (back button), close the topmost open sheet/screen instead of exiting.
-  // If nothing is open, require a second back press within 2 seconds to exit.
   history.pushState({ sr: true }, '');
 
   var _backPressedOnce = false;
   var _backPressTimer  = null;
 
   window.addEventListener('popstate', function() {
-    // Re-push so the back button always has somewhere to go
+    // Always re-push to keep the trap in place — never let the stack empty
     history.pushState({ sr: true }, '');
 
     // Close sheets in priority order (topmost first)
@@ -3495,30 +3492,36 @@ document.addEventListener('DOMContentLoaded', function() {
       var el = g(sheets[i]);
       if (el && el.classList.contains('on')) {
         el.classList.remove('on');
+        _backPressedOnce = false;
+        clearTimeout(_backPressTimer);
         return;
       }
     }
     // Close scan screen if open
     if (g('scanScreen') && g('scanScreen').classList.contains('active')) {
       goHome();
+      _backPressedOnce = false;
+      clearTimeout(_backPressTimer);
       return;
     }
     // Lock screen is not dismissible via back
     if (g('lockScreen') && g('lockScreen').classList.contains('active')) {
       return;
     }
-    // Nothing open — require double-back to exit
+    // Nothing open — require double-back within 2s to exit
     if (_backPressedOnce) {
+      // Second press — show a different message, can't actually force exit from JS
+      // but user can press once more or use the OS gesture to fully exit
+      toast('Use your device home button to exit');
+      _backPressedOnce = false;
       clearTimeout(_backPressTimer);
-      // Let the browser navigate away naturally — remove our trap state first
-      history.back();
       return;
     }
     _backPressedOnce = true;
-    toast('Press back again to exit');
+    toast('Press back again to exit SnapReceipt');
     _backPressTimer = setTimeout(function() {
       _backPressedOnce = false;
-    }, 2000);
+    }, 2500);
   });
 
   // Boot check — wait for DOM then check session.
