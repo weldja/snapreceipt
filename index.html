@@ -1585,45 +1585,20 @@ window.showAuth = function(tab) {
   window.scrollTo(0,0);
 };
 
-// ── BACK BUTTON / EXIT MODAL ─────────────────────────────────────────────────────
-// KEY FACT: history.pushState() does NOT fire popstate.
-// Only history.go/back/forward fire popstate.
-// Therefore fillStack()'s pushState calls need no guard flag.
+// ── BACK BUTTON / EXIT MODAL ────────────────────────────────────────────────
+// Pattern: keep exactly ONE trap entry above the real page.
+// On popstate: re-push immediately (so trap is always there), then handle UI.
+// history.pushState does NOT fire popstate — safe to call inside handler.
 
-var STACK_DEPTH = 30;
 var _exiting = false;
-
-function isStandalone() {
-  return window.navigator.standalone === true
-    || window.matchMedia('(display-mode: standalone)').matches
-    || window.matchMedia('(display-mode: fullscreen)').matches;
-}
 
 function isIOS() {
   return /iP(hone|ad|od)/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-function fillStack() {
-  if (_exiting) return;
-  for (var i = 0; i < STACK_DEPTH; i++) {
-    history.pushState({snap:'pad', i:i}, '');
-  }
-}
-
-// Seed on load
-history.replaceState({snap:'base'}, '');
-fillStack();
-
-// Re-seed on first touch (iOS standalone discards pre-gesture pushStates)
-document.addEventListener('touchstart', fillStack, {once: true, passive: true});
-
-// Re-seed when app becomes visible again
-document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'visible' && !_exiting) fillStack();
-});
-
-// ── Exit modal helpers ────────────────────────────────────────────────
+// Plant the trap
+history.pushState({snap:'trap'}, '');
 
 window.closeExitModal = function() {
   g('exitModal').classList.remove('on');
@@ -1631,23 +1606,14 @@ window.closeExitModal = function() {
 
 window.confirmExit = function() {
   g('exitModal').classList.remove('on');
-
   try { if (window.navigator.app && window.navigator.app.exitApp) { window.navigator.app.exitApp(); return; } } catch(e){}
   try { if (window.Android && window.Android.exitApp) { window.Android.exitApp(); return; } } catch(e){}
-
-  if (isIOS()) {
-    toast('Swipe up to close the app');
-    return;
-  }
-
+  if (isIOS()) { toast('Swipe up to close the app'); return; }
   _exiting = true;
   try { window.close(); } catch(e){}
-
-  setTimeout(function() { if (!document.hidden) history.go(-(STACK_DEPTH + 10)); }, 100);
-  setTimeout(function() { if (!document.hidden) history.go(-999); }, 400);
   setTimeout(function() {
     if (!document.hidden) { _exiting = false; toast('Use the home button to exit'); }
-  }, 800);
+  }, 500);
 };
 
 g('exitModal').addEventListener('click', function(e) {
@@ -1658,13 +1624,11 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && g('exitModal').classList.contains('on')) window.closeExitModal();
 });
 
-// ── Single popstate handler ───────────────────────────────────────────────
-
 window.addEventListener('popstate', function() {
   if (_exiting) return;
 
-  // pushState does not fire popstate, so this refill is always safe
-  fillStack();
+  // Re-plant the trap so it’s always there for the next back press
+  history.pushState({snap:'trap'}, '');
 
   if (_cameraOpen) { _cameraOpen = false; return; }
 
@@ -1681,8 +1645,6 @@ window.addEventListener('popstate', function() {
   if (_expanded) { _expanded = null; renderList(_receipts); return; }
 
   if (g('lockScreen') && g('lockScreen').classList.contains('active')) return;
-
-  if (!isStandalone() && history.length > 2) { history.go(-1); return; }
 
   g('exitModal').classList.add('on');
 });
