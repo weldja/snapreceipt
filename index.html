@@ -1289,9 +1289,11 @@ img{display:block;max-width:100%}
       </div>
 
       <div class="bk-intro">
-        <strong>What can you import?</strong><br>
-        · A <strong>.zip</strong> backup from SnapReceipt (includes images)<br>
-        · A plain <strong>.csv</strong> file (receipts only, no images)<br><br>
+        <strong>What can you import?</strong><br><br>
+        📦 <strong>.zip</strong> — full restore (data + images)<br>
+        Use this for a complete restore from a SnapReceipt backup. All receipt data and photos will be recovered.<br><br>
+        📄 <strong>.csv</strong> — data only (no images)<br>
+        Restores receipt data but not photos. Use this if you only have a CSV, or are importing from another app.<br><br>
         <strong>Limits:</strong> Maximum 500 rows and 50MB per file.
       </div>
 
@@ -1417,7 +1419,7 @@ img{display:block;max-width:100%}
 
 /* ── CONFIG ──────────────────────────────────────────── */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
+const SUPABASE_KEY = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
 const WORKER_URL   = 'https://snapreceipt-ocr.james-weld.workers.dev';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
