@@ -846,6 +846,7 @@ img{display:block;max-width:100%}
 
 <!-- ═══ HOME ══════════════════════════════════════════════ -->
 <div id="homeScreen" class="screen">
+<input type="file" id="importFileInput" accept=".zip,.csv" style="display:none" onchange="handleImport(this)"/>
   <header class="hdr">
     <div class="hdr-brand"><div class="hdr-dot"></div>SnapReceipt</div>
     <div style="display:flex;gap:8px">
@@ -1086,7 +1087,8 @@ img{display:block;max-width:100%}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
-    <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV</button>
+    <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV + images</button>
+    <button class="sheet-item" onclick="triggerImport();closeMenu()"><span class="sicon">⬆</span>Import / restore backup</button>
     <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
     <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
     <div class="sdiv"></div>
@@ -1296,12 +1298,13 @@ img{display:block;max-width:100%}
 ══════════════════════════════════════════════════════════ -->
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 'use strict';
 
 /* ── CONFIG ──────────────────────────────────────────── */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3a2Fzd2x6enF6aml1dWp5dXBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NjQwNDUsImV4cCI6MjA5MDE0MDA0NX0.DpM1H4LXGl9gdci9Qrzjam2yqScZy10M1VLE1-0XnO8';
+const SUPABASE_KEY = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
 const WORKER_URL   = 'https://snapreceipt-ocr.james-weld.workers.dev';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -2333,8 +2336,15 @@ window.saveEdit  = async function() {
 };
 
 /* ── EXPORT ──────────────────────────────────────────── */
-window.exportCSV = function() {
+/* ── EXPORT CSV + IMAGES (ZIP) ───────────────────────────── */
+window.exportCSV = async function() {
   if (!_receipts.length) { toast('No receipts to export'); return; }
+
+  toast('Preparing export…');
+
+  // Build CSV with UTF-8 BOM so Excel reads £ correctly
+  var BOM = '\uFEFF';
+  var headers = 'Date,Merchant,Amount (£),Currency,Category,VAT (£),Notes,Added,Image';
   var rows = _receipts.map(function(r){
     return [
       r.date||'',
@@ -2345,17 +2355,211 @@ window.exportCSV = function() {
       parseFloat(r.vat||0).toFixed(2),
       '"'+(r.notes||'').replace(/"/g,'""')+'"',
       new Date(r.created_at).toISOString().slice(0,10),
+      r.image_url||'',
     ].join(',');
   });
-  var csv = ['Date,Merchant,Amount (£),Currency,Category,VAT (£),Notes,Added'].concat(rows).join('\n');
+  var csv = BOM + [headers].concat(rows).join('\n');
+
+  // If JSZip available, bundle images too
+  if (typeof JSZip === 'undefined') {
+    // Fallback: CSV only
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+    a.download = 'snapreceipt-'+today()+'.csv';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); },1000);
+    toast('CSV exported ✓');
+    return;
+  }
+
+  var zip = new JSZip();
+  zip.file('receipts.csv', csv);
+
+  // Fetch each receipt image and add to zip
+  var imgFolder = zip.folder('images');
+  var fetched = 0;
+  await Promise.all(_receipts.map(async function(r) {
+    if (!r.image_url) return;
+    try {
+      var resp = await fetch(r.image_url);
+      if (!resp.ok) return;
+      var blob = await resp.blob();
+      var ext  = r.image_url.split('.').pop().split('?')[0] || 'jpg';
+      var fname = (r.date||'unknown') + '_' + (r.merchant||'receipt').replace(/[^a-z0-9]/gi,'_').toLowerCase() + '.' + ext;
+      imgFolder.file(fname, blob);
+      fetched++;
+    } catch(e) { /* skip failed images silently */ }
+  }));
+
+  var zipBlob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
   var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
-  a.download = 'snapreceipt-'+today()+'.csv';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
-  toast('CSV exported ✓');
+  a.href = URL.createObjectURL(zipBlob);
+  a.download = 'snapreceipt-backup-'+today()+'.zip';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); },1000);
+  toast('Exported '+_receipts.length+' receipts + '+fetched+' images ✓');
 };
+
+/* ── IMPORT / RESTORE BACKUP ─────────────────────────────── */
+window.triggerImport = function() {
+  g('importFileInput').value = '';
+  g('importFileInput').click();
+};
+
+window.handleImport = async function(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (!_user) { toast('Please sign in first'); return; }
+
+  var MAX_FILE_BYTES = 50 * 1024 * 1024; // 50MB
+  var MAX_ROWS       = 500;
+
+  if (file.size > MAX_FILE_BYTES) {
+    toast('File too large — maximum is 50MB');
+    return;
+  }
+
+  toast('Reading backup…');
+
+  try {
+    var csvText = '';
+    var imageMap = {}; // filename -> blob
+
+    if (file.name.endsWith('.zip')) {
+      if (typeof JSZip === 'undefined') { toast('Zip support not loaded — try again'); return; }
+      var zip = await JSZip.loadAsync(file);
+
+      // Extract CSV
+      var csvFile = zip.file('receipts.csv');
+      if (!csvFile) { toast('No receipts.csv found in zip'); return; }
+      csvText = await csvFile.async('string');
+
+      // Extract images
+      var imgPromises = [];
+      zip.folder('images').forEach(function(relPath, zipEntry) {
+        imgPromises.push(
+          zipEntry.async('blob').then(function(blob) {
+            imageMap[relPath] = blob;
+          })
+        );
+      });
+      await Promise.all(imgPromises);
+
+    } else if (file.name.endsWith('.csv')) {
+      csvText = await file.text();
+    } else {
+      toast('Please select a .zip or .csv backup file');
+      return;
+    }
+
+    // Strip BOM if present
+    if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
+
+    var lines = csvText.split('\n').filter(function(l){ return l.trim(); });
+    if (lines.length < 2) { toast('CSV appears empty'); return; }
+
+    var dataRowCount = lines.length - 1; // exclude header
+    if (dataRowCount > MAX_ROWS) {
+      toast('Too many rows — maximum is ' + MAX_ROWS + ' (file has ' + dataRowCount + ')');
+      return;
+    }
+
+    // Parse header
+    var header = lines[0].split(',');
+    var idx = {};
+    header.forEach(function(h,i){ idx[h.trim()] = i; });
+
+    var required = ['Date','Merchant','Amount (£)'];
+    for (var ri = 0; ri < required.length; ri++) {
+      if (idx[required[ri]] === undefined) {
+        toast('CSV missing column: ' + required[ri]);
+        return;
+      }
+    }
+
+    var dataRows = lines.slice(1);
+    var imported = 0, skipped = 0, errors = 0;
+
+    toast('Importing '+dataRows.length+' receipts…');
+
+    for (var i = 0; i < dataRows.length; i++) {
+      var cols = parseCSVRow(dataRows[i]);
+      var merchant = (cols[idx['Merchant']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim();
+      var amount   = parseFloat(cols[idx['Amount (£)']]||0);
+      if (!merchant || !amount) { skipped++; continue; }
+
+      var imageUrl = null;
+
+      // Try to re-upload image from zip
+      var imgColVal = idx['Image'] !== undefined ? (cols[idx['Image']]||'').trim() : '';
+      if (imgColVal && Object.keys(imageMap).length) {
+        // Match by filename suffix
+        var matchKey = Object.keys(imageMap).find(function(k){
+          return imgColVal.endsWith(k) || k.includes((cols[idx['Date']]||'').replace(/-/g,''));
+        });
+        if (matchKey) {
+          try {
+            var imgBlob = imageMap[matchKey];
+            var fname = _user.id + '/' + Date.now() + '_' + i + '.jpg';
+            var upRes = await sb.storage.from('receipt-images').upload(fname, imgBlob, {contentType:'image/jpeg',upsert:false});
+            if (!upRes.error) {
+              imageUrl = sb.storage.from('receipt-images').getPublicUrl(fname).data.publicUrl;
+            }
+          } catch(e) { /* skip image, continue with receipt */ }
+        }
+      }
+
+      try {
+        var res = await sb.from('receipts').insert({
+          user_id:  _user.id,
+          merchant: merchant,
+          amount:   amount,
+          currency: (cols[idx['Currency']]||'GBP').trim(),
+          date:     (cols[idx['Date']]||'').trim() || null,
+          category: idx['Category'] !== undefined ? (cols[idx['Category']]||'').trim()||null : null,
+          vat:      idx['VAT (£)']  !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
+          notes:    idx['Notes']    !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
+          image_url: imageUrl,
+          ocr_raw:  null,
+        });
+        if (res.error) { errors++; } else { imported++; }
+      } catch(e) { errors++; }
+
+      // Small delay to avoid rate limiting
+      if (i > 0 && i % 10 === 0) await new Promise(function(r){ setTimeout(r,200); });
+    }
+
+    // Reload receipts
+    await loadReceipts();
+
+    var msg = 'Imported '+imported+' receipts';
+    if (skipped)  msg += ', '+skipped+' skipped (empty)';
+    if (errors)   msg += ', '+errors+' failed';
+    toast(msg);
+
+  } catch(e) {
+    console.error('Import error:', e);
+    toast('Import failed — check file format');
+  }
+};
+
+/* Parse a single CSV row respecting quoted fields */
+function parseCSVRow(line) {
+  var cols = [], cur = '', inQ = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      cols.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  cols.push(cur);
+  return cols;
+}
 
 /* ── MENU ────────────────────────────────────────────── */
 window.openMenu  = function() { g('menuSheet').classList.add('on'); };
