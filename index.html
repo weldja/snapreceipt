@@ -339,7 +339,7 @@ img{display:block;max-width:100%}
 /* ── SHEETS ──────────────────────────────────────── */
 .sheet-bg{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
 .sheet-bg.on{display:flex}
-.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px));max-height:92vh;overflow-y:auto}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px));max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
 .sheet-handle{width:36px;height:4px;background:var(--gray-3);border-radius:2px;margin:12px auto 16px}
 
 /* ── BACKUP / IMPORT SHEETS ─────────────────────────────── */
@@ -1238,26 +1238,18 @@ img{display:block;max-width:100%}
 <div class="sheet-bg" id="backupSheet" onclick="if(event.target===this)closeBackupSheet()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sbody" style="padding-bottom:24px">
-      <h3 style="margin-bottom:14px">📦 Backup your receipts</h3>
+    <div class="sbody" style="padding-bottom:0;overflow-y:auto;max-height:70vh">
+      <h3 style="margin-bottom:12px">📦 Backup your receipts</h3>
 
-      <div class="bk-reminder">
-        <strong>💡 We recommend backing up monthly.</strong><br>
-        Your receipts are stored securely in the cloud, but a local backup means you always have a copy — especially useful before the Self Assessment deadline.
+      <div class="bk-reminder" style="margin-bottom:10px">
+        <strong>💡 Back up monthly.</strong><br>
+        Your data is safe in the cloud, but a local copy is invaluable — especially before the Self Assessment deadline.
       </div>
 
-      <div class="bk-intro">
-        <strong>What's included in the backup?</strong><br>
-        A ZIP file containing:<br>
-        · <strong>receipts.csv</strong> — all your receipt data, ready for Excel or your accountant<br>
+      <div class="bk-intro" style="margin-bottom:10px">
+        <strong>Your backup ZIP contains:</strong><br>
+        · <strong>receipts.csv</strong> — all receipt data, ready for Excel or your accountant<br>
         · <strong>images/</strong> — every receipt photo, named by date and merchant
-      </div>
-
-      <div class="bk-steps">
-        <div class="bk-step"><div class="bk-step-num">1</div><div>Tap <strong>Start backup</strong> below</div></div>
-        <div class="bk-step"><div class="bk-step-num">2</div><div>Wait while your receipt images are downloaded — this may take a minute if you have many photos</div></div>
-        <div class="bk-step"><div class="bk-step-num">3</div><div>A <strong>snapreceipt-backup-YYYY-MM-DD.zip</strong> file will download to your device</div></div>
-        <div class="bk-step"><div class="bk-step-num">4</div><div>Save the ZIP somewhere safe — iCloud, Google Drive, or your computer</div></div>
       </div>
 
       <div class="bk-progress-wrap" id="bkProgressWrap">
@@ -1267,11 +1259,11 @@ img{display:block;max-width:100%}
 
       <div class="bk-log" id="bkLog"></div>
       <div class="bk-result" id="bkResult"></div>
+    </div>
 
-      <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeBackupSheet()">Close</button>
-        <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="flex:1">⬇ Start backup</button>
-      </div>
+    <div style="display:flex;gap:10px;padding:12px 20px 20px;border-top:1px solid var(--border)">
+      <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeBackupSheet()">Close</button>
+      <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="flex:1">⬇ Start backup</button>
     </div>
   </div>
 </div>
@@ -1280,28 +1272,19 @@ img{display:block;max-width:100%}
 <div class="sheet-bg" id="importSheet" onclick="if(event.target===this)closeImportSheet()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sbody" style="padding-bottom:24px">
-      <h3 style="margin-bottom:14px">⬆ Restore a backup</h3>
+    <input type="file" id="importFileInput" accept=".zip,.csv" style="display:none" onchange="handleImport(this)"/>
+    <div class="sbody" style="padding-bottom:16px;overflow-y:auto;max-height:70vh">
+      <h3 style="margin-bottom:12px">⬆ Restore a backup</h3>
 
-      <div class="bk-warn">
-        <strong>⚠ This adds receipts — it does not replace existing ones.</strong><br>
-        If you restore a backup on an account that already has receipts, you may get duplicates. Best used on a fresh account or after clearing your receipts.
+      <div class="bk-warn" style="margin-bottom:10px">
+        <strong>⚠ Adds to existing receipts — does not replace.</strong><br>
+        Restoring on an account with existing receipts may cause duplicates.
       </div>
 
-      <div class="bk-intro">
-        <strong>What can you import?</strong><br><br>
+      <div class="bk-intro" style="margin-bottom:10px">
         📦 <strong>.zip</strong> — full restore (data + images)<br>
-        Use this for a complete restore from a SnapReceipt backup. All receipt data and photos will be recovered.<br><br>
-        📄 <strong>.csv</strong> — data only (no images)<br>
-        Restores receipt data but not photos. Use this if you only have a CSV, or are importing from another app.<br><br>
-        <strong>Limits:</strong> Maximum 500 rows and 50MB per file.
-      </div>
-
-      <div class="bk-steps">
-        <div class="bk-step"><div class="bk-step-num">1</div><div>Tap <strong>Choose backup file</strong> and select your <code style="background:var(--gray-1);padding:1px 5px;border-radius:3px;font-size:.78rem">.zip</code> or <code style="background:var(--gray-1);padding:1px 5px;border-radius:3px;font-size:.78rem">.csv</code></div></div>
-        <div class="bk-step"><div class="bk-step-num">2</div><div>SnapReceipt will validate the file and show you what it found</div></div>
-        <div class="bk-step"><div class="bk-step-num">3</div><div>Confirm to begin importing — receipts and images will be restored one by one</div></div>
-        <div class="bk-step"><div class="bk-step-num">4</div><div>A summary will show how many succeeded, were skipped, or failed</div></div>
+        📄 <strong>.csv</strong> — data only, no images<br>
+        <span style="color:var(--gray-5)">Max 500 rows · 50MB</span>
       </div>
 
       <div class="bk-progress-wrap" id="imProgressWrap">
@@ -1311,12 +1294,11 @@ img{display:block;max-width:100%}
 
       <div class="bk-log" id="imLog"></div>
       <div class="bk-result" id="imResult"></div>
+    </div>
 
-      
-      <div style="display:flex;gap:10px;margin-top:14px">
-        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeImportSheet()">Close</button>
-        <button class="btn-p" id="btnChooseImport" onclick="triggerImport()" style="flex:1">⬆ Choose backup file</button>
-      </div>
+    <div style="display:flex;gap:10px;padding:12px 20px 20px;border-top:1px solid var(--border)">
+      <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeImportSheet()">Close</button>
+      <button class="btn-p" id="btnChooseImport" onclick="triggerImport()" style="flex:1">⬆ Choose backup file</button>
     </div>
   </div>
 </div>
