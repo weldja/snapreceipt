@@ -341,6 +341,34 @@ img{display:block;max-width:100%}
 .sheet-bg.on{display:flex}
 .sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding-bottom:max(20px,env(safe-area-inset-bottom,20px));max-height:92vh;overflow-y:auto}
 .sheet-handle{width:36px;height:4px;background:var(--gray-3);border-radius:2px;margin:12px auto 16px}
+
+/* ── BACKUP / IMPORT SHEETS ─────────────────────────────── */
+.bk-intro{background:var(--blue-lt);border:1px solid var(--blue-mid);border-radius:var(--r);padding:12px 14px;margin-bottom:16px;font-size:.85rem;color:var(--black);line-height:1.6}
+.bk-intro strong{color:var(--blue)}
+.bk-warn{background:#fff8e1;border:1px solid #ffe082;border-radius:var(--r);padding:12px 14px;margin-bottom:16px;font-size:.85rem;color:#5d4037;line-height:1.6}
+.bk-warn strong{color:#e65100}
+.bk-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.bk-step{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:var(--gray-7);line-height:1.5}
+.bk-step-num{width:20px;height:20px;border-radius:50%;background:var(--black);color:#fff;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.bk-log{background:var(--gray-0);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:.78rem;font-family:-apple-system,monospace;color:var(--gray-7);line-height:1.7;max-height:160px;overflow-y:auto;display:none;flex-direction:column;gap:1px}
+.bk-log.visible{display:flex}
+.bk-log-line{display:flex;align-items:flex-start;gap:6px}
+.bk-log-line.ok .bk-log-icon::before{content:'✓';color:var(--green)}
+.bk-log-line.err .bk-log-icon::before{content:'✕';color:var(--red)}
+.bk-log-line.info .bk-log-icon::before{content:'·';color:var(--gray-5)}
+.bk-log-line.warn .bk-log-icon::before{content:'⚠';color:#f59e0b}
+.bk-log-icon{flex-shrink:0;width:14px;text-align:center}
+.bk-progress-wrap{margin:10px 0;display:none}
+.bk-progress-wrap.visible{display:block}
+.bk-progress-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--gray-5);margin-bottom:4px}
+.bk-progress-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.bk-progress-fill{height:100%;background:var(--blue);border-radius:2px;width:0%;transition:width .3s ease}
+.bk-result{padding:12px 14px;border-radius:var(--r);font-size:.88rem;font-weight:600;display:none;line-height:1.5}
+.bk-result.visible{display:block}
+.bk-result.ok{background:var(--green-lt);color:var(--green)}
+.bk-result.err{background:var(--red-lt);color:var(--red)}
+.bk-reminder{background:#f3f0ff;border:1px solid #d4c8ff;border-radius:var(--r);padding:12px 14px;margin-bottom:16px;font-size:.82rem;color:#4c1d95;line-height:1.6}
+.bk-reminder strong{color:#5b21b6}
 .sheet-item{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:.95rem;font-weight:600;color:var(--black);border:none;background:none;width:100%;text-align:left;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
 .sheet-item:hover{background:var(--gray-0)}
 .sicon{font-size:1.1rem;width:22px;text-align:center}
@@ -846,7 +874,6 @@ img{display:block;max-width:100%}
 
 <!-- ═══ HOME ══════════════════════════════════════════════ -->
 <div id="homeScreen" class="screen">
-<input type="file" id="importFileInput" accept=".zip,.csv" style="display:none" onchange="handleImport(this)"/>
   <header class="hdr">
     <div class="hdr-brand"><div class="hdr-dot"></div>SnapReceipt</div>
     <div style="display:flex;gap:8px">
@@ -1087,8 +1114,8 @@ img{display:block;max-width:100%}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <button class="sheet-item" onclick="openScan();closeMenu()"><span class="sicon">📸</span>Scan receipt</button>
-    <button class="sheet-item" onclick="exportCSV();closeMenu()"><span class="sicon">⬇</span>Export CSV + images</button>
-    <button class="sheet-item" onclick="triggerImport();closeMenu()"><span class="sicon">⬆</span>Import / restore backup</button>
+    <button class="sheet-item" onclick="openBackupSheet();closeMenu()"><span class="sicon">⬇</span>Backup — export receipts</button>
+    <button class="sheet-item" onclick="openImportSheet();closeMenu()"><span class="sicon">⬆</span>Restore — import backup</button>
     <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
     <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
     <div class="sdiv"></div>
@@ -1206,6 +1233,92 @@ img{display:block;max-width:100%}
   </div>
 </div>
 
+
+<!-- ═══ BACKUP SHEET ══════════════════════════════════════ -->
+<div class="sheet-bg" id="backupSheet" onclick="if(event.target===this)closeBackupSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sbody" style="padding-bottom:24px">
+      <h3 style="margin-bottom:14px">📦 Backup your receipts</h3>
+
+      <div class="bk-reminder">
+        <strong>💡 We recommend backing up monthly.</strong><br>
+        Your receipts are stored securely in the cloud, but a local backup means you always have a copy — especially useful before the Self Assessment deadline.
+      </div>
+
+      <div class="bk-intro">
+        <strong>What's included in the backup?</strong><br>
+        A ZIP file containing:<br>
+        · <strong>receipts.csv</strong> — all your receipt data, ready for Excel or your accountant<br>
+        · <strong>images/</strong> — every receipt photo, named by date and merchant
+      </div>
+
+      <div class="bk-steps">
+        <div class="bk-step"><div class="bk-step-num">1</div><div>Tap <strong>Start backup</strong> below</div></div>
+        <div class="bk-step"><div class="bk-step-num">2</div><div>Wait while your receipt images are downloaded — this may take a minute if you have many photos</div></div>
+        <div class="bk-step"><div class="bk-step-num">3</div><div>A <strong>snapreceipt-backup-YYYY-MM-DD.zip</strong> file will download to your device</div></div>
+        <div class="bk-step"><div class="bk-step-num">4</div><div>Save the ZIP somewhere safe — iCloud, Google Drive, or your computer</div></div>
+      </div>
+
+      <div class="bk-progress-wrap" id="bkProgressWrap">
+        <div class="bk-progress-label"><span id="bkProgressLabel">Preparing…</span><span id="bkProgressPct">0%</span></div>
+        <div class="bk-progress-track"><div class="bk-progress-fill" id="bkProgressFill"></div></div>
+      </div>
+
+      <div class="bk-log" id="bkLog"></div>
+      <div class="bk-result" id="bkResult"></div>
+
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeBackupSheet()">Close</button>
+        <button class="btn-p" id="btnStartBackup" onclick="startBackup()" style="flex:1">⬇ Start backup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ IMPORT SHEET ══════════════════════════════════════ -->
+<div class="sheet-bg" id="importSheet" onclick="if(event.target===this)closeImportSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sbody" style="padding-bottom:24px">
+      <h3 style="margin-bottom:14px">⬆ Restore a backup</h3>
+
+      <div class="bk-warn">
+        <strong>⚠ This adds receipts — it does not replace existing ones.</strong><br>
+        If you restore a backup on an account that already has receipts, you may get duplicates. Best used on a fresh account or after clearing your receipts.
+      </div>
+
+      <div class="bk-intro">
+        <strong>What can you import?</strong><br>
+        · A <strong>.zip</strong> backup from SnapReceipt (includes images)<br>
+        · A plain <strong>.csv</strong> file (receipts only, no images)<br><br>
+        <strong>Limits:</strong> Maximum 500 rows and 50MB per file.
+      </div>
+
+      <div class="bk-steps">
+        <div class="bk-step"><div class="bk-step-num">1</div><div>Tap <strong>Choose backup file</strong> and select your <code style="background:var(--gray-1);padding:1px 5px;border-radius:3px;font-size:.78rem">.zip</code> or <code style="background:var(--gray-1);padding:1px 5px;border-radius:3px;font-size:.78rem">.csv</code></div></div>
+        <div class="bk-step"><div class="bk-step-num">2</div><div>SnapReceipt will validate the file and show you what it found</div></div>
+        <div class="bk-step"><div class="bk-step-num">3</div><div>Confirm to begin importing — receipts and images will be restored one by one</div></div>
+        <div class="bk-step"><div class="bk-step-num">4</div><div>A summary will show how many succeeded, were skipped, or failed</div></div>
+      </div>
+
+      <div class="bk-progress-wrap" id="imProgressWrap">
+        <div class="bk-progress-label"><span id="imProgressLabel">Reading file…</span><span id="imProgressPct">0%</span></div>
+        <div class="bk-progress-track"><div class="bk-progress-fill" id="imProgressFill"></div></div>
+      </div>
+
+      <div class="bk-log" id="imLog"></div>
+      <div class="bk-result" id="imResult"></div>
+
+      
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn-p" style="background:var(--gray-1);color:var(--black);flex:0 0 auto" onclick="closeImportSheet()">Close</button>
+        <button class="btn-p" id="btnChooseImport" onclick="triggerImport()" style="flex:1">⬆ Choose backup file</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- ═══ DELETE ACCOUNT SHEET ══════════════════════════════ -->
@@ -1304,7 +1417,7 @@ img{display:block;max-width:100%}
 
 /* ── CONFIG ──────────────────────────────────────────── */
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
+const SUPABASE_KEY  = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
 const WORKER_URL   = 'https://snapreceipt-ocr.james-weld.workers.dev';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -2336,13 +2449,70 @@ window.saveEdit  = async function() {
 };
 
 /* ── EXPORT ──────────────────────────────────────────── */
-/* ── EXPORT CSV + IMAGES (ZIP) ───────────────────────────── */
-window.exportCSV = async function() {
-  if (!_receipts.length) { toast('No receipts to export'); return; }
+/* ── BACKUP / IMPORT HELPERS ─────────────────────────────── */
 
-  toast('Preparing export…');
+function bkLog(sheetId, msg, type) {
+  var log = g(sheetId);
+  if (!log) return;
+  log.classList.add('visible');
+  var line = document.createElement('div');
+  line.className = 'bk-log-line ' + (type||'info');
+  line.innerHTML = '<span class="bk-log-icon"></span><span>' + msg + '</span>';
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
 
-  // Build CSV with UTF-8 BOM so Excel reads £ correctly
+function bkProgress(fillId, labelId, pctId, pct, label) {
+  var fill = g(fillId), lbl = g(labelId), pctEl = g(pctId);
+  var wrap = fill && fill.closest('.bk-progress-wrap');
+  if (wrap) wrap.classList.add('visible');
+  if (fill) fill.style.width = Math.round(pct) + '%';
+  if (lbl && label) lbl.textContent = label;
+  if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+}
+
+function bkResult(id, msg, ok) {
+  var el = g(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'bk-result visible ' + (ok ? 'ok' : 'err');
+}
+
+function bkReset(logId, progressWrapId, resultId) {
+  var log = g(logId), pw = g(progressWrapId), res = g(resultId);
+  if (log)  { log.innerHTML = ''; log.classList.remove('visible'); }
+  if (pw)   pw.classList.remove('visible');
+  if (res)  { res.textContent=''; res.className='bk-result'; }
+}
+
+window.openBackupSheet = function() {
+  bkReset('bkLog','bkProgressWrap','bkResult');
+  var btn = g('btnStartBackup');
+  if (btn) { btn.disabled=false; btn.textContent='⬇ Start backup'; }
+  g('backupSheet').classList.add('on');
+};
+window.closeBackupSheet = function() { g('backupSheet').classList.remove('on'); };
+
+window.openImportSheet = function() {
+  bkReset('imLog','imProgressWrap','imResult');
+  var btn = g('btnChooseImport');
+  if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
+  g('importSheet').classList.add('on');
+};
+window.closeImportSheet = function() { g('importSheet').classList.remove('on'); };
+
+/* ── EXPORT / BACKUP ─────────────────────────────────────── */
+window.startBackup = async function() {
+  if (!_receipts.length) { bkResult('bkResult','No receipts to export — scan some receipts first!', false); return; }
+
+  var btn = g('btnStartBackup');
+  btn.disabled = true; btn.textContent = 'Backing up…';
+  bkReset('bkLog','bkProgressWrap','bkResult');
+
+  bkLog('bkLog', 'Found ' + _receipts.length + ' receipts', 'info');
+  bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct', 0, 'Building CSV…');
+
+  // Build CSV with UTF-8 BOM
   var BOM = '\uFEFF';
   var headers = 'Date,Merchant,Amount (£),Currency,Category,VAT (£),Notes,Added,Image';
   var rows = _receipts.map(function(r){
@@ -2359,48 +2529,85 @@ window.exportCSV = async function() {
     ].join(',');
   });
   var csv = BOM + [headers].concat(rows).join('\n');
+  bkLog('bkLog', 'CSV built (' + _receipts.length + ' rows)', 'ok');
 
-  // If JSZip available, bundle images too
   if (typeof JSZip === 'undefined') {
-    // Fallback: CSV only
+    // Fallback CSV only
+    bkLog('bkLog', 'ZIP library not available — exporting CSV only', 'warn');
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
     a.download = 'snapreceipt-'+today()+'.csv';
     document.body.appendChild(a); a.click();
     setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); },1000);
-    toast('CSV exported ✓');
+    bkResult('bkResult','✓ CSV downloaded successfully', true);
+    btn.disabled=false; btn.textContent='⬇ Start backup';
     return;
   }
 
   var zip = new JSZip();
   zip.file('receipts.csv', csv);
-
-  // Fetch each receipt image and add to zip
   var imgFolder = zip.folder('images');
-  var fetched = 0;
-  await Promise.all(_receipts.map(async function(r) {
-    if (!r.image_url) return;
+
+  // Count receipts with images
+  var withImg = _receipts.filter(function(r){ return !!r.image_url; });
+  bkLog('bkLog', withImg.length + ' receipts have images — downloading…', 'info');
+  bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct', 5, 'Downloading images…');
+
+  var fetched = 0, failed = 0;
+  for (var i = 0; i < withImg.length; i++) {
+    var r = withImg[i];
+    var pct = 5 + Math.round((i / Math.max(withImg.length,1)) * 80);
+    bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct', pct,
+      'Downloading image ' + (i+1) + ' of ' + withImg.length + '…');
     try {
       var resp = await fetch(r.image_url);
-      if (!resp.ok) return;
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
       var blob = await resp.blob();
       var ext  = r.image_url.split('.').pop().split('?')[0] || 'jpg';
-      var fname = (r.date||'unknown') + '_' + (r.merchant||'receipt').replace(/[^a-z0-9]/gi,'_').toLowerCase() + '.' + ext;
+      var safe = (r.merchant||'receipt').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,30);
+      var fname = (r.date||'unknown') + '_' + safe + '_' + (i+1) + '.' + ext;
       imgFolder.file(fname, blob);
       fetched++;
-    } catch(e) { /* skip failed images silently */ }
-  }));
+    } catch(e) {
+      failed++;
+      bkLog('bkLog', 'Image ' + (i+1) + ' failed: ' + e.message, 'err');
+    }
+  }
 
-  var zipBlob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+  if (fetched > 0) bkLog('bkLog', fetched + ' images downloaded', 'ok');
+  if (failed > 0)  bkLog('bkLog', failed + ' images could not be downloaded', 'warn');
+
+  bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct', 90, 'Creating ZIP…');
+  bkLog('bkLog', 'Compressing ZIP…', 'info');
+
+  var zipBlob = await zip.generateAsync(
+    {type:'blob', compression:'DEFLATE', compressionOptions:{level:6}},
+    function(meta) {
+      bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct',
+        90 + Math.round(meta.percent * 0.1), 'Compressing… ' + Math.round(meta.percent) + '%');
+    }
+  );
+
+  bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct', 100, 'Done');
+  bkLog('bkLog', 'ZIP ready — starting download', 'ok');
+
   var a = document.createElement('a');
   a.href = URL.createObjectURL(zipBlob);
   a.download = 'snapreceipt-backup-'+today()+'.zip';
   document.body.appendChild(a); a.click();
   setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); },1000);
-  toast('Exported '+_receipts.length+' receipts + '+fetched+' images ✓');
+
+  var summary = '✓ Backup complete — ' + _receipts.length + ' receipts';
+  if (fetched) summary += ' + ' + fetched + ' images';
+  if (failed)  summary += ' (' + failed + ' images failed)';
+  bkResult('bkResult', summary, true);
+  btn.disabled=false; btn.textContent='⬇ Start backup';
 };
 
-/* ── IMPORT / RESTORE BACKUP ─────────────────────────────── */
+// Keep exportCSV as alias for any other callers
+window.exportCSV = window.startBackup;
+
+/* ── IMPORT / RESTORE ────────────────────────────────────── */
 window.triggerImport = function() {
   g('importFileInput').value = '';
   g('importFileInput').click();
@@ -2409,62 +2616,83 @@ window.triggerImport = function() {
 window.handleImport = async function(input) {
   var file = input.files[0];
   if (!file) return;
-  if (!_user) { toast('Please sign in first'); return; }
+  if (!_user) { bkResult('imResult','Please sign in first', false); return; }
 
-  var MAX_FILE_BYTES = 50 * 1024 * 1024; // 50MB
+  var MAX_FILE_BYTES = 50 * 1024 * 1024;
   var MAX_ROWS       = 500;
 
+  bkReset('imLog','imProgressWrap','imResult');
+  var btn = g('btnChooseImport');
+  if (btn) { btn.disabled=true; btn.textContent='Importing…'; }
+
   if (file.size > MAX_FILE_BYTES) {
-    toast('File too large — maximum is 50MB');
+    bkResult('imResult','✕ File too large — maximum is 50MB (your file: ' + Math.round(file.size/1024/1024) + 'MB)', false);
+    if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
     return;
   }
 
-  toast('Reading backup…');
+  bkLog('imLog', 'File: ' + file.name + ' (' + Math.round(file.size/1024) + 'KB)', 'info');
+  bkProgress('imProgressFill','imProgressLabel','imProgressPct', 5, 'Reading file…');
 
   try {
     var csvText = '';
-    var imageMap = {}; // filename -> blob
+    var imageMap = {};
 
     if (file.name.endsWith('.zip')) {
-      if (typeof JSZip === 'undefined') { toast('Zip support not loaded — try again'); return; }
+      if (typeof JSZip === 'undefined') {
+        bkResult('imResult','✕ ZIP support not loaded — please refresh and try again', false);
+        if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
+        return;
+      }
+      bkLog('imLog', 'Reading ZIP archive…', 'info');
       var zip = await JSZip.loadAsync(file);
 
-      // Extract CSV
       var csvFile = zip.file('receipts.csv');
-      if (!csvFile) { toast('No receipts.csv found in zip'); return; }
+      if (!csvFile) {
+        bkResult('imResult','✕ No receipts.csv found in ZIP — is this a SnapReceipt backup?', false);
+        if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
+        return;
+      }
       csvText = await csvFile.async('string');
+      bkLog('imLog', 'CSV extracted from ZIP', 'ok');
 
-      // Extract images
       var imgPromises = [];
       zip.folder('images').forEach(function(relPath, zipEntry) {
         imgPromises.push(
-          zipEntry.async('blob').then(function(blob) {
-            imageMap[relPath] = blob;
-          })
+          zipEntry.async('blob').then(function(blob) { imageMap[relPath] = blob; })
         );
       });
       await Promise.all(imgPromises);
+      if (Object.keys(imageMap).length)
+        bkLog('imLog', Object.keys(imageMap).length + ' images found in ZIP', 'ok');
 
     } else if (file.name.endsWith('.csv')) {
       csvText = await file.text();
+      bkLog('imLog', 'CSV file read', 'ok');
     } else {
-      toast('Please select a .zip or .csv backup file');
+      bkResult('imResult','✕ Unsupported file type — please select a .zip or .csv', false);
+      if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
       return;
     }
 
-    // Strip BOM if present
     if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
 
     var lines = csvText.split('\n').filter(function(l){ return l.trim(); });
-    if (lines.length < 2) { toast('CSV appears empty'); return; }
-
-    var dataRowCount = lines.length - 1; // exclude header
-    if (dataRowCount > MAX_ROWS) {
-      toast('Too many rows — maximum is ' + MAX_ROWS + ' (file has ' + dataRowCount + ')');
+    if (lines.length < 2) {
+      bkResult('imResult','✕ CSV appears empty', false);
+      if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
       return;
     }
 
-    // Parse header
+    var dataRowCount = lines.length - 1;
+    bkLog('imLog', dataRowCount + ' receipts found in file', 'info');
+
+    if (dataRowCount > MAX_ROWS) {
+      bkResult('imResult','✕ Too many rows — maximum is ' + MAX_ROWS + ' (file has ' + dataRowCount + ')', false);
+      if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
+      return;
+    }
+
     var header = lines[0].split(',');
     var idx = {};
     header.forEach(function(h,i){ idx[h.trim()] = i; });
@@ -2472,28 +2700,36 @@ window.handleImport = async function(input) {
     var required = ['Date','Merchant','Amount (£)'];
     for (var ri = 0; ri < required.length; ri++) {
       if (idx[required[ri]] === undefined) {
-        toast('CSV missing column: ' + required[ri]);
+        bkResult('imResult','✕ Missing column: "' + required[ri] + '" — is this a SnapReceipt CSV?', false);
+        if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
         return;
       }
     }
 
+    bkLog('imLog', 'File validated — starting import…', 'ok');
+    bkProgress('imProgressFill','imProgressLabel','imProgressPct', 10, 'Importing receipts…');
+
     var dataRows = lines.slice(1);
     var imported = 0, skipped = 0, errors = 0;
 
-    toast('Importing '+dataRows.length+' receipts…');
-
     for (var i = 0; i < dataRows.length; i++) {
+      var pct = 10 + Math.round((i / dataRows.length) * 88);
+      bkProgress('imProgressFill','imProgressLabel','imProgressPct', pct,
+        'Importing receipt ' + (i+1) + ' of ' + dataRows.length + '…');
+
       var cols = parseCSVRow(dataRows[i]);
       var merchant = (cols[idx['Merchant']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim();
       var amount   = parseFloat(cols[idx['Amount (£)']]||0);
-      if (!merchant || !amount) { skipped++; continue; }
+
+      if (!merchant || !amount) {
+        skipped++;
+        bkLog('imLog', 'Row ' + (i+1) + ' skipped (no merchant or amount)', 'warn');
+        continue;
+      }
 
       var imageUrl = null;
-
-      // Try to re-upload image from zip
       var imgColVal = idx['Image'] !== undefined ? (cols[idx['Image']]||'').trim() : '';
       if (imgColVal && Object.keys(imageMap).length) {
-        // Match by filename suffix
         var matchKey = Object.keys(imageMap).find(function(k){
           return imgColVal.endsWith(k) || k.includes((cols[idx['Date']]||'').replace(/-/g,''));
         });
@@ -2505,7 +2741,7 @@ window.handleImport = async function(input) {
             if (!upRes.error) {
               imageUrl = sb.storage.from('receipt-images').getPublicUrl(fname).data.publicUrl;
             }
-          } catch(e) { /* skip image, continue with receipt */ }
+          } catch(e) { /* skip image */ }
         }
       }
 
@@ -2516,30 +2752,42 @@ window.handleImport = async function(input) {
           amount:   amount,
           currency: (cols[idx['Currency']]||'GBP').trim(),
           date:     (cols[idx['Date']]||'').trim() || null,
-          category: idx['Category'] !== undefined ? (cols[idx['Category']]||'').trim()||null : null,
-          vat:      idx['VAT (£)']  !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
-          notes:    idx['Notes']    !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
+          category: idx['Category']  !== undefined ? (cols[idx['Category']]||'').trim()||null  : null,
+          vat:      idx['VAT (£)']   !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
+          notes:    idx['Notes']     !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
           image_url: imageUrl,
           ocr_raw:  null,
         });
-        if (res.error) { errors++; } else { imported++; }
-      } catch(e) { errors++; }
+        if (res.error) {
+          errors++;
+          bkLog('imLog', 'Row ' + (i+1) + ' failed: ' + res.error.message, 'err');
+        } else {
+          imported++;
+        }
+      } catch(e) {
+        errors++;
+        bkLog('imLog', 'Row ' + (i+1) + ' error: ' + e.message, 'err');
+      }
 
-      // Small delay to avoid rate limiting
-      if (i > 0 && i % 10 === 0) await new Promise(function(r){ setTimeout(r,200); });
+      if (i > 0 && i % 10 === 0) await new Promise(function(r){ setTimeout(r,150); });
     }
 
-    // Reload receipts
     await loadReceipts();
+    bkProgress('imProgressFill','imProgressLabel','imProgressPct', 100, 'Done');
 
-    var msg = 'Imported '+imported+' receipts';
-    if (skipped)  msg += ', '+skipped+' skipped (empty)';
-    if (errors)   msg += ', '+errors+' failed';
-    toast(msg);
+    var ok = errors === 0;
+    var summary = (ok ? '✓' : '⚠') + ' Import complete — ' + imported + ' imported';
+    if (skipped) summary += ', ' + skipped + ' skipped';
+    if (errors)  summary += ', ' + errors + ' failed';
+    bkResult('imResult', summary, ok);
+    bkLog('imLog', summary, ok ? 'ok' : 'warn');
+
+    if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
 
   } catch(e) {
     console.error('Import error:', e);
-    toast('Import failed — check file format');
+    bkResult('imResult','✕ Import failed — ' + e.message, false);
+    if (btn) { btn.disabled=false; btn.textContent='⬆ Choose backup file'; }
   }
 };
 
