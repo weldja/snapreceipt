@@ -2570,7 +2570,6 @@ window.startBackup = async function() {
   }
 
   var zip = new JSZip();
-  zip.file('receipts.csv', csv);
   var imgFolder = zip.folder('images');
 
   // Count receipts with images
@@ -2578,6 +2577,8 @@ window.startBackup = async function() {
   bkLog('bkLog', withImg.length + ' receipts have images — downloading…', 'info');
   bkProgress('bkProgressFill','bkProgressLabel','bkProgressPct', 5, 'Downloading images…');
 
+  // Map receipt id -> ZIP filename so CSV Image column references the ZIP file, not the Supabase URL
+  var imageFilenameMap = {};
   var fetched = 0, failed = 0;
   for (var i = 0; i < withImg.length; i++) {
     var r = withImg[i];
@@ -2590,14 +2591,32 @@ window.startBackup = async function() {
       var blob = await resp.blob();
       var ext  = r.image_url.split('.').pop().split('?')[0] || 'jpg';
       var safe = (r.merchant||'receipt').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,30);
-      var fname = (r.date||'unknown') + '_' + safe + '_' + (i+1) + '.' + ext;
+      var fname = (r.date||'unknown') + '_' + safe + '_' + r.id.slice(0,8) + '.' + ext;
       imgFolder.file(fname, blob);
+      imageFilenameMap[r.id] = fname;
       fetched++;
     } catch(e) {
       failed++;
       bkLog('bkLog', 'Image ' + (i+1) + ' failed: ' + e.message, 'err');
     }
   }
+
+  // Rebuild CSV with ZIP filenames in Image column so restore can match images reliably
+  var rows2 = _receipts.map(function(r){
+    return [
+      r.date||'',
+      '"'+(r.merchant||'').replace(/"/g,'""')+'"',
+      parseFloat(r.amount||0).toFixed(2),
+      r.currency||'GBP',
+      r.category||'',
+      parseFloat(r.vat||0).toFixed(2),
+      '"'+(r.notes||'').replace(/"/g,'""')+'"',
+      new Date(r.created_at).toISOString().slice(0,10),
+      imageFilenameMap[r.id] || '',
+    ].join(',');
+  });
+  csv = BOM + [headers].concat(rows2).join('\n');
+  zip.file('receipts.csv', csv);
 
   if (fetched > 0) bkLog('bkLog', fetched + ' images downloaded', 'ok');
   if (failed > 0)  bkLog('bkLog', failed + ' images could not be downloaded', 'warn');
@@ -2755,13 +2774,19 @@ window.handleImport = async function(input) {
       var imageUrl = null;
       var imgColVal = idx['Image'] !== undefined ? (cols[idx['Image']]||'').trim() : '';
       if (imgColVal && Object.keys(imageMap).length) {
+        // imgColVal is the ZIP image filename (e.g. 2008-06-16_harrods_abc12345.jpg)
+        // imageMap keys are the relative paths within the images/ folder
         var matchKey = Object.keys(imageMap).find(function(k){
-          return imgColVal.endsWith(k) || k.includes((cols[idx['Date']]||'').replace(/-/g,''));
+          // Normalise both sides: strip any leading path, compare basename
+          var kBase = k.split('/').pop().toLowerCase();
+          var vBase = imgColVal.split('/').pop().toLowerCase();
+          return kBase === vBase;
         });
         if (matchKey) {
           try {
             var imgBlob = imageMap[matchKey];
-            var fname = _user.id + '/' + Date.now() + '_' + i + '.jpg';
+            var ext2 = matchKey.split('.').pop() || 'jpg';
+            var fname = _user.id + '/' + Date.now() + '_' + i + '.' + ext2;
             var upRes = await sb.storage.from('receipt-images').upload(fname, imgBlob, {contentType:'image/jpeg',upsert:false});
             if (!upRes.error) {
               imageUrl = sb.storage.from('receipt-images').getPublicUrl(fname).data.publicUrl;
