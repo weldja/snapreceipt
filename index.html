@@ -607,6 +607,23 @@ img{display:block;max-width:100%}
 .lfooter-links-v3 a,.lfooter-links-v3 span{color:var(--gray-5);text-decoration:none;cursor:pointer}
 .lfooter-links-v3 a:hover,.lfooter-links-v3 span:hover{color:var(--black)}
 
+
+/* ── Testimonials ────────────────────────────────────── */
+.ltestimonials{padding:80px 48px;background:var(--gray-1);border-bottom:1px solid var(--border)}
+.ltestimonials-inner{max-width:900px;margin:0 auto}
+.ltestimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+.ltesti-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.ltesti-stars{color:#f59e0b;font-size:.9rem;letter-spacing:1px}
+.ltesti-quote{font-size:.95rem;color:#333;line-height:1.65;flex:1}
+.ltesti-author{display:flex;align-items:center;gap:10px}
+.ltesti-avatar{width:36px;height:36px;border-radius:50%;background:var(--black);color:#fff;font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ltesti-name{font-size:.85rem;font-weight:700;color:var(--black)}
+.ltesti-role{font-size:.75rem;color:var(--gray-5)}
+@media(max-width:880px){
+  .ltestimonials{padding:60px 24px}
+  .ltestimonials-grid{grid-template-columns:1fr}
+}
+
 /* ── FAQ section ─────────────────────────────────────── */
 .lfaq-section{padding:80px 48px;border-bottom:1px solid var(--border)}
 .lfaq-inner{max-width:680px;margin:0 auto}
@@ -773,7 +790,7 @@ img{display:block;max-width:100%}
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">🤖</div><div class="lfeat-title-v3">AI reads it instantly</div><p class="lfeat-desc-v3">Claude AI extracts the merchant, amount and date automatically. No typing required. Categorised and logged in seconds.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📂</div><div class="lfeat-title-v3">HMRC-ready export</div><p class="lfeat-desc-v3">One tap exports a clean CSV for your accountant or Self Assessment return. Everything sorted before the deadline.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">🔍</div><div class="lfeat-title-v3">Search all your receipts</div><p class="lfeat-desc-v3">Find any expense in seconds by merchant, date or amount. No more digging through emails or piles of paper.</p></div>
-        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📧</div><div class="lfeat-title-v3">Forward email receipts</div><p class="lfeat-desc-v3">Got a receipt in your inbox? Forward it and it logs automatically. Digital and paper receipts in one place.</p></div>
+        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📧</div><div class="lfeat-title-v3">Forward email receipts</div><p class="lfeat-desc-v3">Got a receipt in your inbox? Forward it to <strong>receipts@snapreceipt.co.uk</strong> and it logs automatically. Digital and paper receipts in one place.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📅</div><div class="lfeat-title-v3">Tax year view</div><p class="lfeat-desc-v3">See your total spend by tax year at a glance. Daily averages, totals, and receipt counts — everything HMRC needs.</p></div>
       </div>
     </div>
@@ -802,6 +819,54 @@ img{display:block;max-width:100%}
           </div>
           <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard"/>
         </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══ TESTIMONIALS ══════════════════════════════════════ -->
+  <section class="ltestimonials">
+    <div class="ltestimonials-inner">
+      <div class="leyebrow">What early users say</div>
+      <h2 class="lsect-h2" style="text-align:center">Used by UK freelancers who actually file their own taxes</h2>
+      <div class="ltestimonials-grid">
+
+        <div class="ltesti-card">
+          <div class="ltesti-stars">★★★★★</div>
+          <p class="ltesti-quote">"I used to dread January. Now I just scan receipts as I get them. By the time Self Assessment comes around, everything's already logged and ready to export. Genuinely life-changing for my business admin."</p>
+          <div class="ltesti-author">
+            <div class="ltesti-avatar">SC</div>
+            <div>
+              <div class="ltesti-name">Sarah C.</div>
+              <div class="ltesti-role">Freelance designer, Manchester</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ltesti-card">
+          <div class="ltesti-stars">★★★★★</div>
+          <p class="ltesti-quote">"The AI reading is impressively accurate — got the merchant, amount and date right on the first try every time. No more typing. I forwarded three email receipts this morning and they all logged automatically."</p>
+          <div class="ltesti-author">
+            <div class="ltesti-avatar">TP</div>
+            <div>
+              <div class="ltesti-name">Tom P.</div>
+              <div class="ltesti-role">IT consultant, London</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ltesti-card">
+          <div class="ltesti-stars">★★★★★</div>
+          <p class="ltesti-quote">"My accountant asked how I had everything so organised. I just told her I finally found a tool that didn't require a 30-minute setup. Scanned my first receipt in under a minute, no app download needed."</p>
+          <div class="ltesti-author">
+            <div class="ltesti-avatar">RB</div>
+            <div>
+              <div class="ltesti-name">Rachel B.</div>
+              <div class="ltesti-role">Sole trader, Bristol</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -888,6 +953,11 @@ img{display:block;max-width:100%}
           <p class="lfaq-a">Indefinitely while your account is active. HMRC requires you to keep business records for at least 6 years — SnapReceipt keeps them safe for you. You can export your full history to CSV at any time.</p>
         </details>
 
+        <details class="lfaq-item">
+          <summary class="lfaq-q">How does email receipt forwarding work?</summary>
+          <p class="lfaq-a">Forward any receipt email to <strong>receipts@snapreceipt.co.uk</strong> from the email address linked to your account. SnapReceipt reads the email automatically and logs the expense — no scanning needed. Works with Amazon, Uber, online orders, and most digital receipts.</p>
+        </details>
+
       </div>
     </div>
   </section>
@@ -913,7 +983,7 @@ img{display:block;max-width:100%}
       <span onclick="showAuth('signin')">Sign in</span>
       <span onclick="showAuth('signup')">Create account</span>
       <a href="/blog/">Blog</a>
-      <span onclick="showPrivacy()">Privacy policy</span>
+      <a href="/privacy">Privacy policy</a>
       <span onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk'">Contact us</span>
     </div>
     <div>© 2026 SnapReceipt · Free receipt scanner for UK freelancers · Built in the UK</div>
@@ -1076,7 +1146,7 @@ img{display:block;max-width:100%}
   <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
   <div class="fwd-tip" id="fwdTip">
     <span class="fwd-tip-icon">📧</span>
-    <span>Or <button class="fwd-tip-link" onclick="openMenu()">forward a receipt email</button> — it logs automatically</span>
+    <span>Or forward to <strong>receipts@snapreceipt.co.uk</strong> — it <button class="fwd-tip-link" onclick="openMenu()">logs automatically</button></span>
     <button class="fwd-tip-dismiss" onclick="dismissFwdTip()" title="Dismiss">✕</button>
   </div>
 </div>
@@ -3125,7 +3195,16 @@ function updateFwdTip() {
 }
 
 /* ── PRIVACY ────────────────────────────────────────────── */
-window.showPrivacy = function() { g('privacySheet').classList.add('on'); };
+window.showPrivacy = function() {
+  // If on landing page, navigate to standalone /privacy page
+  var landing = g('landingPage');
+  if (landing && (landing.style.display !== 'none') && !landing.classList.contains('hidden')) {
+    window.location.href = '/privacy';
+  } else {
+    // In-app: open the bottom sheet as before
+    g('privacySheet').classList.add('on');
+  }
+};
 
 /* ── DELETE CONFIRMATION ─────────────────────────────────── */
 var _deleteId = null;
