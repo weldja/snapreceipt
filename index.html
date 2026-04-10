@@ -155,15 +155,6 @@ img{display:block;max-width:100%}
   --shadow-md:0 4px 20px rgba(0,0,0,.1);
 }
 
-/* ── Add to Home Screen banner ───────────────────────── */
-.a2hs-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.1);padding:14px 16px;display:flex;align-items:center;gap:12px;animation:a2hsSlideUp .3s ease}
-@keyframes a2hsSlideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.a2hs-icon{font-size:1.8rem;flex-shrink:0}
-.a2hs-body{flex:1;min-width:0}
-.a2hs-title{font-size:.88rem;font-weight:700;color:var(--black);margin-bottom:2px}
-.a2hs-sub{font-size:.78rem;color:var(--gray-5);line-height:1.4}
-.a2hs-close{background:none;border:none;font-size:1.1rem;color:var(--gray-5);padding:4px 8px;flex-shrink:0;line-height:1;cursor:pointer}
-.a2hs-install-btn{background:var(--black);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 
 /* ── SCREENS ─────────────────────────────────────── */
 .screen{display:none}
@@ -1608,15 +1599,6 @@ img{display:block;max-width:100%}
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
 
-<!-- ═══ ADD TO HOME SCREEN BANNER ══════════════════════════ -->
-<div id="a2hsBanner" class="a2hs-banner" style="display:none" role="status" aria-live="polite">
-  <div class="a2hs-icon">📲</div>
-  <div class="a2hs-body">
-    <div class="a2hs-title">Add SnapReceipt to your home screen</div>
-    <div class="a2hs-sub" id="a2hsSub">Tap <strong>Share → Add to Home Screen</strong> for one-tap access</div>
-  </div>
-  <button class="a2hs-close" onclick="dismissA2hs()" aria-label="Dismiss">✕</button>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -1844,7 +1826,6 @@ sb.auth.onAuthStateChange(function(event, session) {
     g('landingPage').classList.remove('active');
     show('homeScreen');
     loadReceipts();
-    setTimeout(showA2hsBanner, 3000); // Show A2HS after 3s on home screen
     subscribeRealtime();
     updateMenuPinLabel();
     // Show lock screen if PIN is set and not yet unlocked this session
@@ -3781,10 +3762,8 @@ window.addEventListener('beforeinstallprompt', function(e) {
   // Store the event so our Install button can trigger it later
   _installPrompt = e;
   // Show our in-app install banner (only if not previously dismissed)
-  if (!localStorage.getItem('a2hsDismissed')) {
-    var banner = document.getElementById('installBanner');
-    if (banner) banner.style.display = 'flex';
-  }
+  var banner = document.getElementById('installBanner');
+  if (banner && !localStorage.getItem('installBannerDismissed')) banner.style.display = 'flex';
 });
 
 window.triggerInstall = async function() {
@@ -3799,7 +3778,7 @@ window.triggerInstall = async function() {
 window.dismissInstallBanner = function() {
   var banner = document.getElementById('installBanner');
   if (banner) banner.style.display = 'none';
-  try { localStorage.setItem('a2hsDismissed', '1'); } catch(e) {}
+  try { localStorage.setItem('installBannerDismissed', '1'); } catch(e) {}
 };
 
 </script>
