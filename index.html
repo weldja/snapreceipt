@@ -759,13 +759,13 @@ img{display:block;max-width:100%}
             </div>
             <div class="lbrowser-url">snapreceipt.co.uk</div>
           </div>
-          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt app dashboard"/>
+          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt app dashboard" width="1200" height="750"/>
         </div>
         <div class="lphone-float">
           <div class="lphone-frame">
             <div class="lphone-inner">
               <div class="lphone-notch"><div class="lphone-notch-pill"></div></div>
-              <img src="/images/app-screenshot-mobile.jpg" alt="SnapReceipt mobile"/>
+              <img src="/images/app-screenshot-mobile.jpg" alt="SnapReceipt mobile" width="390" height="844" loading="lazy"/>
             </div>
           </div>
         </div>
@@ -851,7 +851,7 @@ img{display:block;max-width:100%}
             </div>
             <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.co.uk · tax year view</div>
           </div>
-          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard"/>
+          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard" width="1200" height="750" loading="lazy"/>
         </div>
       </div>
     </div>
@@ -1648,9 +1648,6 @@ img{display:block;max-width:100%}
 ══════════════════════════════════════════════════════════ -->
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 'use strict';
 
@@ -1658,8 +1655,39 @@ img{display:block;max-width:100%}
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
 const WORKER_URL   = 'https://snapreceipt-ocr.james-weld.workers.dev';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ── DEFERRED LIBRARY LOADER ─────────────────────────────
+   Supabase, Chart.js and JSZip are not needed on the
+   landing page. We load them only when the user taps
+   Sign in / Create account, then initialise sb.
+────────────────────────────────────────────────────────── */
+var sb = null;
+var _libsLoaded = false;
+var _libsLoading = null;
+
+function loadLibs() {
+  if (_libsLoaded) return Promise.resolve();
+  if (_libsLoading) return _libsLoading;
+  function injectScript(src) {
+    return new Promise(function(resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function() { reject(new Error('Failed to load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  _libsLoading = injectScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
+    .then(function() {
+      var { createClient } = supabase;
+      sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+      // Load Chart.js and JSZip in parallel — non-blocking
+      injectScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
+      injectScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+      _libsLoaded = true;
+      _libsLoading = null;
+    });
+  return _libsLoading;
+}
 
 /* ── STATE ───────────────────────────────────────────── */
 var _user     = null;
@@ -1776,6 +1804,10 @@ function showLanding() {
 }
 
 window.showAuth = function(tab) {
+  // Load Supabase (and Chart.js/JSZip) on first auth interaction
+  loadLibs().then(function() { _initAuth(); }).catch(function(e) {
+    console.error('Failed to load auth libraries:', e);
+  });
   g('landingPage').classList.remove('active');
   show('authScreen');
   authTab(tab || 'signin');
@@ -1863,7 +1895,9 @@ window.addEventListener('popstate', function() {
 /* ── AUTH ────────────────────────────────────────────── */
 
 
-sb.auth.onAuthStateChange(function(event, session) {
+function _initAuth() {
+  if (!sb) return;
+  sb.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
     g('resetPassSheet').classList.add('on');
     return;
@@ -1896,7 +1930,8 @@ sb.auth.onAuthStateChange(function(event, session) {
       showLanding();
     }
   }
-});
+  });
+}
 
 // Boot check is deferred to DOMContentLoaded — see INIT block below.
 
@@ -3769,18 +3804,31 @@ window.confirmDeleteAccount = async function() {
   }
 };
 document.addEventListener('DOMContentLoaded', function() {
+  // Returning users already have a session token in localStorage —
+  // load libs immediately so onAuthStateChange fires and gets them in.
+  try {
+    var hasToken = Object.keys(localStorage).some(function(k) {
+      return k.startsWith('sb-') && k.endsWith('-auth-token');
+    });
+    if (hasToken) {
+      loadLibs().then(function() { _initAuth(); }).catch(function(e) {
+        console.error('Boot loadLibs failed:', e); showLanding();
+      });
+    }
+  } catch(e) { /* localStorage blocked */ }
   initFileInputs();
   updateMenuPinLabel();
 
-  // Boot check — wait for DOM then check session.
-  // Small delay ensures first paint completes on mobile before lock screen shows.
+  // Boot check — only run if sb is loaded (i.e. returning user who triggered loadLibs above)
+  // New visitors stay on the landing page — no session check needed.
   setTimeout(function() {
+    if (!sb) { showLanding(); return; }
     sb.auth.getSession().then(function(res) {
       var session = res.data && res.data.session;
       if (!session && pinIsSet()) {
         window.showLockScreen();
       } else if (!session) {
-                var anyActive = document.querySelector('.screen.active, #landingPage.active, #lockScreen.active');
+        var anyActive = document.querySelector('.screen.active, #landingPage.active, #lockScreen.active');
         if (!anyActive) showLanding();
       }
       if (pinIsSet() && withinGracePeriod()) {
