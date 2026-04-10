@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 
 <!-- ── Primary SEO ─────────────────────────────────────── -->
-<title>SnapReceipt — Free Receipt Scanner App for UK Freelancers &amp; Small Businesses</title>
-<meta name="description" content="Free receipt scanner app for UK freelancers and small businesses. AI reads merchant, amount and date automatically. Log expenses instantly and export CSV for Self Assessment. No app download needed."/>
-<meta name="keywords" content="receipt scanner app UK, free receipt scanner, expense tracker UK freelancer, HMRC receipt records, self assessment expenses, scan receipts UK, receipt log app, Making Tax Digital receipts"/>
+<title>SnapReceipt — Free Receipt Scanner &amp; MTD-Ready Expense Tracker for UK Freelancers</title>
+<meta name="description" content="Free receipt scanner app for UK freelancers and sole traders. AI reads every receipt automatically. No app download — works in your browser. Making Tax Digital ready. Export CSV for Self Assessment."/>
+<meta name="keywords" content="receipt scanner app UK, free receipt scanner, expense tracker UK freelancer, HMRC receipt records, self assessment expenses, scan receipts UK, receipt log app, Making Tax Digital receipts, MTD ITSA, Making Tax Digital for Income Tax, MTD for self assessment, no download receipt scanner"/>
 <meta name="author" content="SnapReceipt"/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://snapreceipt.co.uk/"/>
@@ -52,7 +52,9 @@
     "CSV export for Self Assessment",
     "Monthly and tax year expense totals",
     "Works on iOS and Android",
-    "No app download required"
+    "No app download required",
+    "Making Tax Digital (MTD ITSA) ready",
+    "No App Store installation needed — runs in browser"
   ],
   "inLanguage": "en-GB",
   "audience": {
@@ -596,6 +598,39 @@ img{display:block;max-width:100%}
 .lfooter-links-v3{display:flex;gap:24px;flex-wrap:wrap}
 .lfooter-links-v3 a,.lfooter-links-v3 span{color:var(--gray-5);text-decoration:none;cursor:pointer}
 .lfooter-links-v3 a:hover,.lfooter-links-v3 span:hover{color:var(--black)}
+
+/* ── MTD callout ──────────────────────────────────────── */
+.lmtd-section{background:#0a1628;padding:72px 48px;border-bottom:1px solid rgba(255,255,255,.06)}
+.lmtd-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center}
+.lmtd-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(0,102,255,.15);border:1px solid rgba(0,102,255,.3);color:#60a5fa;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+.lmtd-h2{font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.2;margin-bottom:16px}
+.lmtd-body{font-size:.92rem;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:20px;max-width:500px}
+.lmtd-link{font-size:.85rem;font-weight:600;color:#60a5fa;text-decoration:none}
+.lmtd-link:hover{text-decoration:underline}
+.lmtd-badges{display:flex;flex-direction:column;gap:12px;flex-shrink:0}
+.lmtd-badge{display:flex;align-items:center;gap:10px;font-size:.88rem;color:rgba(255,255,255,.75);white-space:nowrap}
+.lmtd-badge-icon{width:20px;height:20px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;flex-shrink:0;font-weight:700}
+/* no-download callout */
+.lnodown-section{background:var(--blue);padding:48px 48px;border-bottom:1px solid rgba(255,255,255,.12)}
+.lnodown-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:48px;flex-wrap:wrap}
+.lnodown-icon{font-size:3rem;flex-shrink:0}
+.lnodown-text{flex:1;min-width:240px}
+.lnodown-h3{font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:8px;line-height:1.2}
+.lnodown-body{font-size:.92rem;color:rgba(255,255,255,.75);line-height:1.65}
+.lnodown-body strong{color:#fff}
+.lnodown-steps{display:flex;gap:12px;flex-wrap:wrap;flex-shrink:0}
+.lnodown-step{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;font-size:.82rem;font-weight:700;color:#fff;text-align:center;min-width:90px}
+.lnodown-step span{display:block;font-size:.65rem;font-weight:500;color:rgba(255,255,255,.6);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+/* kicker + founder */
+.lhero-kicker{font-size:.88rem;color:rgba(255,255,255,.45);margin-bottom:6px;line-height:1.5;max-width:460px}
+.lhero-founder{margin-top:14px;font-size:13px;color:var(--gray-5);font-style:italic;line-height:1.5}
+@media(max-width:880px){
+  .lmtd-section{padding:56px 24px}
+  .lmtd-inner{grid-template-columns:1fr;gap:32px}
+  .lmtd-h2{font-size:1.4rem}
+  .lnodown-section{padding:40px 24px}
+  .lnodown-inner{gap:24px}
+}
 @keyframes lfadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes lfloatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
@@ -677,6 +712,7 @@ img{display:block;max-width:100%}
       <div>
         <div class="lhero-badge"><div class="lhero-badge-dot"></div>Early access open — UK freelancers only</div>
         <h1 class="lhero-h1">Scan it now.<br><span class="lh1-blue">Sorted for January.</span></h1>
+        <p class="lhero-kicker">Free receipt scanner for UK freelancers &amp; sole traders — no app download, no App Store, works in your browser. Making Tax Digital ready.</p>
         <p class="lhero-sub">Take a photo of any receipt. AI reads the details automatically. Everything logged, searchable, and ready for your accountant — no typing, no shoebox.</p>
         <div class="lhero-btns">
           <button class="lbtn-primary" onclick="showAuth('signup')">🧾 Claim your free spot</button>
@@ -688,9 +724,11 @@ img{display:block;max-width:100%}
         </div>
         <div class="ltrust-row">
           <span class="ltrust-item">Free during early access</span>
-          <span class="ltrust-item">Works on iOS &amp; Android</span>
+          <span class="ltrust-item">No App Store — works in your browser</span>
+          <span class="ltrust-item">Making Tax Digital ready</span>
           <span class="ltrust-item">Built in the UK</span>
         </div>
+        <p class="lhero-founder">Built by a UK freelancer who lost three hours to a shoebox in January.</p>
       </div>
       <div class="lhero-screens">
         <div class="lbrowser">
@@ -700,7 +738,7 @@ img{display:block;max-width:100%}
               <div class="lbrowser-dot" style="background:#ffbd2e"></div>
               <div class="lbrowser-dot" style="background:#28c840"></div>
             </div>
-            <div class="lbrowser-url">snapreceipt.app</div>
+            <div class="lbrowser-url">snapreceipt.co.uk</div>
           </div>
           <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt app dashboard"/>
         </div>
@@ -734,7 +772,9 @@ img{display:block;max-width:100%}
     <div class="lproof-divider"></div>
     <div class="lproof-item">📊 <strong>HMRC-ready</strong> CSV export</div>
     <div class="lproof-divider"></div>
-    <div class="lproof-item">📱 <strong>No app download</strong> needed</div>
+    <div class="lproof-item">📱 <strong>No App Store.</strong> Works in your browser</div>
+    <div class="lproof-divider"></div>
+    <div class="lproof-item">📅 <strong>Making Tax Digital</strong> ready</div>
   </div>
 
   <section class="lfeatures-v3" id="lfeatures">
@@ -742,12 +782,47 @@ img{display:block;max-width:100%}
       <div class="leyebrow">Why SnapReceipt</div>
       <h2 class="lsect-h2">No spreadsheets. No shoebox.<br>No January panic.</h2>
       <div class="lfeat-grid-v3">
-        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📸</div><div class="lfeat-title-v3">Snap any receipt</div><p class="lfeat-desc-v3">Paper receipts, till rolls, card machine slips, online orders. Works on iOS and Android — no app download needed.</p></div>
+        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📸</div><div class="lfeat-title-v3">No App Store. Just open and scan.</div><p class="lfeat-desc-v3">No download, no installation. Open snapreceipt.co.uk in Safari or Chrome and start scanning immediately. Paper receipts, till rolls, invoices — all supported.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">🤖</div><div class="lfeat-title-v3">AI reads it instantly</div><p class="lfeat-desc-v3">Claude AI extracts the merchant, amount and date automatically. No typing required. Categorised and logged in seconds.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📂</div><div class="lfeat-title-v3">HMRC-ready export</div><p class="lfeat-desc-v3">One tap exports a clean CSV for your accountant or Self Assessment return. Everything sorted before the deadline.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">🔍</div><div class="lfeat-title-v3">Search all your receipts</div><p class="lfeat-desc-v3">Find any expense in seconds by merchant, date or amount. No more digging through emails or piles of paper.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📧</div><div class="lfeat-title-v3">Forward email receipts</div><p class="lfeat-desc-v3">Got a receipt in your inbox? Forward it and it logs automatically. Digital and paper receipts in one place.</p></div>
-        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📅</div><div class="lfeat-title-v3">Tax year view</div><p class="lfeat-desc-v3">See your total spend by tax year at a glance. Daily averages, totals, and receipt counts — everything HMRC needs.</p></div>
+        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📅</div><div class="lfeat-title-v3">Making Tax Digital ready</div><p class="lfeat-desc-v3">MTD ITSA requires digital records. SnapReceipt keeps every receipt digitally from day one — tax year view, quarterly totals, and CSV export for your MTD software or accountant.</p></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══ NO DOWNLOAD CALLOUT ══════════════════════════════ -->
+  <section class="lnodown-section">
+    <div class="lnodown-inner">
+      <div class="lnodown-icon">🌐</div>
+      <div class="lnodown-text">
+        <h2 class="lnodown-h3">No App Store. No download. Open your browser and go.</h2>
+        <p class="lnodown-body">Every competitor — Dext, Expensify, QuickBooks — requires an app download. SnapReceipt runs entirely in your browser. <strong>Open Safari or Chrome, scan your first receipt in 30 seconds.</strong> Add to Home Screen for one-tap access that works exactly like a native app.</p>
+      </div>
+      <div class="lnodown-steps">
+        <div class="lnodown-step">Open browser<span>Step 1</span></div>
+        <div class="lnodown-step">Go to site<span>Step 2</span></div>
+        <div class="lnodown-step">Scan receipt<span>Step 3</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MTD CALLOUT ══════════════════════════════════════ -->
+  <section class="lmtd-section">
+    <div class="lmtd-inner">
+      <div class="lmtd-text">
+        <div class="lmtd-pill">📅 Making Tax Digital for Income Tax</div>
+        <h2 class="lmtd-h2">MTD ITSA is live.<br>SnapReceipt is ready.</h2>
+        <p class="lmtd-body">Making Tax Digital for Income Tax Self Assessment (MTD ITSA) requires UK sole traders and freelancers to keep digital records and submit quarterly updates to HMRC. SnapReceipt gives you compliant digital receipt records from day one — scan, log, and export in seconds.</p>
+        <a href="/blog/making-tax-digital-sole-traders-2026/" class="lmtd-link">Read our MTD ITSA guide for freelancers →</a>
+      </div>
+      <div class="lmtd-badges">
+        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>Digital receipt records</span></div>
+        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>HMRC-ready CSV export</span></div>
+        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>Tax year &amp; quarterly view</span></div>
+        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>Works with FreeAgent, QuickBooks, Xero</span></div>
       </div>
     </div>
   </section>
@@ -771,7 +846,7 @@ img{display:block;max-width:100%}
               <div class="lbrowser-dot" style="background:#ffbd2e"></div>
               <div class="lbrowser-dot" style="background:#28c840"></div>
             </div>
-            <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.app · tax year view</div>
+            <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.co.uk · tax year view</div>
           </div>
           <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard"/>
         </div>
@@ -830,7 +905,7 @@ img{display:block;max-width:100%}
     </div>
     <br>
     <button class="lbtn-white" onclick="showAuth('signup')">🧾 Claim your free spot →</button>
-    <p class="lcta-note">Works on iOS &amp; Android · Built in the UK · HMRC-ready exports</p>
+    <p class="lcta-note">No App Store · Works on iOS &amp; Android · MTD ITSA ready · Built in the UK</p>
   </section>
 
   <footer class="lfooter-v3">
@@ -842,7 +917,7 @@ img{display:block;max-width:100%}
       <span onclick="showPrivacy()">Privacy policy</span>
       <span onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk'">Contact us</span>
     </div>
-    <div>© 2026 SnapReceipt · Free receipt scanner for UK freelancers · Built in the UK</div>
+    <div>© 2026 SnapReceipt · Free receipt scanner for UK freelancers · Making Tax Digital ready · Built in the UK</div>
   </footer>
 
 </div>
