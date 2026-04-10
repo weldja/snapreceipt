@@ -474,8 +474,8 @@ img{display:block;max-width:100%}
 
 
 /* ── LANDING PAGE v3 ──────────────────────────────── */
-#landingPage{display:none;flex-direction:column;min-height:100vh;background:#fff}
-#landingPage.active{display:flex}
+#landingPage{display:flex;flex-direction:column;min-height:100vh;background:#fff}
+#landingPage.hidden{display:none!important}
 .ea-banner{background:#111;color:#fff;text-align:center;padding:10px 24px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0}
 .ea-pill{background:#fef3c7;color:#b45309;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:100px}
 .ea-spots-text{font-weight:700;color:#fef3c7}
@@ -1799,7 +1799,7 @@ function closeMobileNav() {
 }
 function showLanding() {
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
-  g('landingPage').classList.add('active');
+  g('landingPage').classList.remove('hidden');
   window.scrollTo(0,0);
 }
 
@@ -1808,7 +1808,7 @@ window.showAuth = function(tab) {
   loadLibs().then(function() { _initAuth(); }).catch(function(e) {
     console.error('Failed to load auth libraries:', e);
   });
-  g('landingPage').classList.remove('active');
+  g('landingPage').classList.add('hidden');
   show('authScreen');
   authTab(tab || 'signin');
   window.scrollTo(0,0);
@@ -1905,7 +1905,7 @@ function _initAuth() {
   _user = session ? session.user : null;
   if (_user) {
     g('menuEmail').textContent = _user.email || '';
-    g('landingPage').classList.remove('active');
+    g('landingPage').classList.add('hidden');
     show('homeScreen');
     loadReceipts();
     subscribeRealtime();
@@ -3828,7 +3828,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!session && pinIsSet()) {
         window.showLockScreen();
       } else if (!session) {
-        var anyActive = document.querySelector('.screen.active, #landingPage.active, #lockScreen.active');
+        var anyActive = document.querySelector('.screen.active, #lockScreen.active') || !g('landingPage').classList.contains('hidden');
         if (!anyActive) showLanding();
       }
       if (pinIsSet() && withinGracePeriod()) {
