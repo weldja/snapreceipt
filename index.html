@@ -279,6 +279,26 @@ img{display:block;max-width:100%}
 .fwd-tip-link{background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;-webkit-tap-highlight-color:transparent}
 .fwd-tip-dismiss{background:none;border:none;color:var(--gray-3);font-size:.85rem;cursor:pointer;padding:0 0 0 4px;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 
+
+/* ── SCAN LIMIT / UPGRADE PROMPT ────────────────────── */
+.upgrade-sheet-bg{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.5);display:none;align-items:flex-end}
+.upgrade-sheet-bg.on{display:flex}
+.upgrade-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 0 max(24px,env(safe-area-inset-bottom,24px))}
+.upgrade-sheet-handle{width:36px;height:4px;background:var(--gray-3);border-radius:2px;margin:12px auto 20px}
+.upgrade-sheet-body{padding:0 24px 24px}
+.upgrade-icon{font-size:2.4rem;text-align:center;margin-bottom:12px}
+.upgrade-title{font-size:1.15rem;font-weight:800;color:var(--black);text-align:center;letter-spacing:-.02em;margin-bottom:8px}
+.upgrade-sub{font-size:.88rem;color:var(--gray-5);text-align:center;line-height:1.6;margin-bottom:20px}
+.upgrade-limit-bar{background:var(--gray-1);border-radius:6px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.upgrade-limit-label{font-size:.78rem;color:var(--gray-5);font-weight:600}
+.upgrade-limit-count{font-size:.88rem;font-weight:800;color:var(--red)}
+.upgrade-feats{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.upgrade-feat{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--black)}
+.upgrade-feat-icon{width:22px;height:22px;background:var(--green-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--green);font-weight:800;flex-shrink:0}
+.upgrade-cta{width:100%;padding:15px;background:var(--black);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:10px;letter-spacing:-.01em}
+.upgrade-dismiss{width:100%;padding:12px;background:none;border:none;font-size:.88rem;color:var(--gray-5);cursor:pointer}
+.scan-limit-badge{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;font-size:.58rem;font-weight:800;padding:2px 5px;border-radius:10px;white-space:nowrap}
+
 /* ── SCAN ────────────────────────────────────────── */
 .scan-hdr{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;background:#fff}
 .scan-back{height:36px;padding:0 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:.85rem;font-weight:600;color:var(--gray-7);display:flex;align-items:center;gap:5px;transition:all .15s}
@@ -922,6 +942,7 @@ img{display:block;max-width:100%}
 
 </div>
 
+
 <!-- ═══ AUTH ═════════════════════════════════════════════ -->
 <div id="authScreen" class="screen">
   <div class="auth-wrap">
@@ -1074,7 +1095,7 @@ img{display:block;max-width:100%}
     <button class="onboard-btn" onclick="openScan();dismissOnboard()">📸 Scan your first receipt</button>
   </div>
   <div id="rlist" class="rlist"></div>
-  <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
+  <button class="scan-fab" id="scanFab" onclick="openScan()">📸 Scan Receipt</button>
   <div class="fwd-tip" id="fwdTip">
     <span class="fwd-tip-icon">📧</span>
     <span>Or <button class="fwd-tip-link" onclick="openMenu()">forward a receipt email</button> — it logs automatically</span>
@@ -1220,6 +1241,12 @@ img{display:block;max-width:100%}
       <div class="sdiv"></div>
       <div class="sheet-item muted" style="cursor:default"><span class="sicon">👤</span><span id="menuEmail">—</span></div>
       <button class="sheet-item" onclick="openDeleteAccount();closeMenu()"><span class="sicon">🗑</span>Delete my account</button>
+      <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:2px" id="menuScanUsage">
+        <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📷 AI scans this month</div>
+        <div style="font-size:.88rem;font-weight:700;color:var(--black)" id="menuScanCount">—</div>
+        <div style="font-size:.72rem;color:var(--gray-5)">Resets 1st of each month</div>
+      </div>
+      <div class="sdiv"></div>
       <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
       <div style="text-align:center;padding:12px 20px 16px;font-size:.72rem;color:var(--gray-3);letter-spacing:.02em">🔒 Encrypted · GDPR compliant · Never sold</div>
     </div>
@@ -1551,6 +1578,11 @@ const WORKER_URL   = 'https://snapreceipt-ocr.james-weld.workers.dev';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ── SCAN LIMIT ──────────────────────────────────────── */
+const FREE_SCAN_LIMIT = 20; // AI scans per calendar month on free tier
+var _isPro      = false;    // set after profile fetch — true = paid user
+var _scanCount  = 0;        // AI scans used this calendar month
+
 /* ── STATE ───────────────────────────────────────────── */
 var _user     = null;
 var _receipts = [];
@@ -1572,6 +1604,42 @@ function fmtDate(d) {
   try { return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
   catch(e) { return d; }
 }
+
+/* ── SCAN LIMIT HELPERS ──────────────────────────────────────
+   Count is stored in localStorage keyed by YYYY-MM so it resets
+   automatically each calendar month. No server round-trip needed
+   for the check — the Worker enforces it server-side too (future).
+─────────────────────────────────────────────────────────────── */
+function scanMonthKey() {
+  var d = new Date();
+  return 'sr_scans_' + d.getFullYear() + '_' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function getScanCount() {
+  try { return parseInt(localStorage.getItem(scanMonthKey()) || '0'); } catch(e) { return 0; }
+}
+
+function incrementScanCount() {
+  try {
+    var key = scanMonthKey();
+    var n = parseInt(localStorage.getItem(key) || '0') + 1;
+    localStorage.setItem(key, n);
+    _scanCount = n;
+    updateScanFabBadge();
+    return n;
+  } catch(e) { return 1; }
+}
+
+function scansRemaining() {
+  if (_isPro) return Infinity;
+  return Math.max(0, FREE_SCAN_LIMIT - getScanCount());
+}
+
+function updateScanFabBadge() { /* no limit enforced yet */ }
+
+/* upgrade prompt functions — activate when limit is enforced */
+
+
 function isoDate(s) {
   if (!s) return today();
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
@@ -1764,6 +1832,9 @@ sb.auth.onAuthStateChange(function(event, session) {
     loadReceipts();
     subscribeRealtime();
     updateMenuPinLabel();
+    // Initialise scan count state
+    _scanCount = getScanCount();
+    updateScanFabBadge();
     // Show lock screen if PIN is set and not yet unlocked this session
     if (pinIsSet() && !_lockUnlocked && !withinGracePeriod()) {
       window.showLockScreen();
@@ -2412,6 +2483,7 @@ function onPhotoSelected(file) {
 }
 
 function runOCR(b64) {
+  // Check scan limit before hitting the API
   sb.auth.getSession().then(function(res) {
     var session = res && res.data && res.data.session;
     if (!session) {
@@ -2433,6 +2505,8 @@ function runOCR(b64) {
     .then(function(r){ return r.json(); })
     .then(function(data) {
       if (data.error) throw new Error(data.error);
+      // Increment only on success — don't penalise failed scans
+      incrementScanCount();
       g('cfMerchant').value = data.merchant || '';
       g('cfAmount').value   = data.amount   || '';
       g('cfDate').value     = data.date ? isoDate(data.date) : today();
@@ -3042,6 +3116,13 @@ window.openMenu  = function() {
   if (el && !el.innerHTML) {
     var addr = 'receipts@snap' + 'receipt.co.uk';
     el.innerHTML = '<a href="mailto:' + addr + '" style="color:var(--black);text-decoration:none">' + addr + '</a>';
+  }
+  // Update scan usage display
+  var countEl = g('menuScanCount');
+  if (countEl) {
+    var used = getScanCount();
+    countEl.textContent = used + ' scan' + (used !== 1 ? 's' : '');
+    countEl.style.color = 'var(--black)';
   }
   g('menuSheet').classList.add('on');
 };
