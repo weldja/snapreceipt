@@ -1248,7 +1248,7 @@ img{display:block;max-width:100%}
       <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:2px" id="menuScanUsage">
         <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em">📷 AI scans this month</div>
         <div style="font-size:.88rem;font-weight:700;color:var(--black)" id="menuScanCount">—</div>
-        <div style="font-size:.72rem;color:var(--gray-5)">Resets 1st of each month</div>
+        <div style="font-size:.72rem;color:var(--gray-5)" id="menuScanSub">Unlimited during early access · resets 1st of month</div>
       </div>
       <div class="sdiv"></div>
       <button class="sheet-item danger" onclick="doSignout()"><span class="sicon">→</span>Sign out</button>
@@ -3127,11 +3127,15 @@ window.openMenu  = function() {
     var addr = 'receipts@snap' + 'receipt.co.uk';
     el.innerHTML = '<a href="mailto:' + addr + '" style="color:var(--black);text-decoration:none">' + addr + '</a>';
   }
-  // Update scan usage display
+  // Count scans from _receipts (Supabase-backed, syncs across all devices)
   var countEl = g('menuScanCount');
   if (countEl) {
-    var used = getScanCount();
-    countEl.textContent = used + ' scan' + (used !== 1 ? 's' : '');
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    var monthScans = _receipts.filter(function(r) {
+      return r.created_at >= monthStart;
+    }).length;
+    countEl.textContent = monthScans + ' scan' + (monthScans !== 1 ? 's' : '') + ' this month';
     countEl.style.color = 'var(--black)';
   }
   g('menuSheet').classList.add('on');
