@@ -1762,61 +1762,6 @@ window.addEventListener('popstate', function() {
 
 /* ── AUTH ────────────────────────────────────────────── */
 
-/* ── ADD TO HOME SCREEN ──────────────────────────────
-   Shows after successful sign-in on mobile browsers.
-   Uses native beforeinstallprompt on Android Chrome;
-   shows manual instructions on iOS Safari.
-─────────────────────────────────────────────────────── */
-var _a2hsDeferredPrompt = null;
-var _a2hsShown = false;
-
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  _a2hsDeferredPrompt = e;
-});
-
-function showA2hsBanner() {
-  if (_a2hsShown) return;
-  if (localStorage.getItem('a2hsDismissed')) return;
-  // Only show on mobile
-  if (window.innerWidth > 900) return;
-  // Don't show if already installed as PWA
-  if (window.matchMedia('(display-mode: standalone)').matches) return;
-  if (window.navigator.standalone === true) return;
-
-  _a2hsShown = true;
-  var banner = g('a2hsBanner');
-  var sub = g('a2hsSub');
-  if (!banner) return;
-
-  if (_a2hsDeferredPrompt) {
-    // Android Chrome — can trigger native prompt
-    sub.innerHTML = '<button class="a2hs-install-btn" onclick="triggerA2hs()">Add to Home Screen</button>';
-  } else {
-    // iOS Safari — show manual instructions
-    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (isIOS) {
-      sub.innerHTML = 'Tap <strong>Share ↑</strong> then <strong>Add to Home Screen</strong>';
-    } else {
-      sub.innerHTML = 'Open browser menu and tap <strong>Add to Home Screen</strong>';
-    }
-  }
-  banner.style.display = 'flex';
-}
-
-window.triggerA2hs = async function() {
-  if (!_a2hsDeferredPrompt) return;
-  _a2hsDeferredPrompt.prompt();
-  var result = await _a2hsDeferredPrompt.userChoice;
-  _a2hsDeferredPrompt = null;
-  dismissA2hs();
-};
-
-window.dismissA2hs = function() {
-  var banner = g('a2hsBanner');
-  if (banner) banner.style.display = 'none';
-  localStorage.setItem('a2hsDismissed', '1');
-};
 
 sb.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
@@ -3758,4 +3703,24 @@ window.addEventListener('beforeinstallprompt', function(e) {
   _installPrompt = e;
   // Show an install banner if user hasn't installed yet
   var banner = document.getElementById('installBanner');
-  if (banner) banner.style.display =
+  if (banner) banner.style.display = 'flex';
+});
+
+window.triggerInstall = async function() {
+  if (!_installPrompt) return;
+  _installPrompt.prompt();
+  await _installPrompt.userChoice;
+  _installPrompt = null;
+  var banner = document.getElementById('installBanner');
+  if (banner) banner.style.display = 'none';
+};
+
+window.dismissInstallBanner = function() {
+  var banner = document.getElementById('installBanner');
+  if (banner) banner.style.display = 'none';
+  try { localStorage.setItem('a2hsDismissed', '1'); } catch(e) {}
+};
+
+</script>
+</body>
+</html>
