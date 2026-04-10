@@ -3684,11 +3684,13 @@ if ('serviceWorker' in navigator) {
 // Capture and surface the PWA install prompt
 var _installPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
+  // Store event so triggerInstall() can call .prompt() later
   _installPrompt = e;
-  // Show an install banner if user hasn't installed yet
-  var banner = document.getElementById('installBanner');
-  if (banner) banner.style.display = 'flex';
+  // Show our in-app install banner (only if not previously dismissed)
+  if (!localStorage.getItem('installBannerDismissed')) {
+    var banner = document.getElementById('installBanner');
+    if (banner) banner.style.display = 'flex';
+  }
 });
 
 window.triggerInstall = async function() {
