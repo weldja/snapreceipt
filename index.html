@@ -145,7 +145,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manip
 img{display:block;max-width:100%}
 
 :root{
-  --black:#111;--gray-7:#555;--gray-5:#888;--gray-3:#ccc;
+  --black:#111;--gray-7:#555;--gray-5:#767676;--gray-3:#ccc;
   --gray-1:#f5f5f5;--gray-0:#fafafa;
   --blue:#0066ff;--blue-lt:#e8f0ff;--blue-mid:#c5d8ff;
   --green:#00a651;--green-lt:#e6f5ed;
@@ -154,6 +154,16 @@ img{display:block;max-width:100%}
   --shadow:0 1px 4px rgba(0,0,0,.08);
   --shadow-md:0 4px 20px rgba(0,0,0,.1);
 }
+
+/* ── Add to Home Screen banner ───────────────────────── */
+.a2hs-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.1);padding:14px 16px;display:flex;align-items:center;gap:12px;animation:a2hsSlideUp .3s ease}
+@keyframes a2hsSlideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.a2hs-icon{font-size:1.8rem;flex-shrink:0}
+.a2hs-body{flex:1;min-width:0}
+.a2hs-title{font-size:.88rem;font-weight:700;color:var(--black);margin-bottom:2px}
+.a2hs-sub{font-size:.78rem;color:var(--gray-5);line-height:1.4}
+.a2hs-close{background:none;border:none;font-size:1.1rem;color:var(--gray-5);padding:4px 8px;flex-shrink:0;line-height:1;cursor:pointer}
+.a2hs-install-btn{background:var(--black);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 
 /* ── SCREENS ─────────────────────────────────────── */
 .screen{display:none}
@@ -247,7 +257,7 @@ img{display:block;max-width:100%}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .rrow:active{opacity:.85}
 .rrow.expanded{border-color:var(--black);box-shadow:var(--shadow-md)}
-.rrow-main{display:flex;align-items:center;gap:12px;padding:13px 14px}
+.rrow-main{display:flex;align-items:center;gap:12px;padding:13px 14px;width:100%;background:none;border:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
 .rthumb{width:44px;height:56px;border-radius:8px;background:var(--gray-1);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-3);border:1px solid var(--border)}
 .rthumb img{width:100%;height:100%;object-fit:cover}
 .rinfo{flex:1;min-width:0}
@@ -456,7 +466,7 @@ img{display:block;max-width:100%}
 .tax-bar-days{font-size:.66rem;font-weight:700;color:var(--gray-5)}
 .tax-bar-track{height:4px;background:var(--gray-1);border-radius:2px;overflow:hidden}
 .tax-bar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.dash-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-bottom:10px}
+.dash-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-bottom:10px;width:100%;background:none;border:none;text-align:left;font:inherit;color:inherit}
 .dash-chevron{font-size:.65rem;color:var(--gray-5);transition:transform .2s;flex-shrink:0;margin-left:8px}
 .dash.open .dash-chevron{transform:rotate(180deg)}
 .dash-expandable{display:none;flex-direction:column;gap:10px}
@@ -596,6 +606,19 @@ img{display:block;max-width:100%}
 .lfooter-links-v3{display:flex;gap:24px;flex-wrap:wrap}
 .lfooter-links-v3 a,.lfooter-links-v3 span{color:var(--gray-5);text-decoration:none;cursor:pointer}
 .lfooter-links-v3 a:hover,.lfooter-links-v3 span:hover{color:var(--black)}
+
+/* ── FAQ section ─────────────────────────────────────── */
+.lfaq-section{padding:80px 48px;border-bottom:1px solid var(--border)}
+.lfaq-inner{max-width:680px;margin:0 auto}
+.lfaq-list{margin-top:0;display:flex;flex-direction:column;gap:0}
+.lfaq-item{border-bottom:1px solid var(--border)}
+.lfaq-item:first-child{border-top:1px solid var(--border)}
+.lfaq-q{font-size:15px;font-weight:600;color:var(--black);padding:18px 0;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;-webkit-tap-highlight-color:transparent}
+.lfaq-q::-webkit-details-marker{display:none}
+.lfaq-q::after{content:'+';font-size:1.3rem;font-weight:300;color:var(--gray-5);flex-shrink:0;transition:transform .2s}
+.lfaq-item[open] .lfaq-q::after{transform:rotate(45deg)}
+.lfaq-a{font-size:14px;color:var(--gray-7);line-height:1.7;padding-bottom:18px;margin:0}
+@media(max-width:880px){.lfaq-section{padding:60px 24px}}
 @keyframes lfadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 .lhero-founder{margin-top:14px;font-size:13px;color:var(--gray-5);font-style:italic;line-height:1.5}
 @keyframes lfloatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -651,6 +674,7 @@ img{display:block;max-width:100%}
       <li><a href="#lfeatures">Features</a></li>
       <li><a href="#lhow">How it works</a></li>
       <li><a href="#lpricing">Pricing</a></li>
+      <li><a href="#lfaq">FAQ</a></li>
     </ul>
     <div class="lnav-actions">
       <span class="lnav-spots">383 spots left</span>
@@ -667,6 +691,7 @@ img{display:block;max-width:100%}
     <a class="lnav-mobile-link" href="#lfeatures" onclick="closeMobileNav()">Features</a>
     <a class="lnav-mobile-link" href="#lhow" onclick="closeMobileNav()">How it works</a>
     <a class="lnav-mobile-link" href="#lpricing" onclick="closeMobileNav()">Pricing</a>
+    <a class="lnav-mobile-link" href="#lfaq" onclick="closeMobileNav()">FAQ</a>
     <div class="lnav-mobile-btns">
       <button class="lnav-mobile-btn-ghost" onclick="closeMobileNav();showAuth('signin')">Sign in</button>
       <button class="lnav-mobile-btn-primary" onclick="closeMobileNav();showAuth('signup')">🧾 Claim your free spot</button>
@@ -685,7 +710,7 @@ img{display:block;max-width:100%}
         </div>
         <div class="lscarcity">
           <div class="lscarcity-labels"><span>Early access spots claimed</span><strong>117 of 500</strong></div>
-          <div class="lscarcity-track"><div class="lscarcity-fill"></div></div>
+          <div class="lscarcity-track" role="progressbar" aria-valuenow="117" aria-valuemin="0" aria-valuemax="500" aria-label="117 of 500 early access spots claimed"><div class="lscarcity-fill"></div></div>
         </div>
         <div class="ltrust-row">
           <span class="ltrust-item">Free during early access</span>
@@ -820,6 +845,53 @@ img{display:block;max-width:100%}
     </div>
   </section>
 
+
+  <!-- ═══ FAQ SECTION ═══════════════════════════════════════ -->
+  <section class="lfaq-section" id="lfaq">
+    <div class="lfaq-inner">
+      <div class="leyebrow">FAQ</div>
+      <h2 class="lsect-h2">Common questions</h2>
+      <div class="lfaq-list">
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">Is SnapReceipt really free?</summary>
+          <p class="lfaq-a">Yes — free to sign up, no credit card required. You can scan and log receipts immediately. The core scanning and logging will always have a free tier.</p>
+        </details>
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">Does it work for Self Assessment?</summary>
+          <p class="lfaq-a">Yes. SnapReceipt is built specifically for UK freelancers and sole traders. You can export a clean CSV of all your receipts for your Self Assessment tax return or send directly to your accountant.</p>
+        </details>
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">Is my financial data safe?</summary>
+          <p class="lfaq-a">Yes. Your data is stored securely using Supabase, which uses bank-level encryption and is fully GDPR compliant. Your receipts are private to your account — nobody else can see them. We never sell your data.</p>
+        </details>
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">Do I need to download an app?</summary>
+          <p class="lfaq-a">No. SnapReceipt runs entirely in your browser — just open snapreceipt.co.uk on your phone or laptop. For quick access, tap <strong>Add to Home Screen</strong> in your browser and it will work just like a native app.</p>
+        </details>
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">Does it work on iPhone and Android?</summary>
+          <p class="lfaq-a">Yes. SnapReceipt works on iOS Safari, Android Chrome, and all desktop browsers. Camera scanning works on both iPhone and Android.</p>
+        </details>
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">How accurate is the AI scanning?</summary>
+          <p class="lfaq-a">Very accurate for clearly photographed receipts. SnapReceipt uses Claude AI to read merchant names, totals, and dates. If it gets something wrong, you can edit any field before saving.</p>
+        </details>
+
+        <details class="lfaq-item">
+          <summary class="lfaq-q">How long are my receipts stored?</summary>
+          <p class="lfaq-a">Indefinitely while your account is active. HMRC requires you to keep business records for at least 6 years — SnapReceipt keeps them safe for you. You can export your full history to CSV at any time.</p>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
   <section class="lcta-section">
     <h2 class="lcta-h2">383 spots left.<br>Yours is free.</h2>
     <p class="lcta-sub">No credit card. No download. Set up in under 2 minutes.</p>
@@ -902,7 +974,7 @@ img{display:block;max-width:100%}
   <div class="dash" id="dashboard">
 
     <!-- Always-visible summary row — tap to expand -->
-    <div class="dash-summary" onclick="toggleDash()">
+    <button class="dash-summary" onclick="toggleDash()" aria-expanded="false" id="dashSummaryBtn" aria-controls="dashExpandable">
       <div class="dash-kpis" style="flex:1">
         <div class="dash-kpi">
           <div class="dash-kpi-val blue" id="dashTotal">£0</div>
@@ -917,8 +989,8 @@ img{display:block;max-width:100%}
           <div class="dash-kpi-lbl" id="dashCountLbl">Receipts</div>
         </div>
       </div>
-      <span class="dash-chevron">▼</span>
-    </div>
+      <span class="dash-chevron" aria-hidden="true">▼</span>
+    </button>
 
     <!-- Tax year progress bar — always visible -->
     <div class="tax-bar-wrap">
@@ -1465,7 +1537,18 @@ img{display:block;max-width:100%}
      Critical: type="module" breaks file input events
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<!-- ═══ ADD TO HOME SCREEN BANNER ══════════════════════════ -->
+<div id="a2hsBanner" class="a2hs-banner" style="display:none" role="status" aria-live="polite">
+  <div class="a2hs-icon">📲</div>
+  <div class="a2hs-body">
+    <div class="a2hs-title">Add SnapReceipt to your home screen</div>
+    <div class="a2hs-sub" id="a2hsSub">Tap <strong>Share → Add to Home Screen</strong> for one-tap access</div>
+  </div>
+  <button class="a2hs-close" onclick="dismissA2hs()" aria-label="Dismiss">✕</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
@@ -1678,6 +1761,63 @@ window.addEventListener('popstate', function() {
 });
 
 /* ── AUTH ────────────────────────────────────────────── */
+
+/* ── ADD TO HOME SCREEN ──────────────────────────────
+   Shows after successful sign-in on mobile browsers.
+   Uses native beforeinstallprompt on Android Chrome;
+   shows manual instructions on iOS Safari.
+─────────────────────────────────────────────────────── */
+var _a2hsDeferredPrompt = null;
+var _a2hsShown = false;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _a2hsDeferredPrompt = e;
+});
+
+function showA2hsBanner() {
+  if (_a2hsShown) return;
+  if (localStorage.getItem('a2hsDismissed')) return;
+  // Only show on mobile
+  if (window.innerWidth > 900) return;
+  // Don't show if already installed as PWA
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  if (window.navigator.standalone === true) return;
+
+  _a2hsShown = true;
+  var banner = g('a2hsBanner');
+  var sub = g('a2hsSub');
+  if (!banner) return;
+
+  if (_a2hsDeferredPrompt) {
+    // Android Chrome — can trigger native prompt
+    sub.innerHTML = '<button class="a2hs-install-btn" onclick="triggerA2hs()">Add to Home Screen</button>';
+  } else {
+    // iOS Safari — show manual instructions
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      sub.innerHTML = 'Tap <strong>Share ↑</strong> then <strong>Add to Home Screen</strong>';
+    } else {
+      sub.innerHTML = 'Open browser menu and tap <strong>Add to Home Screen</strong>';
+    }
+  }
+  banner.style.display = 'flex';
+}
+
+window.triggerA2hs = async function() {
+  if (!_a2hsDeferredPrompt) return;
+  _a2hsDeferredPrompt.prompt();
+  var result = await _a2hsDeferredPrompt.userChoice;
+  _a2hsDeferredPrompt = null;
+  dismissA2hs();
+};
+
+window.dismissA2hs = function() {
+  var banner = g('a2hsBanner');
+  if (banner) banner.style.display = 'none';
+  localStorage.setItem('a2hsDismissed', '1');
+};
+
 sb.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
     g('resetPassSheet').classList.add('on');
@@ -1689,6 +1829,7 @@ sb.auth.onAuthStateChange(function(event, session) {
     g('landingPage').classList.remove('active');
     show('homeScreen');
     loadReceipts();
+    setTimeout(showA2hsBanner, 3000); // Show A2HS after 3s on home screen
     subscribeRealtime();
     updateMenuPinLabel();
     // Show lock screen if PIN is set and not yet unlocked this session
@@ -1867,6 +2008,8 @@ window.setDashPeriod = function(days) {
 };
 
 window.toggleDash = function() {
+  var btn = g('dashSummaryBtn');
+  if (btn) btn.setAttribute('aria-expanded', g('dashExpandable').classList.contains('open') ? 'false' : 'true');
   var dash = g('dashboard');
   var isOpen = dash.classList.toggle('open');
   // Only render charts when opening — avoids rendering into hidden canvases
@@ -2199,12 +2342,12 @@ function renderRow(r, i) {
   var vatCell  = r.vat   ? '<div class="dcell"><div class="dcell-lbl">VAT</div><div class="dcell-val">'+fmt(r.vat,'GBP')+'</div></div>' : '';
   var catCell  = r.category ? '<div class="dcell"><div class="dcell-lbl">Category</div><div class="dcell-val">'+esc(r.category)+'</div></div>' : '';
   return '<div class="rrow'+(isExp?' expanded':'')+'" id="row-'+esc(r.id)+'" style="animation-delay:'+(i*0.025)+'s">'
-    +'<div class="rrow-main" onclick="toggleRow(\''+esc(r.id)+'\')">'
+    +'<button class="rrow-main" onclick="toggleRow(\''+esc(r.id)+'\')">'
     +thumb
     +'<div class="rinfo"><div class="rmerchant">'+esc(r.merchant||'Unknown')+'</div>'
     +'<div class="rdate">'+fmtDate(r.date||r.created_at)+'</div>'+catBadge+'</div>'
     +'<div><div class="ramount">'+fmt(r.amount,r.currency)+'</div><div class="rcurrency">'+(r.currency||'GBP')+'</div></div>'
-    +'</div>'
+    +'</button>'
     +'<div class="rdetail">'
     +(r.image_url?'<img class="rdetail-img" src="'+esc(r.image_url)+'" alt="Receipt"/>'  :'')
     +'<div class="dgrid">'
