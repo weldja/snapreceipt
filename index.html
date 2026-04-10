@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 
 <!-- ── Primary SEO ─────────────────────────────────────── -->
-<title>SnapReceipt — Free Receipt Scanner &amp; Expense Tracker for UK Freelancers | MTD Ready</title>
-<meta name="description" content="Free receipt scanner app for UK freelancers and sole traders. AI reads every receipt automatically. Log expenses, track Self Assessment costs and export CSV — Making Tax Digital ready. No app download needed."/>
-<meta name="keywords" content="receipt scanner app UK, free receipt scanner, expense tracker UK freelancer, HMRC receipt records, self assessment expenses, scan receipts UK, receipt log app, Making Tax Digital receipts, MTD ITSA, Making Tax Digital for Income Tax, MTD for self assessment"/>
+<title>SnapReceipt — Free Receipt Scanner App for UK Freelancers &amp; Small Businesses</title>
+<meta name="description" content="Free receipt scanner app for UK freelancers and small businesses. AI reads merchant, amount and date automatically. Log expenses instantly and export CSV for Self Assessment. No app download needed."/>
+<meta name="keywords" content="receipt scanner app UK, free receipt scanner, expense tracker UK freelancer, HMRC receipt records, self assessment expenses, scan receipts UK, receipt log app, Making Tax Digital receipts"/>
 <meta name="author" content="SnapReceipt"/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://snapreceipt.co.uk/"/>
@@ -15,7 +15,7 @@
 <!-- ── Open Graph (Facebook, LinkedIn, WhatsApp) ──────── -->
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="SnapReceipt"/>
-<meta property="og:title" content="SnapReceipt — Free Receipt Scanner &amp; MTD-Ready Expense Tracker for UK Freelancers"/>
+<meta property="og:title" content="SnapReceipt — Free Receipt Scanner App for UK Freelancers"/>
 <meta property="og:description" content="Scan any receipt in seconds. AI reads the details automatically. Log expenses, track totals and export CSV for your Self Assessment tax return. Free to use, no download needed."/>
 <meta property="og:url" content="https://snapreceipt.co.uk/"/>
 <meta property="og:locale" content="en_GB"/>
@@ -26,7 +26,7 @@
 
 <!-- ── Twitter / X card ───────────────────────────────── -->
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="SnapReceipt — Free Receipt Scanner &amp; MTD-Ready Expense Tracker for UK Freelancers"/>
+<meta name="twitter:title" content="SnapReceipt — Free Receipt Scanner App for UK Freelancers"/>
 <meta name="twitter:description" content="Scan any receipt in seconds. AI reads merchant, amount and date automatically. Free expense tracker for UK freelancers and small businesses."/>
 
 <!-- ── Structured data — Google rich results ─────────── -->
@@ -145,7 +145,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manip
 img{display:block;max-width:100%}
 
 :root{
-  --black:#111;--gray-7:#555;--gray-5:#767676;--gray-3:#ccc;
+  --black:#111;--gray-7:#555;--gray-5:#888;--gray-3:#ccc;
   --gray-1:#f5f5f5;--gray-0:#fafafa;
   --blue:#0066ff;--blue-lt:#e8f0ff;--blue-mid:#c5d8ff;
   --green:#00a651;--green-lt:#e6f5ed;
@@ -154,7 +154,6 @@ img{display:block;max-width:100%}
   --shadow:0 1px 4px rgba(0,0,0,.08);
   --shadow-md:0 4px 20px rgba(0,0,0,.1);
 }
-
 
 /* ── SCREENS ─────────────────────────────────────── */
 .screen{display:none}
@@ -248,7 +247,7 @@ img{display:block;max-width:100%}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .rrow:active{opacity:.85}
 .rrow.expanded{border-color:var(--black);box-shadow:var(--shadow-md)}
-.rrow-main{display:flex;align-items:center;gap:12px;padding:13px 14px;width:100%;background:none;border:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.rrow-main{display:flex;align-items:center;gap:12px;padding:13px 14px}
 .rthumb{width:44px;height:56px;border-radius:8px;background:var(--gray-1);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--gray-3);border:1px solid var(--border)}
 .rthumb img{width:100%;height:100%;object-fit:cover}
 .rinfo{flex:1;min-width:0}
@@ -285,7 +284,7 @@ img{display:block;max-width:100%}
 .scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px;touch-action:pan-y}
 .upload-zone-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;gap:10px}
 
-/* Upload areas */
+/* Upload areas — weldswine proven pattern */
 .upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);overflow:hidden;cursor:pointer;transition:all .2s;flex:1;min-height:130px;display:flex;align-items:stretch}
 .upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
 .upload-area input[type="file"]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2}
@@ -457,7 +456,7 @@ img{display:block;max-width:100%}
 .tax-bar-days{font-size:.66rem;font-weight:700;color:var(--gray-5)}
 .tax-bar-track{height:4px;background:var(--gray-1);border-radius:2px;overflow:hidden}
 .tax-bar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.dash-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-bottom:10px;width:100%;background:none;border:none;text-align:left;font:inherit;color:inherit}
+.dash-summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;padding-bottom:10px}
 .dash-chevron{font-size:.65rem;color:var(--gray-5);transition:transform .2s;flex-shrink:0;margin-left:8px}
 .dash.open .dash-chevron{transform:rotate(180deg)}
 .dash-expandable{display:none;flex-direction:column;gap:10px}
@@ -597,59 +596,7 @@ img{display:block;max-width:100%}
 .lfooter-links-v3{display:flex;gap:24px;flex-wrap:wrap}
 .lfooter-links-v3 a,.lfooter-links-v3 span{color:var(--gray-5);text-decoration:none;cursor:pointer}
 .lfooter-links-v3 a:hover,.lfooter-links-v3 span:hover{color:var(--black)}
-
-
-
-/* ── MTD callout section ──────────────────────────── */
-.lmtd-section{background:#0a1628;padding:72px 48px;border-bottom:1px solid rgba(255,255,255,.06)}
-.lmtd-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center}
-.lmtd-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(0,102,255,.15);border:1px solid rgba(0,102,255,.3);color:#60a5fa;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:16px}
-.lmtd-h2{font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.2;margin-bottom:16px}
-.lmtd-body{font-size:.92rem;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:20px;max-width:500px}
-.lmtd-link{font-size:.85rem;font-weight:600;color:#60a5fa;text-decoration:none}
-.lmtd-link:hover{text-decoration:underline}
-.lmtd-badges{display:flex;flex-direction:column;gap:12px;flex-shrink:0}
-.lmtd-badge{display:flex;align-items:center;gap:10px;font-size:.88rem;color:rgba(255,255,255,.75);white-space:nowrap}
-.lmtd-badge-icon{width:20px;height:20px;background:#00a651;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;flex-shrink:0;font-weight:700}
-/* kicker under H1 */
-.lhero-kicker{font-size:.88rem;color:rgba(255,255,255,.5);margin-bottom:6px;line-height:1.5;max-width:460px}
-@media(max-width:880px){
-  .lmtd-section{padding:56px 24px}
-  .lmtd-inner{grid-template-columns:1fr;gap:32px}
-  .lmtd-badges{flex-direction:column}
-  .lmtd-h2{font-size:1.4rem}
-}
-
-/* ── Testimonials ────────────────────────────────────── */
-.ltestimonials{padding:80px 48px;background:var(--gray-1);border-bottom:1px solid var(--border)}
-.ltestimonials-inner{max-width:900px;margin:0 auto}
-.ltestimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
-.ltesti-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
-.ltesti-stars{color:#f59e0b;font-size:.9rem;letter-spacing:1px}
-.ltesti-quote{font-size:.95rem;color:#333;line-height:1.65;flex:1}
-.ltesti-author{display:flex;align-items:center;gap:10px}
-.ltesti-avatar{width:36px;height:36px;border-radius:50%;background:var(--black);color:#fff;font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ltesti-name{font-size:.85rem;font-weight:700;color:var(--black)}
-.ltesti-role{font-size:.75rem;color:var(--gray-5)}
-@media(max-width:880px){
-  .ltestimonials{padding:60px 24px}
-  .ltestimonials-grid{grid-template-columns:1fr}
-}
-
-/* ── FAQ section ─────────────────────────────────────── */
-.lfaq-section{padding:80px 48px;border-bottom:1px solid var(--border)}
-.lfaq-inner{max-width:680px;margin:0 auto}
-.lfaq-list{margin-top:0;display:flex;flex-direction:column;gap:0}
-.lfaq-item{border-bottom:1px solid var(--border)}
-.lfaq-item:first-child{border-top:1px solid var(--border)}
-.lfaq-q{font-size:15px;font-weight:600;color:var(--black);padding:18px 0;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;-webkit-tap-highlight-color:transparent}
-.lfaq-q::-webkit-details-marker{display:none}
-.lfaq-q::after{content:'+';font-size:1.3rem;font-weight:300;color:var(--gray-5);flex-shrink:0;transition:transform .2s}
-.lfaq-item[open] .lfaq-q::after{transform:rotate(45deg)}
-.lfaq-a{font-size:14px;color:var(--gray-7);line-height:1.7;padding-bottom:18px;margin:0}
-@media(max-width:880px){.lfaq-section{padding:60px 24px}}
 @keyframes lfadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.lhero-founder{margin-top:14px;font-size:13px;color:var(--gray-5);font-style:italic;line-height:1.5}
 @keyframes lfloatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
 /* Mobile nav */
@@ -703,7 +650,6 @@ img{display:block;max-width:100%}
       <li><a href="#lfeatures">Features</a></li>
       <li><a href="#lhow">How it works</a></li>
       <li><a href="#lpricing">Pricing</a></li>
-      <li><a href="#lfaq">FAQ</a></li>
     </ul>
     <div class="lnav-actions">
       <span class="lnav-spots">383 spots left</span>
@@ -720,7 +666,6 @@ img{display:block;max-width:100%}
     <a class="lnav-mobile-link" href="#lfeatures" onclick="closeMobileNav()">Features</a>
     <a class="lnav-mobile-link" href="#lhow" onclick="closeMobileNav()">How it works</a>
     <a class="lnav-mobile-link" href="#lpricing" onclick="closeMobileNav()">Pricing</a>
-    <a class="lnav-mobile-link" href="#lfaq" onclick="closeMobileNav()">FAQ</a>
     <div class="lnav-mobile-btns">
       <button class="lnav-mobile-btn-ghost" onclick="closeMobileNav();showAuth('signin')">Sign in</button>
       <button class="lnav-mobile-btn-primary" onclick="closeMobileNav();showAuth('signup')">🧾 Claim your free spot</button>
@@ -732,7 +677,6 @@ img{display:block;max-width:100%}
       <div>
         <div class="lhero-badge"><div class="lhero-badge-dot"></div>Early access open — UK freelancers only</div>
         <h1 class="lhero-h1">Scan it now.<br><span class="lh1-blue">Sorted for January.</span></h1>
-        <p class="lhero-kicker">Free receipt scanner app for UK freelancers &amp; sole traders — Self Assessment and Making Tax Digital ready.</p>
         <p class="lhero-sub">Take a photo of any receipt. AI reads the details automatically. Everything logged, searchable, and ready for your accountant — no typing, no shoebox.</p>
         <div class="lhero-btns">
           <button class="lbtn-primary" onclick="showAuth('signup')">🧾 Claim your free spot</button>
@@ -740,14 +684,13 @@ img{display:block;max-width:100%}
         </div>
         <div class="lscarcity">
           <div class="lscarcity-labels"><span>Early access spots claimed</span><strong>117 of 500</strong></div>
-          <div class="lscarcity-track" role="progressbar" aria-valuenow="117" aria-valuemin="0" aria-valuemax="500" aria-label="117 of 500 early access spots claimed"><div class="lscarcity-fill"></div></div>
+          <div class="lscarcity-track"><div class="lscarcity-fill"></div></div>
         </div>
         <div class="ltrust-row">
           <span class="ltrust-item">Free during early access</span>
           <span class="ltrust-item">Works on iOS &amp; Android</span>
           <span class="ltrust-item">Built in the UK</span>
         </div>
-        <p class="lhero-founder">Built by a UK freelancer who lost three hours to a shoebox in January.</p>
       </div>
       <div class="lhero-screens">
         <div class="lbrowser">
@@ -757,15 +700,15 @@ img{display:block;max-width:100%}
               <div class="lbrowser-dot" style="background:#ffbd2e"></div>
               <div class="lbrowser-dot" style="background:#28c840"></div>
             </div>
-            <div class="lbrowser-url">snapreceipt.co.uk</div>
+            <div class="lbrowser-url">snapreceipt.app</div>
           </div>
-          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt app dashboard" width="1200" height="750"/>
+          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt app dashboard"/>
         </div>
         <div class="lphone-float">
           <div class="lphone-frame">
             <div class="lphone-inner">
               <div class="lphone-notch"><div class="lphone-notch-pill"></div></div>
-              <img src="/images/app-screenshot-mobile.jpg" alt="SnapReceipt mobile" width="390" height="844" loading="lazy"/>
+              <img src="/images/app-screenshot-mobile.jpg" alt="SnapReceipt mobile"/>
             </div>
           </div>
         </div>
@@ -791,8 +734,6 @@ img{display:block;max-width:100%}
     <div class="lproof-divider"></div>
     <div class="lproof-item">📊 <strong>HMRC-ready</strong> CSV export</div>
     <div class="lproof-divider"></div>
-    <div class="lproof-item">📅 <strong>Making Tax Digital</strong> ready</div>
-    <div class="lproof-divider"></div>
     <div class="lproof-item">📱 <strong>No app download</strong> needed</div>
   </div>
 
@@ -805,27 +746,8 @@ img{display:block;max-width:100%}
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">🤖</div><div class="lfeat-title-v3">AI reads it instantly</div><p class="lfeat-desc-v3">Claude AI extracts the merchant, amount and date automatically. No typing required. Categorised and logged in seconds.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📂</div><div class="lfeat-title-v3">HMRC-ready export</div><p class="lfeat-desc-v3">One tap exports a clean CSV for your accountant or Self Assessment return. Everything sorted before the deadline.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">🔍</div><div class="lfeat-title-v3">Search all your receipts</div><p class="lfeat-desc-v3">Find any expense in seconds by merchant, date or amount. No more digging through emails or piles of paper.</p></div>
-        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📧</div><div class="lfeat-title-v3">Forward email receipts</div><p class="lfeat-desc-v3">Got a receipt in your inbox? Forward it to <strong>receipts@snapreceipt.co.uk</strong> and it logs automatically. Digital and paper receipts in one place.</p></div>
+        <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📧</div><div class="lfeat-title-v3">Forward email receipts</div><p class="lfeat-desc-v3">Got a receipt in your inbox? Forward it and it logs automatically. Digital and paper receipts in one place.</p></div>
         <div class="lfeat-card-v3"><div class="lfeat-icon-v3">📅</div><div class="lfeat-title-v3">Tax year view</div><p class="lfeat-desc-v3">See your total spend by tax year at a glance. Daily averages, totals, and receipt counts — everything HMRC needs.</p></div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══ MTD CALLOUT ══════════════════════════════════════ -->
-  <section class="lmtd-section">
-    <div class="lmtd-inner">
-      <div class="lmtd-text">
-        <div class="lmtd-pill">📅 Making Tax Digital</div>
-        <h2 class="lmtd-h2">MTD for Income Tax is here.<br>SnapReceipt is ready.</h2>
-        <p class="lmtd-body">Making Tax Digital for Income Tax Self Assessment (MTD ITSA) requires UK freelancers and sole traders to keep digital records and submit quarterly updates to HMRC. SnapReceipt gives you digital receipt records from day one — scan, log, and export in seconds.</p>
-        <a href="/blog/making-tax-digital-sole-traders-2026/" class="lmtd-link">Read our MTD guide for freelancers →</a>
-      </div>
-      <div class="lmtd-badges">
-        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>Digital receipt records</span></div>
-        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>HMRC-ready CSV export</span></div>
-        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>Tax year &amp; quarterly view</span></div>
-        <div class="lmtd-badge"><span class="lmtd-badge-icon">✓</span><span>Works alongside any MTD software</span></div>
       </div>
     </div>
   </section>
@@ -849,58 +771,10 @@ img{display:block;max-width:100%}
               <div class="lbrowser-dot" style="background:#ffbd2e"></div>
               <div class="lbrowser-dot" style="background:#28c840"></div>
             </div>
-            <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.co.uk · tax year view</div>
+            <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.app · tax year view</div>
           </div>
-          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard" width="1200" height="750" loading="lazy"/>
+          <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard"/>
         </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══ TESTIMONIALS ══════════════════════════════════════ -->
-  <section class="ltestimonials">
-    <div class="ltestimonials-inner">
-      <div class="leyebrow">What early users say</div>
-      <h2 class="lsect-h2" style="text-align:center">Used by UK freelancers who actually file their own taxes</h2>
-      <div class="ltestimonials-grid">
-
-        <div class="ltesti-card">
-          <div class="ltesti-stars">★★★★★</div>
-          <p class="ltesti-quote">"I used to dread January. Now I just scan receipts as I get them. By the time Self Assessment comes around, everything's already logged and ready to export. Genuinely life-changing for my business admin."</p>
-          <div class="ltesti-author">
-            <div class="ltesti-avatar">SC</div>
-            <div>
-              <div class="ltesti-name">Sarah C.</div>
-              <div class="ltesti-role">Freelance designer, Manchester</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ltesti-card">
-          <div class="ltesti-stars">★★★★★</div>
-          <p class="ltesti-quote">"The AI reading is impressively accurate — got the merchant, amount and date right on the first try every time. No more typing. I forwarded three email receipts this morning and they all logged automatically."</p>
-          <div class="ltesti-author">
-            <div class="ltesti-avatar">TP</div>
-            <div>
-              <div class="ltesti-name">Tom P.</div>
-              <div class="ltesti-role">IT consultant, London</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ltesti-card">
-          <div class="ltesti-stars">★★★★★</div>
-          <p class="ltesti-quote">"My accountant asked how I had everything so organised. I just told her I finally found a tool that didn't require a 30-minute setup. Scanned my first receipt in under a minute, no app download needed."</p>
-          <div class="ltesti-author">
-            <div class="ltesti-avatar">RB</div>
-            <div>
-              <div class="ltesti-name">Rachel B.</div>
-              <div class="ltesti-role">Sole trader, Bristol</div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
@@ -944,63 +818,6 @@ img{display:block;max-width:100%}
     </div>
   </section>
 
-
-  <!-- ═══ FAQ SECTION ═══════════════════════════════════════ -->
-  <section class="lfaq-section" id="lfaq">
-    <div class="lfaq-inner">
-      <div class="leyebrow">FAQ</div>
-      <h2 class="lsect-h2">Common questions</h2>
-      <div class="lfaq-list">
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">Is SnapReceipt really free?</summary>
-          <p class="lfaq-a">Yes — free to sign up, no credit card required. You can scan and log receipts immediately. The core scanning and logging will always have a free tier.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">Does it work for Self Assessment?</summary>
-          <p class="lfaq-a">Yes. SnapReceipt is built specifically for UK freelancers and sole traders. You can export a clean CSV of all your receipts for your Self Assessment tax return or send directly to your accountant.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">Is my financial data safe?</summary>
-          <p class="lfaq-a">Yes. Your data is stored securely using Supabase, which uses bank-level encryption and is fully GDPR compliant. Your receipts are private to your account — nobody else can see them. We never sell your data.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">Do I need to download an app?</summary>
-          <p class="lfaq-a">No. SnapReceipt runs entirely in your browser — just open snapreceipt.co.uk on your phone or laptop. For quick access, tap <strong>Add to Home Screen</strong> in your browser and it will work just like a native app.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">Does it work on iPhone and Android?</summary>
-          <p class="lfaq-a">Yes. SnapReceipt works on iOS Safari, Android Chrome, and all desktop browsers. Camera scanning works on both iPhone and Android.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">How accurate is the AI scanning?</summary>
-          <p class="lfaq-a">Very accurate for clearly photographed receipts. SnapReceipt uses Claude AI to read merchant names, totals, and dates. If it gets something wrong, you can edit any field before saving.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">How long are my receipts stored?</summary>
-          <p class="lfaq-a">Indefinitely while your account is active. HMRC requires you to keep business records for at least 6 years — SnapReceipt keeps them safe for you. You can export your full history to CSV at any time.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">Is SnapReceipt Making Tax Digital (MTD) compliant?</summary>
-          <p class="lfaq-a">SnapReceipt is built for the digital record-keeping requirements of Making Tax Digital for Income Tax (MTD ITSA). It stores all your receipts digitally, provides tax year views, and exports a clean CSV you can share with your MTD-compatible accounting software or accountant. It works alongside tools like FreeAgent, QuickBooks and Xero.</p>
-        </details>
-
-        <details class="lfaq-item">
-          <summary class="lfaq-q">How does email receipt forwarding work?</summary>
-          <p class="lfaq-a">Forward any receipt email to <strong>receipts@snapreceipt.co.uk</strong> from the email address linked to your account. SnapReceipt reads the email automatically and logs the expense — no scanning needed. Works with Amazon, Uber, online orders, and most digital receipts.</p>
-        </details>
-
-      </div>
-    </div>
-  </section>
-
   <section class="lcta-section">
     <h2 class="lcta-h2">383 spots left.<br>Yours is free.</h2>
     <p class="lcta-sub">No credit card. No download. Set up in under 2 minutes.</p>
@@ -1022,7 +839,7 @@ img{display:block;max-width:100%}
       <span onclick="showAuth('signin')">Sign in</span>
       <span onclick="showAuth('signup')">Create account</span>
       <a href="/blog/">Blog</a>
-      <a href="/privacy">Privacy policy</a>
+      <span onclick="showPrivacy()">Privacy policy</span>
       <span onclick="window.location='mailto:hello@snaprece'+'ipt.co.uk'">Contact us</span>
     </div>
     <div>© 2026 SnapReceipt · Free receipt scanner for UK freelancers · Built in the UK</div>
@@ -1083,7 +900,7 @@ img{display:block;max-width:100%}
   <div class="dash" id="dashboard">
 
     <!-- Always-visible summary row — tap to expand -->
-    <button class="dash-summary" onclick="toggleDash()" aria-expanded="false" id="dashSummaryBtn" aria-controls="dashExpandable">
+    <div class="dash-summary" onclick="toggleDash()">
       <div class="dash-kpis" style="flex:1">
         <div class="dash-kpi">
           <div class="dash-kpi-val blue" id="dashTotal">£0</div>
@@ -1098,8 +915,8 @@ img{display:block;max-width:100%}
           <div class="dash-kpi-lbl" id="dashCountLbl">Receipts</div>
         </div>
       </div>
-      <span class="dash-chevron" aria-hidden="true">▼</span>
-    </button>
+      <span class="dash-chevron">▼</span>
+    </div>
 
     <!-- Tax year progress bar — always visible -->
     <div class="tax-bar-wrap">
@@ -1185,7 +1002,7 @@ img{display:block;max-width:100%}
   <button class="scan-fab" onclick="openScan()">📸 Scan Receipt</button>
   <div class="fwd-tip" id="fwdTip">
     <span class="fwd-tip-icon">📧</span>
-    <span>Or forward to <strong>receipts@snapreceipt.co.uk</strong> — it <button class="fwd-tip-link" onclick="openMenu()">logs automatically</button></span>
+    <span>Or <button class="fwd-tip-link" onclick="openMenu()">forward a receipt email</button> — it logs automatically</span>
     <button class="fwd-tip-dismiss" onclick="dismissFwdTip()" title="Dismiss">✕</button>
   </div>
 </div>
@@ -1390,13 +1207,13 @@ img{display:block;max-width:100%}
         <p><strong style="color:var(--black)">Where it's stored</strong><br/>
         Your data is stored on Supabase, which uses bank-level encryption and is hosted in the EU. Receipt images are processed by Anthropic's Claude AI to extract text — images are not stored by Anthropic.</p>
         <p><strong style="color:var(--black)">How long we keep it</strong><br/>
-        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="/cdn-cgi/l/email-protection#a5cdc0c9c9cae5d6cbc4d5d7c0c6c0ccd5d18bc6ca8bd0ce"><span class="__cf_email__" data-cfemail="aec6cbc2c2c1eeddc0cfdedccbcdcbc7deda80cdc180dbc5">[email&#160;protected]</span></a>.</p>
+        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="/cdn-cgi/l/email-protection#c2aaa7aeaead82b1aca3b2b0a7a1a7abb2b6eca1adecb7a9"><span class="__cf_email__" data-cfemail="2d45484141426d5e434c5d5f484e48445d59034e42035846">[email&#160;protected]</span></a>.</p>
         <p><strong style="color:var(--black)">Your rights (GDPR)</strong><br/>
-        You have the right to access, correct, or delete your personal data at any time. Contact <a href="/cdn-cgi/l/email-protection#dcb4b9b0b0b39cafb2bdacaeb9bfb9b5aca8f2bfb3f2a9b7"><span class="__cf_email__" data-cfemail="68000d040407281b0609181a0d0b0d01181c460b07461d03">[email&#160;protected]</span></a> to exercise these rights.</p>
+        You have the right to access, correct, or delete your personal data at any time. Contact <a href="/cdn-cgi/l/email-protection#d8b0bdb4b4b798abb6b9a8aabdbbbdb1a8acf6bbb7f6adb3"><span class="__cf_email__" data-cfemail="472f222b2b280734292637352224222e373369242869322c">[email&#160;protected]</span></a> to exercise these rights.</p>
         <p><strong style="color:var(--black)">Cookies</strong><br/>
         SnapReceipt uses only essential session cookies required for authentication. No tracking or advertising cookies are used.</p>
         <p><strong style="color:var(--black)">Contact</strong><br/>
-        Questions about this policy? Email <a href="/cdn-cgi/l/email-protection#cda5a8a1a1a28dbea3acbdbfa8aea8a4bdb9e3aea2e3b8a6" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="f8909d949497b88b9699888a9d9b9d91888cd69b97d68d93">[email&#160;protected]</span></a></p>
+        Questions about this policy? Email <a href="/cdn-cgi/l/email-protection#b4dcd1d8d8dbf4c7dad5c4c6d1d7d1ddc4c09ad7db9ac1df" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="9cf4f9f0f0f3dceff2fdeceef9fff9f5ece8b2fff3b2e9f7">[email&#160;protected]</span></a></p>
       </div>
     </div>
   </div>
@@ -1642,12 +1459,13 @@ img{display:block;max-width:100%}
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ 
-     SUPABASE — plain script (not module)
-     Critical: type="module" breaks file input events
+     SUPABASE — plain script (not module) — same as weldswine
+     This is critical: type="module" breaks file input events
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
-
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 'use strict';
 
@@ -1655,39 +1473,8 @@ img{display:block;max-width:100%}
 const SUPABASE_URL = 'https://swkaswlzzqzjiuujyupg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_6aS3MglXaAtUsFnbIUTpWg_Omj9nWOe';
 const WORKER_URL   = 'https://snapreceipt-ocr.james-weld.workers.dev';
-/* ── DEFERRED LIBRARY LOADER ─────────────────────────────
-   Supabase, Chart.js and JSZip are not needed on the
-   landing page. We load them only when the user taps
-   Sign in / Create account, then initialise sb.
-────────────────────────────────────────────────────────── */
-var sb = null;
-var _libsLoaded = false;
-var _libsLoading = null;
-
-function loadLibs() {
-  if (_libsLoaded) return Promise.resolve();
-  if (_libsLoading) return _libsLoading;
-  function injectScript(src) {
-    return new Promise(function(resolve, reject) {
-      var s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = function() { reject(new Error('Failed to load ' + src)); };
-      document.head.appendChild(s);
-    });
-  }
-  _libsLoading = injectScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
-    .then(function() {
-      var { createClient } = supabase;
-      sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-      // Load Chart.js and JSZip in parallel — non-blocking
-      injectScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
-      injectScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
-      _libsLoaded = true;
-      _libsLoading = null;
-    });
-  return _libsLoading;
-}
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ── STATE ───────────────────────────────────────────── */
 var _user     = null;
@@ -1739,7 +1526,7 @@ function show(id) {
 
 /* ── FILE INPUT LISTENERS ────────────────────────────
    Called once at DOMContentLoaded.
-   Pattern verified to work on
+   Pattern copied exactly from weldswine which works on
    iOS Safari, Android Chrome, Android Samsung Browser.
    Key rules:
    - input sits at inset:0 inside a relative div
@@ -1804,10 +1591,6 @@ function showLanding() {
 }
 
 window.showAuth = function(tab) {
-  // Load Supabase (and Chart.js/JSZip) on first auth interaction
-  loadLibs().then(function() { _initAuth(); }).catch(function(e) {
-    console.error('Failed to load auth libraries:', e);
-  });
   g('landingPage').classList.add('hidden');
   show('authScreen');
   authTab(tab || 'signin');
@@ -1893,11 +1676,7 @@ window.addEventListener('popstate', function() {
 });
 
 /* ── AUTH ────────────────────────────────────────────── */
-
-
-function _initAuth() {
-  if (!sb) return;
-  sb.auth.onAuthStateChange(function(event, session) {
+sb.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
     g('resetPassSheet').classList.add('on');
     return;
@@ -1930,8 +1709,7 @@ function _initAuth() {
       showLanding();
     }
   }
-  });
-}
+});
 
 // Boot check is deferred to DOMContentLoaded — see INIT block below.
 
@@ -2087,8 +1865,6 @@ window.setDashPeriod = function(days) {
 };
 
 window.toggleDash = function() {
-  var btn = g('dashSummaryBtn');
-  if (btn) btn.setAttribute('aria-expanded', g('dashExpandable').classList.contains('open') ? 'false' : 'true');
   var dash = g('dashboard');
   var isOpen = dash.classList.toggle('open');
   // Only render charts when opening — avoids rendering into hidden canvases
@@ -2421,12 +2197,12 @@ function renderRow(r, i) {
   var vatCell  = r.vat   ? '<div class="dcell"><div class="dcell-lbl">VAT</div><div class="dcell-val">'+fmt(r.vat,'GBP')+'</div></div>' : '';
   var catCell  = r.category ? '<div class="dcell"><div class="dcell-lbl">Category</div><div class="dcell-val">'+esc(r.category)+'</div></div>' : '';
   return '<div class="rrow'+(isExp?' expanded':'')+'" id="row-'+esc(r.id)+'" style="animation-delay:'+(i*0.025)+'s">'
-    +'<button class="rrow-main" onclick="toggleRow(\''+esc(r.id)+'\')">'
+    +'<div class="rrow-main" onclick="toggleRow(\''+esc(r.id)+'\')">'
     +thumb
     +'<div class="rinfo"><div class="rmerchant">'+esc(r.merchant||'Unknown')+'</div>'
     +'<div class="rdate">'+fmtDate(r.date||r.created_at)+'</div>'+catBadge+'</div>'
     +'<div><div class="ramount">'+fmt(r.amount,r.currency)+'</div><div class="rcurrency">'+(r.currency||'GBP')+'</div></div>'
-    +'</button>'
+    +'</div>'
     +'<div class="rdetail">'
     +(r.image_url?'<img class="rdetail-img" src="'+esc(r.image_url)+'" alt="Receipt"/>'  :'')
     +'<div class="dgrid">'
@@ -3259,16 +3035,7 @@ function updateFwdTip() {
 }
 
 /* ── PRIVACY ────────────────────────────────────────────── */
-window.showPrivacy = function() {
-  // If on landing page, navigate to standalone /privacy page
-  var landing = g('landingPage');
-  if (landing && (landing.style.display !== 'none') && !landing.classList.contains('hidden')) {
-    window.location.href = '/privacy';
-  } else {
-    // In-app: open the bottom sheet as before
-    g('privacySheet').classList.add('on');
-  }
-};
+window.showPrivacy = function() { g('privacySheet').classList.add('on'); };
 
 /* ── DELETE CONFIRMATION ─────────────────────────────────── */
 var _deleteId = null;
@@ -3302,7 +3069,7 @@ window.updateCurrencyBtn = function() {
 
 /* ── IMAGE PROCESSING ────────────────────────────────── 
    FileReader → canvas → JPEG
-   Exact pattern — proven on all platforms
+   Exact pattern from weldswine — proven on all platforms
 ─────────────────────────────────────────────────────── */
 function toJpeg(file, callback) {
   var reader = new FileReader();
@@ -3804,31 +3571,18 @@ window.confirmDeleteAccount = async function() {
   }
 };
 document.addEventListener('DOMContentLoaded', function() {
-  // Returning users already have a session token in localStorage —
-  // load libs immediately so onAuthStateChange fires and gets them in.
-  try {
-    var hasToken = Object.keys(localStorage).some(function(k) {
-      return k.startsWith('sb-') && k.endsWith('-auth-token');
-    });
-    if (hasToken) {
-      loadLibs().then(function() { _initAuth(); }).catch(function(e) {
-        console.error('Boot loadLibs failed:', e); showLanding();
-      });
-    }
-  } catch(e) { /* localStorage blocked */ }
   initFileInputs();
   updateMenuPinLabel();
 
-  // Boot check — only run if sb is loaded (i.e. returning user who triggered loadLibs above)
-  // New visitors stay on the landing page — no session check needed.
+  // Boot check — wait for DOM then check session.
+  // Small delay ensures first paint completes on mobile before lock screen shows.
   setTimeout(function() {
-    if (!sb) { showLanding(); return; }
     sb.auth.getSession().then(function(res) {
       var session = res.data && res.data.session;
       if (!session && pinIsSet()) {
         window.showLockScreen();
       } else if (!session) {
-        var anyActive = document.querySelector('.screen.active, #lockScreen.active') || !g('landingPage').classList.contains('hidden');
+                var anyActive = document.querySelector('.screen.active, #lockScreen.active') || !g('landingPage').classList.contains('hidden');
         if (!anyActive) showLanding();
       }
       if (pinIsSet() && withinGracePeriod()) {
@@ -3855,11 +3609,11 @@ if ('serviceWorker' in navigator) {
 // Capture and surface the PWA install prompt
 var _installPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
-  // Store the event so our Install button can trigger it later
+  e.preventDefault();
   _installPrompt = e;
-  // Show our in-app install banner (only if not previously dismissed)
+  // Show an install banner if user hasn't installed yet
   var banner = document.getElementById('installBanner');
-  if (banner && !localStorage.getItem('installBannerDismissed')) banner.style.display = 'flex';
+  if (banner) banner.style.display = 'flex';
 });
 
 window.triggerInstall = async function() {
@@ -3871,7 +3625,7 @@ window.triggerInstall = async function() {
   if (banner) banner.style.display = 'none';
 };
 
-window.dismissInstallBanner = function() {
+window.dismissInstall = function() {
   var banner = document.getElementById('installBanner');
   if (banner) banner.style.display = 'none';
   try { localStorage.setItem('installBannerDismissed', '1'); } catch(e) {}
