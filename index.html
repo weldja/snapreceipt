@@ -284,7 +284,7 @@ img{display:block;max-width:100%}
 .scan-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px;touch-action:pan-y}
 .upload-zone-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;gap:10px}
 
-/* Upload areas — weldswine proven pattern */
+/* Upload areas */
 .upload-area{position:relative;border:2px dashed var(--border);border-radius:var(--r-lg);background:var(--gray-0);overflow:hidden;cursor:pointer;transition:all .2s;flex:1;min-height:130px;display:flex;align-items:stretch}
 .upload-area:hover{border-color:var(--blue);background:var(--blue-lt)}
 .upload-area input[type="file"]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2}
@@ -597,6 +597,7 @@ img{display:block;max-width:100%}
 .lfooter-links-v3 a,.lfooter-links-v3 span{color:var(--gray-5);text-decoration:none;cursor:pointer}
 .lfooter-links-v3 a:hover,.lfooter-links-v3 span:hover{color:var(--black)}
 @keyframes lfadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.lhero-founder{margin-top:14px;font-size:13px;color:var(--gray-5);font-style:italic;line-height:1.5}
 @keyframes lfloatBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
 /* Mobile nav */
@@ -691,6 +692,7 @@ img{display:block;max-width:100%}
           <span class="ltrust-item">Works on iOS &amp; Android</span>
           <span class="ltrust-item">Built in the UK</span>
         </div>
+        <p class="lhero-founder">Built by a UK freelancer who lost three hours to a shoebox in January.</p>
       </div>
       <div class="lhero-screens">
         <div class="lbrowser">
@@ -700,7 +702,7 @@ img{display:block;max-width:100%}
               <div class="lbrowser-dot" style="background:#ffbd2e"></div>
               <div class="lbrowser-dot" style="background:#28c840"></div>
             </div>
-            <div class="lbrowser-url">snapreceipt.app</div>
+            <div class="lbrowser-url">snapreceipt.co.uk</div>
           </div>
           <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt app dashboard"/>
         </div>
@@ -771,7 +773,7 @@ img{display:block;max-width:100%}
               <div class="lbrowser-dot" style="background:#ffbd2e"></div>
               <div class="lbrowser-dot" style="background:#28c840"></div>
             </div>
-            <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.app · tax year view</div>
+            <div class="lbrowser-url" style="font-size:11px;padding:3px 10px">snapreceipt.co.uk · tax year view</div>
           </div>
           <img src="/images/app-screenshot-desktop.jpg" alt="SnapReceipt dashboard"/>
         </div>
@@ -1207,13 +1209,13 @@ img{display:block;max-width:100%}
         <p><strong style="color:var(--black)">Where it's stored</strong><br/>
         Your data is stored on Supabase, which uses bank-level encryption and is hosted in the EU. Receipt images are processed by Anthropic's Claude AI to extract text — images are not stored by Anthropic.</p>
         <p><strong style="color:var(--black)">How long we keep it</strong><br/>
-        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a>.</p>
+        For as long as your account is active. You can delete individual receipts at any time. To delete your account and all data, email <a href="/cdn-cgi/l/email-protection#a5cdc0c9c9cae5d6cbc4d5d7c0c6c0ccd5d18bc6ca8bd0ce"><span class="__cf_email__" data-cfemail="aec6cbc2c2c1eeddc0cfdedccbcdcbc7deda80cdc180dbc5">[email&#160;protected]</span></a>.</p>
         <p><strong style="color:var(--black)">Your rights (GDPR)</strong><br/>
-        You have the right to access, correct, or delete your personal data at any time. Contact <a href="mailto:hello@snapreceipt.co.uk">hello@snapreceipt.co.uk</a> to exercise these rights.</p>
+        You have the right to access, correct, or delete your personal data at any time. Contact <a href="/cdn-cgi/l/email-protection#dcb4b9b0b0b39cafb2bdacaeb9bfb9b5aca8f2bfb3f2a9b7"><span class="__cf_email__" data-cfemail="68000d040407281b0609181a0d0b0d01181c460b07461d03">[email&#160;protected]</span></a> to exercise these rights.</p>
         <p><strong style="color:var(--black)">Cookies</strong><br/>
         SnapReceipt uses only essential session cookies required for authentication. No tracking or advertising cookies are used.</p>
         <p><strong style="color:var(--black)">Contact</strong><br/>
-        Questions about this policy? Email <a href="mailto:hello@snapreceipt.co.uk" style="color:var(--blue)">hello@snapreceipt.co.uk</a></p>
+        Questions about this policy? Email <a href="/cdn-cgi/l/email-protection#cda5a8a1a1a28dbea3acbdbfa8aea8a4bdb9e3aea2e3b8a6" style="color:var(--blue)"><span class="__cf_email__" data-cfemail="f8909d949497b88b9699888a9d9b9d91888cd69b97d68d93">[email&#160;protected]</span></a></p>
       </div>
     </div>
   </div>
@@ -1459,11 +1461,11 @@ img{display:block;max-width:100%}
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ 
-     SUPABASE — plain script (not module) — same as weldswine
-     This is critical: type="module" breaks file input events
+     SUPABASE — plain script (not module)
+     Critical: type="module" breaks file input events
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
@@ -1526,7 +1528,7 @@ function show(id) {
 
 /* ── FILE INPUT LISTENERS ────────────────────────────
    Called once at DOMContentLoaded.
-   Pattern copied exactly from weldswine which works on
+   Pattern verified to work on
    iOS Safari, Android Chrome, Android Samsung Browser.
    Key rules:
    - input sits at inset:0 inside a relative div
@@ -3069,7 +3071,7 @@ window.updateCurrencyBtn = function() {
 
 /* ── IMAGE PROCESSING ────────────────────────────────── 
    FileReader → canvas → JPEG
-   Exact pattern from weldswine — proven on all platforms
+   Exact pattern — proven on all platforms
 ─────────────────────────────────────────────────────── */
 function toJpeg(file, callback) {
   var reader = new FileReader();
@@ -3613,25 +3615,4 @@ window.addEventListener('beforeinstallprompt', function(e) {
   _installPrompt = e;
   // Show an install banner if user hasn't installed yet
   var banner = document.getElementById('installBanner');
-  if (banner) banner.style.display = 'flex';
-});
-
-window.triggerInstall = function() {
-  if (!_installPrompt) return;
-  _installPrompt.prompt();
-  _installPrompt.userChoice.then(function() {
-    _installPrompt = null;
-    var banner = document.getElementById('installBanner');
-    if (banner) banner.style.display = 'none';
-  });
-};
-
-window.dismissInstall = function() {
-  var banner = document.getElementById('installBanner');
-  if (banner) banner.style.display = 'none';
-  try { localStorage.setItem('sr_install_dismissed','1'); } catch(e){}
-};
-
-</script>
-</body>
-</html>
+  if (banner) banner.style.display =
