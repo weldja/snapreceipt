@@ -1537,7 +1537,7 @@ img{display:block;max-width:100%}
      Critical: type="module" breaks file input events
      on Android with capture="environment"
 ══════════════════════════════════════════════════════════ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
 <!-- ═══ ADD TO HOME SCREEN BANNER ══════════════════════════ -->
 <div id="a2hsBanner" class="a2hs-banner" style="display:none" role="status" aria-live="polite">
   <div class="a2hs-icon">📲</div>
@@ -3699,11 +3699,13 @@ if ('serviceWorker' in navigator) {
 // Capture and surface the PWA install prompt
 var _installPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
+  // Store the event so our Install button can trigger it later
   _installPrompt = e;
-  // Show an install banner if user hasn't installed yet
-  var banner = document.getElementById('installBanner');
-  if (banner) banner.style.display = 'flex';
+  // Show our in-app install banner (only if not previously dismissed)
+  if (!localStorage.getItem('a2hsDismissed')) {
+    var banner = document.getElementById('installBanner');
+    if (banner) banner.style.display = 'flex';
+  }
 });
 
 window.triggerInstall = async function() {
