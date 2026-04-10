@@ -1815,7 +1815,13 @@ window.addEventListener('popstate', function() {
 
   if (g('lockScreen') && g('lockScreen').classList.contains('active')) return;
 
-  g('exitModal').classList.add('on');
+  // Only show exit dialog when running as installed PWA (standalone mode)
+  // In a normal browser tab it is confusing and unnecessary
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) {
+    g('exitModal').classList.add('on');
+  }
 });
 
 /* ── AUTH ────────────────────────────────────────────── */
