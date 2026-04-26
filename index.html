@@ -1232,6 +1232,7 @@ img{display:block;max-width:100%}
       <button class="sheet-item" onclick="openImportSheet();closeMenu()"><span class="sicon">⬆</span>Restore — import backup</button>
       <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
       <a class="sheet-item" href="/blog/" style="text-decoration:none;color:inherit"><span class="sicon">📖</span>Blog &amp; guides</a>
+      <a class="sheet-item" href="mailto:hello@snapreceipt.co.uk" style="text-decoration:none;color:inherit"><span class="sicon">✉️</span>Contact us</a>
       <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
       <div class="sdiv"></div>
       <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
@@ -1997,6 +1998,12 @@ function renderHome() {
     try { dismissed = !!localStorage.getItem('sr_onboard_dismissed'); } catch(e){}
     banner.style.display = (!dismissed && _receipts.length === 0) ? 'block' : 'none';
   }
+}
+
+function dismissOnboard() {
+  try { localStorage.setItem('sr_onboard_dismissed', '1'); } catch(e){}
+  var banner = g('onboardBanner');
+  if (banner) banner.style.display = 'none';
 }
 
 /* ── DASHBOARD ───────────────────────────────────────────────── */
