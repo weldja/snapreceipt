@@ -471,6 +471,48 @@ img{display:block;max-width:100%}
 .dash-empty-title{font-size:.97rem;font-weight:700;color:var(--black);margin-bottom:6px}
 .dash-empty-sub{font-size:.82rem;color:var(--gray-5);line-height:1.6;max-width:260px;margin:0 auto 16px}
 .dash-mixed-note{font-size:.7rem;color:var(--gray-5);padding:2px 12px 8px;text-align:center}
+
+/* ── VIEW TABS (Receipts / Tax quarters) ─────────────────── */
+.view-tabs{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 16px;flex-shrink:0}
+.view-tab{padding:0 14px;height:40px;border:none;background:none;font-size:.83rem;font-weight:600;color:var(--gray-5);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:color .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.view-tab.vt-receipts.active{color:var(--black);border-bottom-color:var(--black)}
+.view-tab.vt-quarters.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── QUARTERS PANE ───────────────────────────────────────── */
+#quartersPane{display:none;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--gray-0)}
+.q-body{padding:12px 12px 120px;display:flex;flex-direction:column;gap:10px}
+.q-period-row{display:flex;background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:3px;align-self:flex-start}
+.q-period-btn{padding:5px 14px;border:none;background:none;border-radius:16px;font-size:.75rem;font-weight:700;color:var(--gray-5);cursor:pointer;white-space:nowrap;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.q-period-btn.active{background:var(--black);color:#fff}
+.q-dates-lbl{font-size:.72rem;font-weight:700;color:var(--gray-5);align-self:center}
+.q-deadline{background:#fff8e1;border:1px solid #fde68a;border-radius:var(--r);padding:9px 12px;font-size:.8rem;color:var(--black);line-height:1.5}
+.q-deadline strong{font-weight:700;color:#b45309}
+.q-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.q-kpi{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.q-kpi-val{font-size:1.05rem;font-weight:800;color:var(--black);letter-spacing:-.02em;line-height:1}
+.q-kpi-val.blue{color:var(--blue)}
+.q-kpi-val.green{color:var(--green)}
+.q-kpi-lbl{font-size:.58rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
+.q-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.q-card-hdr{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.q-card-title{font-size:.7rem;font-weight:700;color:var(--black);text-transform:uppercase;letter-spacing:.07em}
+.q-export-btn{height:30px;padding:0 14px;background:var(--black);color:#fff;border:none;border-radius:20px;font-size:.74rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.q-tbl-hdr{display:flex;align-items:center;padding:7px 14px;background:var(--gray-0);border-bottom:1px solid var(--border)}
+.q-tbl-hdr span{font-size:.6rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em}
+.q-cat-row{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #f5f5f5}
+.q-cat-row:last-child{border-bottom:none}
+.q-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.q-cat-name{font-size:.85rem;font-weight:600;color:var(--black);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-bar-track{width:52px;height:4px;background:var(--gray-1);border-radius:2px;flex-shrink:0;overflow:hidden}
+.q-bar-fill{height:100%;border-radius:2px}
+.q-cat-n{font-size:.76rem;color:var(--gray-5);font-weight:600;width:26px;text-align:right;flex-shrink:0}
+.q-cat-amt{font-size:.9rem;font-weight:800;color:var(--black);width:64px;text-align:right;flex-shrink:0;letter-spacing:-.02em}
+.q-total-row{display:flex;align-items:center;padding:10px 14px;background:var(--gray-0);border-top:1.5px solid var(--border)}
+.q-total-lbl{font-size:.84rem;font-weight:800;color:var(--black);flex:1}
+.q-total-n{font-size:.84rem;font-weight:800;color:var(--black);width:26px;text-align:right}
+.q-total-amt{font-size:.98rem;font-weight:800;color:var(--black);width:64px;text-align:right;letter-spacing:-.02em}
+.q-empty{padding:40px 24px;text-align:center;color:var(--gray-5);font-size:.88rem;line-height:1.6}
+.q-empty-icon{font-size:2.4rem;margin-bottom:8px;opacity:.3}
 /* ── TAX YEAR PROGRESS BAR ───────────────────────────── */
 .tax-bar-wrap{padding:0 0 12px}
 .tax-bar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
@@ -976,10 +1018,19 @@ img{display:block;max-width:100%}
   <header class="hdr">
     <div class="hdr-brand"><div class="hdr-dot"></div>SnapReceipt</div>
     <div style="display:flex;gap:8px">
-      <button class="hdr-btn" onclick="exportCSV()">⬇ Export</button>
+      <button class="hdr-btn" id="hdrExportBtn" onclick="exportCSV()">⬇ Export</button>
       <button class="hdr-btn" onclick="openMenu()">⋯</button>
     </div>
   </header>
+
+  <!-- ── VIEW TABS ── -->
+  <div class="view-tabs">
+    <button class="view-tab vt-receipts active" id="vtReceipts" onclick="switchHomeTab('receipts')">Receipts</button>
+    <button class="view-tab vt-quarters" id="vtQuarters" onclick="switchHomeTab('quarters')">Tax quarters</button>
+  </div>
+
+  <!-- ── RECEIPTS PANE ── -->
+  <div id="receiptsPane" style="display:flex;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
   <!-- ── DASHBOARD ── -->
   <div class="dash" id="dashboard">
@@ -1090,6 +1141,47 @@ img{display:block;max-width:100%}
     <span>Or <button class="fwd-tip-link" onclick="openMenu()">forward a receipt email</button> — it logs automatically</span>
     <button class="fwd-tip-dismiss" onclick="dismissFwdTip()" title="Dismiss">✕</button>
   </div>
+
+  </div><!-- end receiptsPane -->
+
+  <!-- ── QUARTERS PANE ── -->
+  <div id="quartersPane">
+    <div class="q-body">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="q-period-row" id="qPeriodRow">
+          <button class="q-period-btn" onclick="setMtdQuarter(0,this)">Q1</button>
+          <button class="q-period-btn" onclick="setMtdQuarter(1,this)">Q2</button>
+          <button class="q-period-btn" onclick="setMtdQuarter(2,this)">Q3</button>
+          <button class="q-period-btn" onclick="setMtdQuarter(3,this)">Q4</button>
+        </div>
+        <span class="q-dates-lbl" id="qDatesLbl"></span>
+      </div>
+      <div class="q-deadline" id="qDeadline"></div>
+      <div class="q-kpis">
+        <div class="q-kpi"><div class="q-kpi-val blue" id="qTotal">—</div><div class="q-kpi-lbl">Total expenses</div></div>
+        <div class="q-kpi"><div class="q-kpi-val green" id="qCount">—</div><div class="q-kpi-lbl">Receipts</div></div>
+        <div class="q-kpi"><div class="q-kpi-val" id="qVat">—</div><div class="q-kpi-lbl">VAT recorded</div></div>
+      </div>
+      <div class="q-card">
+        <div class="q-card-hdr">
+          <span class="q-card-title">Expenses by HMRC category</span>
+          <button class="q-export-btn" id="qExportBtn" onclick="exportQuarterCsv()">Export CSV</button>
+        </div>
+        <div class="q-tbl-hdr">
+          <span style="flex:1">Category</span>
+          <span style="width:26px;text-align:right">No.</span>
+          <span style="width:64px;text-align:right;margin-left:8px">Amount</span>
+        </div>
+        <div id="qCatList"></div>
+        <div class="q-total-row">
+          <span class="q-total-lbl">Total</span>
+          <span class="q-total-n" id="qTotalN">—</span>
+          <span class="q-total-amt" id="qTotalAmt">—</span>
+        </div>
+      </div>
+    </div>
+  </div><!-- end quartersPane -->
+
 </div>
 
 <!-- ═══ SCAN ═══════════════════════════════════════════════ -->
@@ -2905,6 +2997,238 @@ window.startBackup = async function() {
 
 // Keep exportCSV as alias for any other callers
 window.exportCSV = window.startBackup;
+
+/* ═══════════════════════════════════════════════════════════
+   MTD QUARTERLY VIEW
+   ═══════════════════════════════════════════════════════════ */
+
+var _activeHomeTab = 'receipts';
+var _mtdQuarterIdx = 0; // which quarter is selected (0-3)
+
+/* Switch between Receipts and Tax quarters tabs */
+window.switchHomeTab = function(tab) {
+  _activeHomeTab = tab;
+  var isQ = tab === 'quarters';
+
+  // Toggle panes
+  g('receiptsPane').style.display = isQ ? 'none' : 'flex';
+  g('quartersPane').style.display = isQ ? 'flex' : 'none'; // flex so flex-direction:column applies
+
+  // Toggle tab active states
+  g('vtReceipts').classList.toggle('active', !isQ);
+  g('vtQuarters').classList.toggle('active', isQ);
+
+  // Hide/show the header export button (quarters has its own)
+  if (g('hdrExportBtn')) g('hdrExportBtn').style.display = isQ ? 'none' : '';
+
+  // Hide FAB and fwd-tip on quarters view — both are position:fixed and would float above
+  g('scanFab').style.display = isQ ? 'none' : '';
+  var tip = g('fwdTip');
+  if (tip) {
+    if (isQ) {
+      tip.classList.add('hidden');
+    } else {
+      updateFwdTip(); // restore based on dismissed state
+    }
+  }
+
+  if (isQ) renderMtdQuarters();
+};
+
+/* Return the tax year start year for a given date
+   e.g. 2025 for any date in 2025/26 tax year */
+function getTaxYearStart(d) {
+  d = d || new Date();
+  return (d.getMonth() > 3 || (d.getMonth() === 3 && d.getDate() >= 6))
+    ? d.getFullYear() : d.getFullYear() - 1;
+}
+
+/* Return {start, end} Date objects for a given quarter index (0-3)
+   within a tax year starting in sy */
+function getQuarterBounds(sy, qi) {
+  var bounds = [
+    [new Date(sy,   3,  6), new Date(sy,   6,  5, 23, 59, 59)], // Q1: 6 Apr–5 Jul
+    [new Date(sy,   6,  6), new Date(sy,   9,  5, 23, 59, 59)], // Q2: 6 Jul–5 Oct
+    [new Date(sy,   9,  6), new Date(sy+1, 0,  5, 23, 59, 59)], // Q3: 6 Oct–5 Jan
+    [new Date(sy+1, 0,  6), new Date(sy+1, 3,  5, 23, 59, 59)], // Q4: 6 Jan–5 Apr
+  ];
+  return { start: bounds[qi][0], end: bounds[qi][1] };
+}
+
+/* Return the MTD submission deadline for a quarter */
+function getQuarterDeadline(sy, qi) {
+  // Deadline = 1 calendar month after end of quarter
+  var deadlines = [
+    new Date(sy,   7,  5), // Q1 ends 5 Jul → 5 Aug
+    new Date(sy,  10,  5), // Q2 ends 5 Oct → 5 Nov
+    new Date(sy+1, 1,  5), // Q3 ends 5 Jan → 5 Feb
+    new Date(sy+1, 4,  5), // Q4 ends 5 Apr → 5 May
+  ];
+  return deadlines[qi];
+}
+
+/* Format a date as "6 Apr 2025" */
+function fmtShortDate(d) {
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+/* Return the current MTD quarter index based on today's date */
+function getCurrentMtdQuarter() {
+  var now = new Date();
+  var sy  = getTaxYearStart(now);
+  for (var i = 0; i < 4; i++) {
+    var b = getQuarterBounds(sy, i);
+    if (now >= b.start && now <= b.end) return i;
+  }
+  return 0;
+}
+
+/* Category dot colours — mirrors CAT_COLOURS palette */
+var Q_CAT_COLOURS = {
+  'Travel':'#0066ff','Meals':'#f59e0b','Office':'#8b5cf6',
+  'Software':'#06b6d4','Equipment':'#10b981','Marketing':'#f43f5e',
+  'Professional':'#6366f1','Utilities':'#84cc16','Other':'#94a3b8','(uncat)':'#d1d5db'
+};
+function qCatColour(cat) {
+  return Q_CAT_COLOURS[cat] || '#94a3b8';
+}
+
+window.setMtdQuarter = function(idx, el) {
+  _mtdQuarterIdx = idx;
+  g('qPeriodRow').querySelectorAll('.q-period-btn').forEach(function(b){
+    b.classList.remove('active');
+  });
+  el.classList.add('active');
+  renderMtdQuarters();
+};
+
+function renderMtdQuarters() {
+  var now = new Date();
+  var sy  = getTaxYearStart(now);
+  var qi  = _mtdQuarterIdx;
+  var b   = getQuarterBounds(sy, qi);
+  var dl  = getQuarterDeadline(sy, qi);
+  var labels = ['Q1','Q2','Q3','Q4'];
+
+  // Activate correct period button on first render
+  g('qPeriodRow').querySelectorAll('.q-period-btn').forEach(function(btn, i) {
+    btn.classList.toggle('active', i === qi);
+  });
+
+  // Date range label
+  g('qDatesLbl').textContent = fmtShortDate(b.start) + ' – ' + fmtShortDate(b.end);
+
+  // Deadline banner
+  var isPast = dl < now;
+  var deadlineText = isPast
+    ? 'Submission deadline passed — ' + labels[qi] + ' was due ' + fmtShortDate(dl)
+    : 'MTD submission due — ' + labels[qi] + ' update must reach HMRC by ' + fmtShortDate(dl);
+  g('qDeadline').innerHTML = '<strong>' + (isPast ? '⚠ ' : '') + deadlineText + '</strong>';
+  g('qDeadline').style.background = isPast ? 'var(--red-lt)' : '#fff8e1';
+  g('qDeadline').style.borderColor = isPast ? 'var(--red)' : '#fde68a';
+  g('qDeadline').querySelector('strong').style.color = isPast ? 'var(--red)' : '#b45309';
+
+  // Filter receipts to this quarter (GBP only for totals, all for count)
+  var qRs = _receipts.filter(function(r) {
+    var d = new Date(r.date || r.created_at);
+    return d >= b.start && d <= b.end;
+  });
+
+  var gbpRs  = qRs.filter(function(r){ return !r.currency || r.currency === 'GBP'; });
+  var total  = gbpRs.reduce(function(s,r){ return s + parseFloat(r.amount||0); }, 0);
+  var vatTot = qRs.reduce(function(s,r){ return s + parseFloat(r.vat||0); }, 0);
+
+  g('qTotal').textContent = fmt(total);
+  g('qCount').textContent = qRs.length;
+  g('qVat').textContent   = vatTot > 0 ? fmt(vatTot) : '—';
+
+  // Update export button label
+  g('qExportBtn').textContent = 'Export ' + labels[qi] + ' CSV';
+
+  // Category breakdown
+  if (!gbpRs.length) {
+    g('qCatList').innerHTML = '<div class="q-empty"><div class="q-empty-icon">🧾</div>'
+      + 'No GBP receipts for ' + labels[qi] + ' (' + fmtShortDate(b.start) + ' – ' + fmtShortDate(b.end) + ')'
+      + '</div>';
+    g('qTotalN').textContent   = '0';
+    g('qTotalAmt').textContent = fmt(0);
+    return;
+  }
+
+  var catMap = {};
+  gbpRs.forEach(function(r) {
+    var c = r.category || '(uncat)';
+    if (!catMap[c]) catMap[c] = { amt: 0, n: 0 };
+    catMap[c].amt += parseFloat(r.amount||0);
+    catMap[c].n++;
+  });
+
+  var entries = Object.entries(catMap).sort(function(a,b){ return b[1].amt - a[1].amt; });
+  var maxAmt  = entries.length ? entries[0][1].amt : 1;
+
+  g('qCatList').innerHTML = entries.map(function(e) {
+    var cat = e[0], d = e[1];
+    var col = qCatColour(cat);
+    var pct = maxAmt > 0 ? Math.round(d.amt / maxAmt * 100) : 0;
+    return '<div class="q-cat-row">'
+      + '<div class="q-cat-dot" style="background:' + col + '"></div>'
+      + '<span class="q-cat-name">' + esc(cat === '(uncat)' ? 'Uncategorised' : cat) + '</span>'
+      + '<div class="q-bar-track"><div class="q-bar-fill" style="width:' + pct + '%;background:' + col + ';opacity:.45"></div></div>'
+      + '<span class="q-cat-n">' + d.n + '</span>'
+      + '<span class="q-cat-amt">' + fmt(d.amt) + '</span>'
+      + '</div>';
+  }).join('');
+
+  g('qTotalN').textContent   = gbpRs.length;
+  g('qTotalAmt').textContent = fmt(total);
+}
+
+/* Export this quarter's receipts as a simple CSV */
+window.exportQuarterCsv = function() {
+  var now    = new Date();
+  var sy     = getTaxYearStart(now);
+  var qi     = _mtdQuarterIdx;
+  var b      = getQuarterBounds(sy, qi);
+  var labels = ['Q1','Q2','Q3','Q4'];
+
+  var qRs = _receipts.filter(function(r) {
+    var d = new Date(r.date || r.created_at);
+    return d >= b.start && d <= b.end;
+  });
+
+  if (!qRs.length) { toast('No receipts in this quarter'); return; }
+
+  var BOM     = '﻿';
+  var headers = 'Date,Merchant,Amount,Currency,Category,VAT,Notes';
+  var rows    = qRs.map(function(r) {
+    return [
+      r.date || '',
+      '"' + (r.merchant||'').replace(/"/g,'""') + '"',
+      parseFloat(r.amount||0).toFixed(2),
+      r.currency || 'GBP',
+      '"' + (r.category||'').replace(/"/g,'""') + '"',
+      parseFloat(r.vat||0).toFixed(2),
+      '"' + (r.notes||'').replace(/"/g,'""') + '"',
+    ].join(',');
+  });
+
+  var csv  = BOM + [headers].concat(rows).join('\n');
+  var taxLabel = sy + '-' + String(sy+1).slice(2);
+  var fname = 'snapreceipt-' + labels[qi] + '-' + taxLabel + '.csv';
+
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
+  toast(labels[qi] + ' CSV downloaded ✓');
+};
+
+/* Auto-select the current MTD quarter when the pane first loads */
+(function() {
+  _mtdQuarterIdx = getCurrentMtdQuarter();
+})();
 
 /* ── IMPORT / RESTORE ────────────────────────────────────── */
 window.triggerImport = function() {
