@@ -3037,7 +3037,7 @@ window.switchHomeTab = function(tab) {
 
 /* Return the tax year start year for a given date
    e.g. 2025 for any date in 2025/26 tax year */
-function getTaxYearStart(d) {
+function getMtdTaxYearStart(d) {
   d = d || new Date();
   return (d.getMonth() > 3 || (d.getMonth() === 3 && d.getDate() >= 6))
     ? d.getFullYear() : d.getFullYear() - 1;
@@ -3075,7 +3075,7 @@ function fmtShortDate(d) {
 /* Return the current MTD quarter index based on today's date */
 function getCurrentMtdQuarter() {
   var now = new Date();
-  var sy  = getTaxYearStart(now);
+  var sy  = getMtdTaxYearStart(now);
   for (var i = 0; i < 4; i++) {
     var b = getQuarterBounds(sy, i);
     if (now >= b.start && now <= b.end) return i;
@@ -3104,7 +3104,7 @@ window.setMtdQuarter = function(idx, el) {
 
 function renderMtdQuarters() {
   var now = new Date();
-  var sy  = getTaxYearStart(now);
+  var sy  = getMtdTaxYearStart(now);
   var qi  = _mtdQuarterIdx;
   var b   = getQuarterBounds(sy, qi);
   var dl  = getQuarterDeadline(sy, qi);
@@ -3186,7 +3186,7 @@ function renderMtdQuarters() {
 /* Export this quarter's receipts as a simple CSV */
 window.exportQuarterCsv = function() {
   var now    = new Date();
-  var sy     = getTaxYearStart(now);
+  var sy     = getMtdTaxYearStart(now);
   var qi     = _mtdQuarterIdx;
   var b      = getQuarterBounds(sy, qi);
   var labels = ['Q1','Q2','Q3','Q4'];
