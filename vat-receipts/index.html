@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+
+<title>VAT Receipt Scanner for UK Freelancers &amp; Sole Traders | SnapReceipt</title>
+<meta name="description" content="Scan any VAT receipt and SnapReceipt automatically extracts the net amount, VAT, and gross total. HMRC-ready VAT records for UK freelancers and sole traders — free, no app download."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://snapreceipt.co.uk/vat-receipts/"/>
+
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="SnapReceipt"/>
+<meta property="og:title" content="VAT Receipt Scanner for UK Freelancers &amp; Sole Traders"/>
+<meta property="og:description" content="Scan any VAT receipt and SnapReceipt automatically extracts the net amount, VAT, and gross total. HMRC-ready records, free, no app download."/>
+<meta property="og:url" content="https://snapreceipt.co.uk/vat-receipts/"/>
+<meta property="og:locale" content="en_GB"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="VAT Receipt Scanner for UK Freelancers — SnapReceipt"/>
+<meta name="twitter:description" content="AI reads the net, VAT, and gross from every receipt automatically. Free, no app download. HMRC-ready."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "SnapReceipt",
+  "url": "https://snapreceipt.co.uk/",
+  "description": "VAT receipt scanner for UK freelancers and sole traders. AI automatically extracts net amount, VAT, and gross total from every receipt. HMRC-ready records with no app download required.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"},
+  "featureList": [
+    "Automatic VAT extraction from receipt photos",
+    "Net, VAT, and gross amounts logged separately",
+    "HMRC VAT record compliant",
+    "Making Tax Digital ready",
+    "CSV export for VAT return",
+    "No app download — works in browser"
+  ],
+  "audience": {"@type": "Audience", "audienceType": "VAT-registered UK freelancers and sole traders"}
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does SnapReceipt extract VAT from receipts automatically?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. When you scan a receipt, SnapReceipt's AI reads the VAT amount, net amount, and gross total directly from the image. You don't need to manually enter or calculate anything — it's extracted automatically and logged against the receipt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What VAT information does HMRC require me to keep?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HMRC requires you to keep the supplier name, date, net amount, VAT amount, and the supplier's VAT registration number. For purchases under £250, a simplified VAT receipt showing the gross total and VAT rate is sufficient. SnapReceipt captures and stores these details from your receipt photo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use SnapReceipt if I'm not VAT registered?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. If you're not VAT registered, SnapReceipt still logs the gross amount you paid — the VAT breakdown is captured but you simply don't need to claim it back. The app works for both VAT-registered and non-VAT-registered sole traders and freelancers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is SnapReceipt Making Tax Digital compatible?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SnapReceipt is designed with MTD ITSA in mind. Your receipts are stored digitally with all required fields, and you can export a clean CSV for your accountant or MTD-compatible software. MTD for Income Tax applies from April 2026 for sole traders with income over £50,000."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to download an app?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. SnapReceipt runs entirely in your browser at snapreceipt.co.uk — nothing to install. It works on iPhone, Android, and desktop. You can add it to your home screen for quick access."
+      }
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧾</text></svg>"/>
+<link rel="manifest" href="/manifest.json"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#fff;color:#111;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.nav{height:54px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;background:#fff;z-index:10}
+.nav-brand{font-size:1rem;font-weight:800;color:#111;text-decoration:none;display:flex;align-items:center;gap:8px;letter-spacing:-.03em}
+.nav-dot{width:8px;height:8px;background:#0066ff;border-radius:50%}
+.nav-cta{height:36px;padding:0 16px;background:#111;color:#fff;border:none;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center}
+
+/* HERO */
+.hero{max-width:760px;margin:0 auto;padding:72px 24px 56px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:#e8f0ff;color:#0044bb;font-size:.75rem;font-weight:700;padding:5px 12px;border-radius:20px;margin-bottom:20px;letter-spacing:.02em}
+.hero-badge-dot{width:6px;height:6px;background:#0066ff;border-radius:50%;flex-shrink:0}
+h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:800;letter-spacing:-.04em;color:#111;line-height:1.15;margin-bottom:18px}
+h1 span{color:#0066ff}
+.hero-sub{font-size:1.05rem;color:#555;line-height:1.7;max-width:560px;margin:0 auto 32px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.btn-primary{height:50px;padding:0 28px;background:#111;color:#fff;border:none;border-radius:100px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
+.btn-ghost{height:50px;padding:0 24px;background:#fff;color:#555;border:1.5px solid #e5e5e5;border-radius:100px;font-size:.92rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:all .15s}
+.btn-ghost:hover{border-color:#ccc;color:#111}
+.hero-trust{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:.78rem;font-weight:600;color:#888;margin-top:4px}
+.hero-trust span{display:flex;align-items:center;gap:5px}
+
+/* VAT EXTRACTION DEMO */
+.demo-section{background:#f7f7f7;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;padding:64px 24px}
+.demo-inner{max-width:800px;margin:0 auto}
+.section-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#0066ff;margin-bottom:10px;text-align:center}
+.section-title{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;color:#111;letter-spacing:-.03em;text-align:center;margin-bottom:8px;line-height:1.25}
+.section-sub{font-size:.95rem;color:#666;text-align:center;line-height:1.65;max-width:520px;margin:0 auto 40px}
+.demo-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center}
+.demo-arrow{font-size:1.4rem;color:#ccc;text-align:center;flex-shrink:0}
+.demo-card{background:#fff;border:1.5px solid #e5e5e5;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.demo-card-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#aaa;margin-bottom:14px}
+.demo-receipt{display:flex;flex-direction:column;gap:6px}
+.demo-receipt-line{display:flex;justify-content:space-between;font-size:.82rem;color:#555;padding:3px 0}
+.demo-receipt-line.total{font-weight:700;color:#111;border-top:1px solid #e5e5e5;padding-top:8px;margin-top:4px}
+.demo-fields{display:flex;flex-direction:column;gap:8px}
+.demo-field{background:#f7f7f7;border-radius:8px;padding:8px 12px}
+.demo-field-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#aaa;margin-bottom:2px}
+.demo-field-val{font-size:.9rem;font-weight:700;color:#111}
+.demo-field-val.vat{color:#0066ff}
+.demo-field-val.green{color:#00a651}
+
+/* HOW IT WORKS */
+.how-section{max-width:800px;margin:0 auto;padding:72px 24px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px}
+.step{text-align:center}
+.step-num{width:40px;height:40px;background:#111;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;margin-bottom:14px}
+.step-icon{font-size:2rem;margin-bottom:10px}
+.step-title{font-size:1rem;font-weight:700;color:#111;margin-bottom:6px}
+.step-desc{font-size:.85rem;color:#666;line-height:1.6}
+
+/* FOR WHO */
+.who-section{background:#f7f7f7;border-top:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;padding:64px 24px}
+.who-inner{max-width:800px;margin:0 auto}
+.who-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:36px}
+.who-card{background:#fff;border:1.5px solid #e5e5e5;border-radius:14px;padding:22px 24px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.who-icon{font-size:1.6rem;margin-bottom:10px}
+.who-title{font-size:.95rem;font-weight:700;color:#111;margin-bottom:6px}
+.who-desc{font-size:.85rem;color:#666;line-height:1.6}
+
+/* HMRC RULES */
+.rules-section{max-width:760px;margin:0 auto;padding:72px 24px}
+.rules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:32px}
+.rule-item{border:1.5px solid #e5e5e5;border-radius:12px;padding:18px 20px;background:#fff}
+.rule-check{font-size:1rem;margin-bottom:8px}
+.rule-title{font-size:.88rem;font-weight:700;color:#111;margin-bottom:4px}
+.rule-desc{font-size:.8rem;color:#666;line-height:1.5}
+.rules-note{margin-top:20px;background:#e8f0ff;border-radius:10px;padding:14px 18px;font-size:.85rem;color:#0044bb;line-height:1.6}
+
+/* FAQ */
+.faq-section{background:#f7f7f7;border-top:1px solid #e5e5e5;padding:64px 24px}
+.faq-inner{max-width:700px;margin:0 auto}
+.faq-item{background:#fff;border:1.5px solid #e5e5e5;border-radius:12px;padding:20px 22px;margin-bottom:10px}
+.faq-q{font-size:.97rem;font-weight:700;color:#111;margin-bottom:8px}
+.faq-a{font-size:.88rem;color:#444;line-height:1.65}
+
+/* FINAL CTA */
+.cta-section{padding:80px 24px;text-align:center;background:#fff}
+.cta-inner{max-width:540px;margin:0 auto}
+.cta-icon{font-size:2.4rem;margin-bottom:16px}
+.cta-title{font-size:clamp(1.5rem,4vw,2rem);font-weight:800;color:#111;letter-spacing:-.03em;margin-bottom:12px;line-height:1.2}
+.cta-sub{font-size:.97rem;color:#666;line-height:1.65;margin-bottom:28px}
+.cta-trust{font-size:.78rem;color:#aaa;margin-top:14px}
+
+/* FOOTER */
+.footer{border-top:1px solid #e5e5e5;padding:28px 24px;text-align:center;font-size:.82rem;color:#888}
+.footer-brand{font-size:1rem;font-weight:800;color:#111;margin-bottom:10px}
+.footer-links{display:flex;gap:16px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+.footer-links a{color:#888;text-decoration:none}
+.footer-links a:hover{color:#111}
+
+@media(max-width:600px){
+  .demo-grid{grid-template-columns:1fr;gap:12px}
+  .demo-arrow{transform:rotate(90deg)}
+  .steps{grid-template-columns:1fr}
+  .who-grid{grid-template-columns:1fr}
+  .rules-grid{grid-template-columns:1fr}
+  .hero{padding:48px 20px 40px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="https://snapreceipt.co.uk/"><span class="nav-dot"></span>SnapReceipt</a>
+  <a class="nav-cta" href="https://snapreceipt.co.uk/">Get started free</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span class="hero-badge-dot"></span>Free · No app download · HMRC-ready</div>
+  <h1>VAT receipts.<br><span>Scanned. Extracted. Done.</span></h1>
+  <p class="hero-sub">Take a photo of any VAT receipt and SnapReceipt automatically reads the net amount, VAT, and gross total — no manual entry, no calculator, no spreadsheet.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="https://snapreceipt.co.uk/">🧾 Start scanning free</a>
+    <a class="btn-ghost" href="https://snapreceipt.co.uk/blog/">Read the guides</a>
+  </div>
+  <div class="hero-trust">
+    <span>✓ Automatic VAT extraction</span>
+    <span>✓ Making Tax Digital ready</span>
+    <span>✓ Built in the UK</span>
+    <span>✓ No credit card needed</span>
+  </div>
+</section>
+
+<!-- VAT EXTRACTION DEMO -->
+<section class="demo-section">
+  <div class="demo-inner">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">AI reads the VAT so you don't have to</h2>
+    <p class="section-sub">Snap your receipt. SnapReceipt extracts the details automatically and logs them against your account — ready for your VAT return or accountant.</p>
+
+    <div class="demo-grid">
+      <div class="demo-card">
+        <div class="demo-card-label">📷 Your receipt</div>
+        <div class="demo-receipt">
+          <div class="demo-receipt-line"><span>Office supplies</span><span></span></div>
+          <div class="demo-receipt-line"><span>Staples Ltd</span><span>14 Apr 2026</span></div>
+          <div class="demo-receipt-line"><span>Net amount</span><span>£48.33</span></div>
+          <div class="demo-receipt-line"><span>VAT @ 20%</span><span>£9.67</span></div>
+          <div class="demo-receipt-line total"><span>Total paid</span><span>£58.00</span></div>
+          <div class="demo-receipt-line" style="margin-top:8px;font-size:.74rem;color:#aaa"><span>VAT No.</span><span>GB 123 4567 89</span></div>
+        </div>
+      </div>
+
+      <div class="demo-arrow">→</div>
+
+      <div class="demo-card">
+        <div class="demo-card-label">✅ Logged automatically</div>
+        <div class="demo-fields">
+          <div class="demo-field">
+            <div class="demo-field-label">Merchant</div>
+            <div class="demo-field-val">Staples Ltd</div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-field-label">Date</div>
+            <div class="demo-field-val">14 Apr 2026</div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-field-label">Net amount</div>
+            <div class="demo-field-val">£48.33</div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-field-label">VAT extracted</div>
+            <div class="demo-field-val vat">£9.67</div>
+          </div>
+          <div class="demo-field">
+            <div class="demo-field-label">Gross total</div>
+            <div class="demo-field-val green">£58.00 ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-label">Three steps</div>
+  <h2 class="section-title">Simple as it gets</h2>
+  <p class="section-sub">No training needed. No setup. Open your browser and start scanning.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-icon">📸</div>
+      <div class="step-title">Snap the receipt</div>
+      <div class="step-desc">Use your phone camera or upload an existing photo. Works on iPhone, Android, and desktop browsers.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-icon">🤖</div>
+      <div class="step-title">AI reads the VAT</div>
+      <div class="step-desc">Claude AI extracts the merchant, date, net amount, VAT, and gross total automatically. Edit any field before saving.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-icon">📊</div>
+      <div class="step-title">Export for your return</div>
+      <div class="step-desc">Download a clean CSV with net, VAT, and gross columns — ready for your accountant or MTD software.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="who-section">
+  <div class="who-inner">
+    <div class="section-label">Who it's for</div>
+    <h2 class="section-title">Built for UK freelancers who deal with VAT</h2>
+    <p class="section-sub">Whether you're VAT-registered and need to reclaim, or simply need to log what you paid — SnapReceipt handles it.</p>
+
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="who-icon">🧾</div>
+        <div class="who-title">VAT-registered sole traders</div>
+        <div class="who-desc">Claim back the VAT on every business purchase. Your net and VAT amounts are logged separately — exactly what HMRC and your accountant need for your quarterly return.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-icon">💼</div>
+        <div class="who-title">Freelancers approaching the threshold</div>
+        <div class="who-desc">The VAT registration threshold is £90,000. If you're getting close, keeping clean VAT records now means no scramble when you cross it.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-icon">📋</div>
+        <div class="who-title">Non-VAT registered self-employed</div>
+        <div class="who-desc">Not VAT registered? You still pay VAT on your business purchases — and the gross total is your allowable expense. SnapReceipt logs it all correctly either way.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-icon">🏗️</div>
+        <div class="who-title">Tradespeople and contractors</div>
+        <div class="who-desc">Materials, tools, fuel — lots of VAT-bearing receipts, often in the field. Scan on the spot before they get lost or damaged.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HMRC VAT RECORD REQUIREMENTS -->
+<section class="rules-section">
+  <div class="section-label">HMRC requirements</div>
+  <h2 class="section-title">What HMRC requires on a VAT receipt</h2>
+  <p class="section-sub" style="text-align:center;color:#666;font-size:.95rem;line-height:1.65;max-width:520px;margin:0 auto 32px">To reclaim VAT on a business expense, HMRC requires specific information to be present on the receipt. SnapReceipt captures and stores all of it.</p>
+
+  <div class="rules-grid">
+    <div class="rule-item">
+      <div class="rule-check">✅</div>
+      <div class="rule-title">Supplier name and address</div>
+      <div class="rule-desc">The business that sold you the goods or services.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-check">✅</div>
+      <div class="rule-title">Supplier VAT registration number</div>
+      <div class="rule-desc">The GB VAT number of the seller — required on full VAT invoices.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-check">✅</div>
+      <div class="rule-title">Date of supply</div>
+      <div class="rule-desc">When the transaction took place — determines which VAT period it falls into.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-check">✅</div>
+      <div class="rule-title">Net amount (exc. VAT)</div>
+      <div class="rule-desc">The price before VAT — this is your allowable expense amount.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-check">✅</div>
+      <div class="rule-title">VAT rate and VAT amount</div>
+      <div class="rule-desc">The rate applied (usually 20%) and the actual VAT charged.</div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-check">✅</div>
+      <div class="rule-title">Gross total (inc. VAT)</div>
+      <div class="rule-desc">What you actually paid — the net plus the VAT.</div>
+    </div>
+  </div>
+
+  <div class="rules-note">
+    💡 <strong>Simplified receipts:</strong> For purchases under £250 (inc. VAT), HMRC accepts a simplified VAT receipt showing just the supplier name, date, description, gross total, and VAT rate — the full breakdown isn't required. SnapReceipt handles both formats.
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="section-label" style="text-align:center">Questions</div>
+    <h2 class="section-title" style="text-align:center;margin-bottom:28px">Frequently asked</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">Does SnapReceipt extract VAT from receipts automatically?</div>
+      <div class="faq-a">Yes. When you scan a receipt, the AI reads the VAT amount, net amount, and gross total directly from the image. You don't need to type anything in — it's captured automatically and stored against the receipt record.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What if the AI gets the VAT amount wrong?</div>
+      <div class="faq-a">You can edit any field before saving. The AI is accurate for clearly photographed receipts, but if the VAT figure is unclear or the receipt is crumpled, just correct it manually — takes a couple of seconds.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I use SnapReceipt if I'm not VAT registered?</div>
+      <div class="faq-a">Yes. If you're not VAT registered, SnapReceipt still logs the gross amount you paid — which is your allowable expense for Self Assessment. The VAT breakdown is captured but you simply don't claim it back. Works the same either way.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Is SnapReceipt Making Tax Digital compatible?</div>
+      <div class="faq-a">SnapReceipt is designed with MTD in mind. Your receipts are stored digitally with all required fields, and the CSV export can be passed to your accountant or imported into MTD-compatible software. MTD for Income Tax applies from April 2026 for sole traders earning over £50,000.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How long does SnapReceipt store my receipts?</div>
+      <div class="faq-a">Indefinitely while your account is active. HMRC requires VAT records to be kept for 6 years — SnapReceipt keeps them safe and accessible for as long as you need them. You can also export everything to CSV at any time.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Do I need to download an app?</div>
+      <div class="faq-a">No. SnapReceipt runs in your browser at snapreceipt.co.uk — nothing to install from the App Store or Google Play. Works on iPhone, Android, and desktop. Add it to your home screen for quick one-tap access.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-icon">🧾</div>
+    <h2 class="cta-title">Start keeping HMRC-ready VAT records today</h2>
+    <p class="cta-sub">Free to get started. Scan your first receipt in under a minute — no app download, no credit card, no faff.</p>
+    <a class="btn-primary" href="https://snapreceipt.co.uk/" style="margin:0 auto;justify-content:center">Get started free →</a>
+    <p class="cta-trust">Free · No credit card · Works in your browser · Built in the UK</p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-brand">🧾 SnapReceipt</div>
+  <div class="footer-links">
+    <a href="https://snapreceipt.co.uk/">Home</a>
+    <a href="https://snapreceipt.co.uk/blog/">Blog</a>
+    <a href="https://snapreceipt.co.uk/blog/what-expenses-can-a-uk-sole-trader-claim/">Expenses guide</a>
+    <a href="mailto:hello@snapreceipt.co.uk">Contact</a>
+  </div>
+  <p>© 2026 SnapReceipt — free VAT receipt scanner for UK freelancers and sole traders.</p>
+</footer>
+
+</body>
+</html>
