@@ -1188,11 +1188,14 @@ img{display:block;max-width:100%}
       </div>
       <div class="q-card">
         <div class="q-card-hdr">
-          <span class="q-card-title">Expenses by HMRC category</span>
+          <div>
+            <div class="q-card-title">SA103 expense boxes</div>
+            <div style="font-size:.7rem;color:var(--gray-5);margin-top:2px;font-weight:500">Use these figures for your Self Assessment or MTD quarterly update</div>
+          </div>
           <button class="q-export-btn" id="qExportBtn" onclick="exportQuarterCsv()">Export CSV</button>
         </div>
         <div class="q-tbl-hdr">
-          <span style="flex:1">Category</span>
+          <span style="flex:1">Expense box</span>
           <span style="width:26px;text-align:right">No.</span>
           <span style="width:64px;text-align:right;margin-left:8px">Amount</span>
         </div>
@@ -1390,6 +1393,21 @@ img{display:block;max-width:100%}
           <div><label class="fl">VAT</label><input class="ti" id="edVat" type="number" step="0.01" min="0" inputmode="decimal" autocomplete="off"/></div>
         </div>
         <div><label class="fl">Notes / Purpose</label><input class="ti" id="edNotes" autocomplete="off"/></div>
+        <div><label class="fl">SA103 Expense Box</label>
+          <select class="ti" id="edSaCategory">
+            <option value="">— not set —</option>
+            <option value="office_costs">Office costs</option>
+            <option value="travel_vehicles">Travel &amp; vehicles</option>
+            <option value="clothing">Clothing</option>
+            <option value="staff_costs">Staff costs</option>
+            <option value="stock_materials">Stock &amp; materials</option>
+            <option value="financial_charges">Financial charges</option>
+            <option value="advertising_marketing">Advertising &amp; marketing</option>
+            <option value="phone_internet">Phone &amp; internet</option>
+            <option value="professional_fees">Professional fees</option>
+            <option value="other_allowable">Other allowable</option>
+          </select>
+        </div>
         <div class="amsg" id="edMsg"></div>
         <div class="sbtns">
           <button class="btn-p" style="background:var(--gray-1);color:var(--black)" onclick="closeEdit()">Cancel</button>
@@ -1696,6 +1714,8 @@ var _receipts = [];
 var _imgB64   = null;
 var _expanded = null;
 var _editId   = null;
+var _saCat    = null;   // SA103 category from OCR
+var _catConf  = null;   // SA103 category confidence 0-100
 var _cameraOpen = false; // flag: true while camera/picker is open
 
 /* ── HELPERS ─────────────────────────────────────────── */
@@ -2041,7 +2061,7 @@ async function loadReceipts() {
   if (!_user) return;
   renderSkeleton();
   var res = await sb.from('receipts')
-    .select('id,merchant,amount,currency,date,category,vat,notes,image_url,created_at')
+    .select('id,merchant,amount,currency,date,category,vat,notes,image_url,created_at,sa_category,category_confidence,category_source')
     .eq('user_id', _user.id)
     .order('created_at', {ascending:false});
   if (res.error) { toast('Error loading receipts'); return; }
@@ -2461,6 +2481,10 @@ function renderRow(r, i) {
   var noteCell = r.notes ? '<div class="dcell" style="grid-column:1/-1"><div class="dcell-lbl">Notes</div><div class="dcell-val">'+esc(r.notes)+'</div></div>' : '';
   var vatCell  = r.vat   ? '<div class="dcell"><div class="dcell-lbl">VAT</div><div class="dcell-val">'+fmt(r.vat,'GBP')+'</div></div>' : '';
   var catCell  = r.category ? '<div class="dcell"><div class="dcell-lbl">Category</div><div class="dcell-val">'+esc(r.category)+'</div></div>' : '';
+  var SA103_LABELS = {office_costs:'Office costs',travel_vehicles:'Travel & vehicles',clothing:'Clothing',staff_costs:'Staff costs',stock_materials:'Stock & materials',financial_charges:'Financial charges',advertising_marketing:'Advertising & marketing',phone_internet:'Phone & internet',professional_fees:'Professional fees',other_allowable:'Other allowable'};
+  var saLabel  = r.sa_category ? (SA103_LABELS[r.sa_category] || r.sa_category) : null;
+  var saSource = r.category_source === 'user' ? ' ✓' : ' (AI)';
+  var saCell   = saLabel ? '<div class="dcell" style="grid-column:1/-1"><div class="dcell-lbl">SA103 Box</div><div class="dcell-val" style="color:var(--blue)">'+esc(saLabel)+'<span style="font-size:.75rem;font-weight:500;color:var(--gray-5)">'+saSource+'</span></div></div>' : '';
   return '<div class="rrow'+(isExp?' expanded':'')+'" id="row-'+esc(r.id)+'" style="animation-delay:'+(i*0.025)+'s">'
     +'<div class="rrow-main" onclick="toggleRow(\''+esc(r.id)+'\')">'
     +thumb
@@ -2473,7 +2497,7 @@ function renderRow(r, i) {
     +'<div class="dgrid">'
     +'<div class="dcell"><div class="dcell-lbl">Date</div><div class="dcell-val">'+fmtDate(r.date||r.created_at)+'</div></div>'
     +'<div class="dcell"><div class="dcell-lbl">Amount</div><div class="dcell-val">'+fmt(r.amount,r.currency)+'</div></div>'
-    +catCell+vatCell+noteCell
+    +catCell+vatCell+saCell+noteCell
     +'<div class="dcell"><div class="dcell-lbl">Added</div><div class="dcell-val">'+fmtDate(r.created_at)+'</div></div>'
     +'</div>'
     +'<div class="dactions">'
@@ -2541,6 +2565,7 @@ window.openScan = function() {
   if(g('cfCategory')) g('cfCategory').value='';
   if(g('cfVat')) g('cfVat').value='';
   if(g('cfNotes')) g('cfNotes').value='';
+  _saCat = null; _catConf = null;
   // Reset currency toggle
   if(g('currencyToggle')) g('currencyToggle').textContent = 'GBP £ ▾';
   if(g('currencyDropdown')) g('currencyDropdown').style.display = 'none';
@@ -2632,6 +2657,8 @@ function runOCR(b64) {
       if (data.currency) g('cfCurrency').value = data.currency;
       if (data.category && g('cfCategory')) g('cfCategory').value = data.category;
       if (data.vat != null && g('cfVat')) g('cfVat').value = data.vat;
+      _saCat   = data.sa_category         || null;
+      _catConf = data.category_confidence || null;
 
       var conf   = (data.confidence||'medium').toLowerCase();
       var labels = {high:'✓ High confidence', medium:'~ Review fields', low:'⚠ Check fields carefully'};
@@ -2718,16 +2745,19 @@ window.saveReceipt = async function() {
     }
 
     var res = await sb.from('receipts').insert({
-      user_id:  _user.id,
-      merchant: merchant,
-      amount:   amount,
-      currency: g('cfCurrency').value || 'GBP',
-      date:     date || null,
-      category: g('cfCategory').value || null,
-      vat:      parseFloat(g('cfVat').value) || null,
-      notes:    g('cfNotes').value.trim() || null,
-      image_url: imageUrl,
-      ocr_raw:  null,
+      user_id:             _user.id,
+      merchant:            merchant,
+      amount:              amount,
+      currency:            g('cfCurrency').value || 'GBP',
+      date:                date || null,
+      category:            g('cfCategory').value || null,
+      vat:                 parseFloat(g('cfVat').value) || null,
+      notes:               g('cfNotes').value.trim() || null,
+      image_url:           imageUrl,
+      ocr_raw:             null,
+      sa_category:         _saCat,
+      category_confidence: _catConf,
+      category_source:     _saCat ? 'ai' : null,
     }).select().single();
     if (res.error) throw res.error;
     _receipts.unshift(res.data);
@@ -2811,10 +2841,11 @@ window.openEdit = function(id) {
   g('edAmount').value   = r.amount||'';
   g('edCurrency').value = r.currency||'GBP';
   g('edDate').value     = r.date ? r.date.slice(0,10) : '';
-  g('edCategory').value = r.category||'';
-  g('edVat').value      = r.vat||'';
-  g('edNotes').value    = r.notes||'';
-  g('edMsg').className  = 'amsg';
+  g('edCategory').value   = r.category||'';
+  g('edVat').value         = r.vat||'';
+  g('edNotes').value       = r.notes||'';
+  g('edSaCategory').value  = r.sa_category||'';
+  g('edMsg').className     = 'amsg';
   g('editSheet').classList.add('on');
 };
 window.closeEdit = function() { g('editSheet').classList.remove('on'); _editId=null; };
@@ -2825,13 +2856,16 @@ window.saveEdit  = async function() {
   if (!merchant) { setMsg(g('edMsg'),'err','Please enter a merchant name.'); return; }
   if (!amount)   { setMsg(g('edMsg'),'err','Please enter an amount.'); return; }
   var btn = g('btnEditSave'); btn.disabled=true; btn.textContent='Saving…';
+  var newSaCat = g('edSaCategory').value || null;
   var update = {
-    merchant: merchant, amount: amount,
-    currency: g('edCurrency').value||'GBP',
-    date:     g('edDate').value||null,
-    category: g('edCategory').value||null,
-    vat:      parseFloat(g('edVat').value)||null,
-    notes:    g('edNotes').value.trim()||null,
+    merchant:            merchant, amount: amount,
+    currency:            g('edCurrency').value||'GBP',
+    date:                g('edDate').value||null,
+    category:            g('edCategory').value||null,
+    vat:                 parseFloat(g('edVat').value)||null,
+    notes:               g('edNotes').value.trim()||null,
+    sa_category:         newSaCat,
+    category_source:     newSaCat ? 'user' : null,
   };
   var res = await sb.from('receipts').update(update).eq('id',_editId);
   btn.disabled=false; btn.textContent='Save changes';
@@ -3169,7 +3203,20 @@ function renderMtdQuarters() {
   // Update export button label
   g('qExportBtn').textContent = 'Export ' + labels[qi] + ' CSV';
 
-  // Category breakdown
+  // SA103 breakdown
+  var SA103_LABELS = {
+    office_costs:          'Office costs',
+    travel_vehicles:       'Travel & vehicles',
+    clothing:              'Clothing',
+    staff_costs:           'Staff costs',
+    stock_materials:       'Stock & materials',
+    financial_charges:     'Financial charges',
+    advertising_marketing: 'Advertising & marketing',
+    phone_internet:        'Phone & internet',
+    professional_fees:     'Professional fees',
+    other_allowable:       'Other allowable',
+  };
+
   if (!gbpRs.length) {
     g('qCatList').innerHTML = '<div class="q-empty"><div class="q-empty-icon">🧾</div>'
       + 'No GBP receipts for ' + labels[qi] + ' (' + fmtShortDate(b.start) + ' – ' + fmtShortDate(b.end) + ')'
@@ -3179,24 +3226,26 @@ function renderMtdQuarters() {
     return;
   }
 
-  var catMap = {};
+  var saMap = {};
   gbpRs.forEach(function(r) {
-    var c = r.category || '(uncat)';
-    if (!catMap[c]) catMap[c] = { amt: 0, n: 0 };
-    catMap[c].amt += parseFloat(r.amount||0);
-    catMap[c].n++;
+    var key = r.sa_category || '(uncategorised)';
+    if (!saMap[key]) saMap[key] = { amt: 0, n: 0 };
+    saMap[key].amt += parseFloat(r.amount||0);
+    saMap[key].n++;
   });
 
-  var entries = Object.entries(catMap).sort(function(a,b){ return b[1].amt - a[1].amt; });
+  var entries = Object.entries(saMap).sort(function(a,b){ return b[1].amt - a[1].amt; });
   var maxAmt  = entries.length ? entries[0][1].amt : 1;
 
   g('qCatList').innerHTML = entries.map(function(e) {
-    var cat = e[0], d = e[1];
-    var col = qCatColour(cat);
-    var pct = maxAmt > 0 ? Math.round(d.amt / maxAmt * 100) : 0;
+    var key = e[0], d = e[1];
+    var isUncat = key === '(uncategorised)';
+    var label = isUncat ? 'Not yet categorised' : (SA103_LABELS[key] || key);
+    var col   = isUncat ? 'var(--gray-3)' : 'var(--blue)';
+    var pct   = maxAmt > 0 ? Math.round(d.amt / maxAmt * 100) : 0;
     return '<div class="q-cat-row">'
       + '<div class="q-cat-dot" style="background:' + col + '"></div>'
-      + '<span class="q-cat-name">' + esc(cat === '(uncat)' ? 'Uncategorised' : cat) + '</span>'
+      + '<span class="q-cat-name">' + esc(label) + '</span>'
       + '<div class="q-bar-track"><div class="q-bar-fill" style="width:' + pct + '%;background:' + col + ';opacity:.45"></div></div>'
       + '<span class="q-cat-n">' + d.n + '</span>'
       + '<span class="q-cat-amt">' + fmt(d.amt) + '</span>'
@@ -3223,7 +3272,7 @@ window.exportQuarterCsv = function() {
   if (!qRs.length) { toast('No receipts in this quarter'); return; }
 
   var BOM     = '﻿';
-  var headers = 'Date,Merchant,Amount,Currency,Category,VAT,Notes';
+  var headers = 'Date,Merchant,Amount,Currency,Category,SA103 Box,VAT,Notes';
   var rows    = qRs.map(function(r) {
     return [
       r.date || '',
@@ -3231,6 +3280,7 @@ window.exportQuarterCsv = function() {
       parseFloat(r.amount||0).toFixed(2),
       r.currency || 'GBP',
       '"' + (r.category||'').replace(/"/g,'""') + '"',
+      '"' + (r.sa_category||'').replace(/"/g,'""') + '"',
       parseFloat(r.vat||0).toFixed(2),
       '"' + (r.notes||'').replace(/"/g,'""') + '"',
     ].join(',');
@@ -3408,16 +3458,19 @@ window.handleImport = async function(input) {
 
       try {
         var res = await sb.from('receipts').insert({
-          user_id:  _user.id,
-          merchant: merchant,
-          amount:   amount,
-          currency: (cols[idx['Currency']]||'GBP').trim(),
-          date:     (cols[idx['Date']]||'').trim() || null,
-          category: idx['Category']  !== undefined ? (cols[idx['Category']]||'').trim()||null  : null,
-          vat:      idx['VAT (£)']   !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
-          notes:    idx['Notes']     !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
-          image_url: imageUrl,
-          ocr_raw:  null,
+          user_id:             _user.id,
+          merchant:            merchant,
+          amount:              amount,
+          currency:            (cols[idx['Currency']]||'GBP').trim(),
+          date:                (cols[idx['Date']]||'').trim() || null,
+          category:            idx['Category']  !== undefined ? (cols[idx['Category']]||'').trim()||null  : null,
+          vat:                 idx['VAT (£)']   !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
+          notes:               idx['Notes']     !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
+          image_url:           imageUrl,
+          ocr_raw:             null,
+          sa_category:         null,
+          category_confidence: null,
+          category_source:     null,
         });
         if (res.error) {
           errors++;
