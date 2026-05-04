@@ -486,6 +486,15 @@ img{display:block;max-width:100%}
 .q-period-btn.active{background:var(--black);color:#fff}
 .q-dates-lbl{font-size:.72rem;font-weight:700;color:var(--gray-5);align-self:center}
 .q-deadline{background:#fff8e1;border:1px solid #fde68a;border-radius:var(--r);padding:9px 12px;font-size:.8rem;color:var(--black);line-height:1.5}
+.q-info{background:var(--blue-lt);border:1px solid var(--blue-mid);border-radius:var(--r);overflow:hidden}
+.q-info-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:8px}
+.q-info-hdr-left{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700;color:var(--blue)}
+.q-info-chevron{font-size:.7rem;color:var(--blue);transition:transform .2s;flex-shrink:0}
+.q-info-chevron.open{transform:rotate(180deg)}
+.q-info-body{display:none;padding:0 12px 12px;font-size:.8rem;color:var(--black);line-height:1.6}
+.q-info-body.open{display:block}
+.q-info-body p{margin-bottom:8px}
+.q-info-body p:last-child{margin-bottom:0}
 .q-deadline strong{font-weight:700;color:#b45309}
 .q-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .q-kpi{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px}
@@ -1157,6 +1166,20 @@ img{display:block;max-width:100%}
         </div>
         <span class="q-dates-lbl" id="qDatesLbl"></span>
       </div>
+      <div class="q-info">
+        <div class="q-info-hdr" onclick="toggleSa103Info()">
+          <div class="q-info-hdr-left">
+            <span>ℹ</span>
+            <span>What are SA103 expense boxes?</span>
+          </div>
+          <span class="q-info-chevron" id="sa103Chevron">▼</span>
+        </div>
+        <div class="q-info-body" id="sa103InfoBody">
+          <p>SA103 is the HMRC form sole traders use to report business expenses on their Self Assessment tax return. It groups expenses into standard boxes — such as office costs, travel, and professional fees.</p>
+          <p>SnapReceipt automatically assigns every receipt to the correct SA103 box when you scan it. The totals below are ready to use when completing your Self Assessment or submitting your MTD quarterly update to HMRC.</p>
+          <p>If a receipt has been assigned the wrong box, you can correct it — corrections will be reflected here immediately.</p>
+        </div>
+      </div>
       <div class="q-deadline" id="qDeadline"></div>
       <div class="q-kpis">
         <div class="q-kpi"><div class="q-kpi-val blue" id="qTotal">—</div><div class="q-kpi-lbl">Total expenses</div></div>
@@ -1165,14 +1188,11 @@ img{display:block;max-width:100%}
       </div>
       <div class="q-card">
         <div class="q-card-hdr">
-          <div>
-            <div class="q-card-title">SA103 expense boxes</div>
-            <div style="font-size:.7rem;color:var(--gray-5);margin-top:2px;font-weight:500">Use these figures for your Self Assessment or MTD quarterly update</div>
-          </div>
+          <span class="q-card-title">Expenses by HMRC category</span>
           <button class="q-export-btn" id="qExportBtn" onclick="exportQuarterCsv()">Export CSV</button>
         </div>
         <div class="q-tbl-hdr">
-          <span style="flex:1">Expense box</span>
+          <span style="flex:1">Category</span>
           <span style="width:26px;text-align:right">No.</span>
           <span style="width:64px;text-align:right;margin-left:8px">Amount</span>
         </div>
@@ -1676,8 +1696,6 @@ var _receipts = [];
 var _imgB64   = null;
 var _expanded = null;
 var _editId   = null;
-var _saCat    = null;   // SA103 category from OCR
-var _catConf  = null;   // SA103 category confidence 0-100
 var _cameraOpen = false; // flag: true while camera/picker is open
 
 /* ── HELPERS ─────────────────────────────────────────── */
@@ -2023,7 +2041,7 @@ async function loadReceipts() {
   if (!_user) return;
   renderSkeleton();
   var res = await sb.from('receipts')
-    .select('id,merchant,amount,currency,date,category,vat,notes,image_url,created_at,sa_category,category_confidence,category_source')
+    .select('id,merchant,amount,currency,date,category,vat,notes,image_url,created_at')
     .eq('user_id', _user.id)
     .order('created_at', {ascending:false});
   if (res.error) { toast('Error loading receipts'); return; }
@@ -2523,7 +2541,6 @@ window.openScan = function() {
   if(g('cfCategory')) g('cfCategory').value='';
   if(g('cfVat')) g('cfVat').value='';
   if(g('cfNotes')) g('cfNotes').value='';
-  _saCat = null; _catConf = null;
   // Reset currency toggle
   if(g('currencyToggle')) g('currencyToggle').textContent = 'GBP £ ▾';
   if(g('currencyDropdown')) g('currencyDropdown').style.display = 'none';
@@ -2615,8 +2632,6 @@ function runOCR(b64) {
       if (data.currency) g('cfCurrency').value = data.currency;
       if (data.category && g('cfCategory')) g('cfCategory').value = data.category;
       if (data.vat != null && g('cfVat')) g('cfVat').value = data.vat;
-      _saCat   = data.sa_category         || null;
-      _catConf = data.category_confidence || null;
 
       var conf   = (data.confidence||'medium').toLowerCase();
       var labels = {high:'✓ High confidence', medium:'~ Review fields', low:'⚠ Check fields carefully'};
@@ -2703,19 +2718,16 @@ window.saveReceipt = async function() {
     }
 
     var res = await sb.from('receipts').insert({
-      user_id:             _user.id,
-      merchant:            merchant,
-      amount:              amount,
-      currency:            g('cfCurrency').value || 'GBP',
-      date:                date || null,
-      category:            g('cfCategory').value || null,
-      vat:                 parseFloat(g('cfVat').value) || null,
-      notes:               g('cfNotes').value.trim() || null,
-      image_url:           imageUrl,
-      ocr_raw:             null,
-      sa_category:         _saCat,
-      category_confidence: _catConf,
-      category_source:     _saCat ? 'ai' : null,
+      user_id:  _user.id,
+      merchant: merchant,
+      amount:   amount,
+      currency: g('cfCurrency').value || 'GBP',
+      date:     date || null,
+      category: g('cfCategory').value || null,
+      vat:      parseFloat(g('cfVat').value) || null,
+      notes:    g('cfNotes').value.trim() || null,
+      image_url: imageUrl,
+      ocr_raw:  null,
     }).select().single();
     if (res.error) throw res.error;
     _receipts.unshift(res.data);
@@ -3157,20 +3169,7 @@ function renderMtdQuarters() {
   // Update export button label
   g('qExportBtn').textContent = 'Export ' + labels[qi] + ' CSV';
 
-  // SA103 breakdown
-  var SA103_LABELS = {
-    office_costs:          'Office costs',
-    travel_vehicles:       'Travel & vehicles',
-    clothing:              'Clothing',
-    staff_costs:           'Staff costs',
-    stock_materials:       'Stock & materials',
-    financial_charges:     'Financial charges',
-    advertising_marketing: 'Advertising & marketing',
-    phone_internet:        'Phone & internet',
-    professional_fees:     'Professional fees',
-    other_allowable:       'Other allowable',
-  };
-
+  // Category breakdown
   if (!gbpRs.length) {
     g('qCatList').innerHTML = '<div class="q-empty"><div class="q-empty-icon">🧾</div>'
       + 'No GBP receipts for ' + labels[qi] + ' (' + fmtShortDate(b.start) + ' – ' + fmtShortDate(b.end) + ')'
@@ -3180,26 +3179,24 @@ function renderMtdQuarters() {
     return;
   }
 
-  var saMap = {};
+  var catMap = {};
   gbpRs.forEach(function(r) {
-    var key = r.sa_category || '(uncategorised)';
-    if (!saMap[key]) saMap[key] = { amt: 0, n: 0 };
-    saMap[key].amt += parseFloat(r.amount||0);
-    saMap[key].n++;
+    var c = r.category || '(uncat)';
+    if (!catMap[c]) catMap[c] = { amt: 0, n: 0 };
+    catMap[c].amt += parseFloat(r.amount||0);
+    catMap[c].n++;
   });
 
-  var entries = Object.entries(saMap).sort(function(a,b){ return b[1].amt - a[1].amt; });
+  var entries = Object.entries(catMap).sort(function(a,b){ return b[1].amt - a[1].amt; });
   var maxAmt  = entries.length ? entries[0][1].amt : 1;
 
   g('qCatList').innerHTML = entries.map(function(e) {
-    var key = e[0], d = e[1];
-    var isUncat = key === '(uncategorised)';
-    var label = isUncat ? 'Not yet categorised' : (SA103_LABELS[key] || key);
-    var col   = isUncat ? 'var(--gray-3)' : 'var(--blue)';
-    var pct   = maxAmt > 0 ? Math.round(d.amt / maxAmt * 100) : 0;
+    var cat = e[0], d = e[1];
+    var col = qCatColour(cat);
+    var pct = maxAmt > 0 ? Math.round(d.amt / maxAmt * 100) : 0;
     return '<div class="q-cat-row">'
       + '<div class="q-cat-dot" style="background:' + col + '"></div>'
-      + '<span class="q-cat-name">' + esc(label) + '</span>'
+      + '<span class="q-cat-name">' + esc(cat === '(uncat)' ? 'Uncategorised' : cat) + '</span>'
       + '<div class="q-bar-track"><div class="q-bar-fill" style="width:' + pct + '%;background:' + col + ';opacity:.45"></div></div>'
       + '<span class="q-cat-n">' + d.n + '</span>'
       + '<span class="q-cat-amt">' + fmt(d.amt) + '</span>'
@@ -3226,7 +3223,7 @@ window.exportQuarterCsv = function() {
   if (!qRs.length) { toast('No receipts in this quarter'); return; }
 
   var BOM     = '﻿';
-  var headers = 'Date,Merchant,Amount,Currency,Category,SA103 Box,VAT,Notes';
+  var headers = 'Date,Merchant,Amount,Currency,Category,VAT,Notes';
   var rows    = qRs.map(function(r) {
     return [
       r.date || '',
@@ -3234,7 +3231,6 @@ window.exportQuarterCsv = function() {
       parseFloat(r.amount||0).toFixed(2),
       r.currency || 'GBP',
       '"' + (r.category||'').replace(/"/g,'""') + '"',
-      '"' + (r.sa_category||'').replace(/"/g,'""') + '"',
       parseFloat(r.vat||0).toFixed(2),
       '"' + (r.notes||'').replace(/"/g,'""') + '"',
     ].join(',');
@@ -3251,6 +3247,14 @@ window.exportQuarterCsv = function() {
   a.click();
   setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
   toast(labels[qi] + ' CSV downloaded ✓');
+};
+
+/* Toggle SA103 info panel */
+window.toggleSa103Info = function() {
+  var body    = g('sa103InfoBody');
+  var chevron = g('sa103Chevron');
+  var open    = body.classList.toggle('open');
+  chevron.classList.toggle('open', open);
 };
 
 /* Auto-select the current MTD quarter when the pane first loads */
@@ -3404,19 +3408,16 @@ window.handleImport = async function(input) {
 
       try {
         var res = await sb.from('receipts').insert({
-          user_id:             _user.id,
-          merchant:            merchant,
-          amount:              amount,
-          currency:            (cols[idx['Currency']]||'GBP').trim(),
-          date:                (cols[idx['Date']]||'').trim() || null,
-          category:            idx['Category']  !== undefined ? (cols[idx['Category']]||'').trim()||null  : null,
-          vat:                 idx['VAT (£)']   !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
-          notes:               idx['Notes']     !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
-          image_url:           imageUrl,
-          ocr_raw:             null,
-          sa_category:         null,
-          category_confidence: null,
-          category_source:     null,
+          user_id:  _user.id,
+          merchant: merchant,
+          amount:   amount,
+          currency: (cols[idx['Currency']]||'GBP').trim(),
+          date:     (cols[idx['Date']]||'').trim() || null,
+          category: idx['Category']  !== undefined ? (cols[idx['Category']]||'').trim()||null  : null,
+          vat:      idx['VAT (£)']   !== undefined ? parseFloat(cols[idx['VAT (£)']]||0)||null : null,
+          notes:    idx['Notes']     !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
+          image_url: imageUrl,
+          ocr_raw:  null,
         });
         if (res.error) {
           errors++;
