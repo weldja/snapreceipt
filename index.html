@@ -1673,6 +1673,8 @@ var _receipts = [];
 var _imgB64   = null;
 var _expanded = null;
 var _editId   = null;
+var _saCat    = null;   // SA103 category from OCR
+var _catConf  = null;   // SA103 category confidence 0–100
 var _cameraOpen = false; // flag: true while camera/picker is open
 
 /* ── HELPERS ─────────────────────────────────────────── */
@@ -2518,6 +2520,7 @@ window.openScan = function() {
   if(g('cfCategory')) g('cfCategory').value='';
   if(g('cfVat')) g('cfVat').value='';
   if(g('cfNotes')) g('cfNotes').value='';
+  _saCat = null; _catConf = null;
   // Reset currency toggle
   if(g('currencyToggle')) g('currencyToggle').textContent = 'GBP £ ▾';
   if(g('currencyDropdown')) g('currencyDropdown').style.display = 'none';
@@ -2609,6 +2612,8 @@ function runOCR(b64) {
       if (data.currency) g('cfCurrency').value = data.currency;
       if (data.category && g('cfCategory')) g('cfCategory').value = data.category;
       if (data.vat != null && g('cfVat')) g('cfVat').value = data.vat;
+      _saCat   = data.sa_category          || null;
+      _catConf = data.category_confidence  || null;
 
       var conf   = (data.confidence||'medium').toLowerCase();
       var labels = {high:'✓ High confidence', medium:'~ Review fields', low:'⚠ Check fields carefully'};
@@ -2695,16 +2700,19 @@ window.saveReceipt = async function() {
     }
 
     var res = await sb.from('receipts').insert({
-      user_id:  _user.id,
-      merchant: merchant,
-      amount:   amount,
-      currency: g('cfCurrency').value || 'GBP',
-      date:     date || null,
-      category: g('cfCategory').value || null,
-      vat:      parseFloat(g('cfVat').value) || null,
-      notes:    g('cfNotes').value.trim() || null,
-      image_url: imageUrl,
-      ocr_raw:  null,
+      user_id:             _user.id,
+      merchant:            merchant,
+      amount:              amount,
+      currency:            g('cfCurrency').value || 'GBP',
+      date:                date || null,
+      category:            g('cfCategory').value || null,
+      vat:                 parseFloat(g('cfVat').value) || null,
+      notes:               g('cfNotes').value.trim() || null,
+      image_url:           imageUrl,
+      ocr_raw:             null,
+      sa_category:         _saCat,
+      category_confidence: _catConf,
+      category_source:     _saCat ? 'ai' : null,
     }).select().single();
     if (res.error) throw res.error;
     _receipts.unshift(res.data);
@@ -3387,6 +3395,9 @@ window.handleImport = async function(input) {
           notes:    idx['Notes']     !== undefined ? (cols[idx['Notes']]||'').replace(/^"|"$/g,'').replace(/""/g,'"').trim()||null : null,
           image_url: imageUrl,
           ocr_raw:  null,
+          sa_category:         null,
+          category_confidence: null,
+          category_source:     null,
         });
         if (res.error) {
           errors++;
