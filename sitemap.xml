@@ -20,8 +20,14 @@
   </url>
   <url>
     <loc>https://snapreceipt.co.uk/blog/</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-04</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://snapreceipt.co.uk/blog/sa103-expenses-guide/</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
