@@ -3491,7 +3491,6 @@ function renderMtdQuarters() {
   var vatTot = qRs.reduce(function(s,r){ return s + parseFloat(r.vat||0); }, 0);
 
   g('qTotal').textContent = fmt(total);
-  g('qCount').textContent = qRs.length;
   g('qVat').textContent   = vatTot > 0 ? fmt(vatTot) : '—';
 
   // Income KPI — sum _income for this quarter
