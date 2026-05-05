@@ -1334,6 +1334,7 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
     <div class="sheet-footer">
       <button class="btn-p" id="incomeSaveBtn" onclick="saveIncome()">Save income entry</button>
+      <button class="btn-out danger" id="incomeDeleteBtn" onclick="deleteIncome()" style="display:none;margin-top:8px">Delete income</button>
     </div>
   </div>
 </div>
@@ -3355,6 +3356,7 @@ window.openAddIncome = function() {
   ['ifClient','ifAmount','ifDate'].forEach(function(id){ g(id).classList.remove('error'); });
   g('incomeMsg').textContent = '';
   g('incomeSaveBtn').textContent = 'Save income entry';
+  g('incomeDeleteBtn').style.display = 'none';
   // Reset source to invoice
   g('incomeSrcGrid').querySelectorAll('.income-src-btn').forEach(function(b){
     b.classList.toggle('active', b.dataset.src === 'invoice');
@@ -3375,6 +3377,7 @@ window.openIncomeDetail = function(id) {
   ['ifClient','ifAmount','ifDate'].forEach(function(id){ g(id).classList.remove('error'); });
   g('incomeMsg').textContent = '';
   g('incomeSaveBtn').textContent = 'Save changes';
+  g('incomeDeleteBtn').style.display = '';
   g('incomeSrcGrid').querySelectorAll('.income-src-btn').forEach(function(b){
     b.classList.toggle('active', b.dataset.src === (r.source || 'invoice'));
   });
@@ -3984,13 +3987,29 @@ window.showPrivacy = function() { g('privacySheet').classList.add('on'); };
 
 /* ── DELETE CONFIRMATION ─────────────────────────────────── */
 var _deleteId = null;
+var _deleteIncomeId = null;
 window.deleteReceipt = function(id) {
   _deleteId = id;
   g('deleteSheet').classList.add('on');
 };
+window.deleteIncome = function() {
+  if (!_incomeEditId) return;
+  _deleteIncomeId = _incomeEditId;
+  closeIncomeSheet();
+  g('deleteSheet').classList.add('on');
+};
 window.confirmDelete = async function() {
-  if (!_deleteId) return;
   g('deleteSheet').classList.remove('on');
+  if (_deleteIncomeId) {
+    var id = _deleteIncomeId;
+    _deleteIncomeId = null;
+    await sb.from('income').delete().eq('id', id).eq('user_id', _user.id);
+    _income = _income.filter(function(r){ return r.id !== id; });
+    renderIncomePane();
+    toast('Income deleted');
+    return;
+  }
+  if (!_deleteId) return;
   await sb.from('receipts').delete().eq('id', _deleteId);
   _receipts = _receipts.filter(function(r){ return r.id !== _deleteId; });
   _deleteId = null;
