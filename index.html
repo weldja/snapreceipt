@@ -1337,6 +1337,48 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   </div>
 </div>
 
+<!-- ═══ HOW IT WORKS SHEET ══════════════════════════════════ -->
+<div class="sheet-bg" id="howItWorksSheet" onclick="if(event.target===this)closeHowItWorks()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-scroll">
+      <div style="margin-bottom:16px">
+        <div style="font-size:1.05rem;font-weight:800;color:var(--black);letter-spacing:-.02em;margin-bottom:4px">How SnapReceipt works</div>
+        <div style="font-size:.82rem;color:var(--gray-5);line-height:1.5">Your free expense tracker for UK freelancers and sole traders. No app to download — it works right here in your browser.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">📸</div>
+          <div><div style="font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px">Scan any receipt</div><div style="font-size:.81rem;color:var(--gray-5);line-height:1.5">Point your camera at any receipt, till roll or invoice. AI reads the merchant, amount, date and VAT automatically — no typing required.</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🏷️</div>
+          <div><div style="font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px">SA103 categories assigned</div><div style="font-size:.81rem;color:var(--gray-5);line-height:1.5">Every expense is automatically mapped to the correct HMRC SA103 box — office costs, travel, professional fees, and so on. Tap to correct if needed.</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--green-lt);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">💰</div>
+          <div><div style="font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px">Log your income</div><div style="font-size:.81rem;color:var(--gray-5);line-height:1.5">Record payments from clients alongside your expenses. SnapReceipt shows your income, expenses and profit for each quarter in real time.</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">📊</div>
+          <div><div style="font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px">MTD-ready quarterly totals</div><div style="font-size:.81rem;color:var(--gray-5);line-height:1.5">The Tax quarters view groups your expenses by SA103 box with running totals. Your figures are ready for your Making Tax Digital quarterly update whenever the deadline arrives.</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--gray-1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">📧</div>
+          <div><div style="font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px">Forward receipt emails</div><div style="font-size:.81rem;color:var(--gray-5);line-height:1.5">Forward any receipt email to your personal SnapReceipt address and it logs automatically — no scanning needed. Find your address in the ⋯ menu.</div></div>
+        </div>
+      </div>
+      <div style="background:var(--gray-0);border-radius:var(--r);padding:12px 14px;margin-bottom:4px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--gray-5);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">HMRC record keeping</div>
+        <div style="font-size:.81rem;color:var(--gray-7);line-height:1.5">HMRC requires sole traders to keep expense records for at least 5 years. SnapReceipt stores your receipts securely so they are available for any compliance check.</div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-p" onclick="closeHowItWorks()">Got it</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ SCAN ═══════════════════════════════════════════════ -->
 <div id="scanScreen">
   <header class="scan-hdr">
@@ -1464,6 +1506,7 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       <button class="sheet-item" onclick="shareApp();closeMenu()"><span class="sicon">↗</span>Share SnapReceipt</button>
       <a class="sheet-item" href="/blog/" style="text-decoration:none;color:inherit"><span class="sicon">📖</span>Blog &amp; guides</a>
       <a class="sheet-item" href="mailto:hello@snapreceipt.co.uk" style="text-decoration:none;color:inherit"><span class="sicon">✉️</span>Contact us</a>
+      <button class="sheet-item" onclick="openHowItWorks();closeMenu()"><span class="sicon">💡</span>How SnapReceipt works</button>
       <button class="sheet-item" id="menuPinBtn" onclick="openPinSetup();closeMenu()"><span class="sicon">🔒</span><span id="menuPinLabel">Set up PIN lock</span></button>
       <div class="sdiv"></div>
       <div class="sheet-item" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
@@ -3891,6 +3934,9 @@ window.copyEmailAddr = function() {
   }
 };
 window.closeMenu = function() { g('menuSheet').classList.remove('on'); };
+
+window.openHowItWorks  = function() { g('howItWorksSheet').classList.add('on'); };
+window.closeHowItWorks = function() { g('howItWorksSheet').classList.remove('on'); };
 
 /* ── SHARE ─────────────────────────────────────────────── */
 window.shareApp = function() {
