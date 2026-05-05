@@ -478,6 +478,39 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .view-tab{padding:0 14px;height:40px;border:none;background:none;font-size:.83rem;font-weight:600;color:var(--gray-5);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:color .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .view-tab.vt-receipts.active{color:var(--black);border-bottom-color:var(--black)}
 .view-tab.vt-quarters.active{color:var(--blue);border-bottom-color:var(--blue)}
+.view-tab.vt-income.active{color:var(--green);border-bottom-color:var(--green)}
+/* ── INCOME PANE ─────────────────────────────────────── */
+#incomePane{display:none;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--gray-0)}
+.income-body{padding:12px 12px 100px;display:flex;flex-direction:column;gap:10px}
+.income-pl-card{background:var(--black);border-radius:var(--r-lg);padding:16px 18px;color:#fff}
+.income-pl-title{font-size:.68rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.income-pl-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.income-pl-col{padding:0}
+.income-pl-col+.income-pl-col{border-left:1px solid #333;padding-left:14px}
+.income-pl-lbl{font-size:.72rem;color:#888;margin-bottom:3px}
+.income-pl-val{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums;color:#fff}
+.income-pl-val.green{color:#4ade80}
+.income-pl-val.red{color:#f87171}
+.income-row{background:#fff;border-radius:var(--r-lg);border:1.5px solid var(--border);padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.income-row:active{background:var(--gray-0)}
+.income-row-icon{width:40px;height:40px;border-radius:var(--r);background:var(--green-lt);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.income-row-info{flex:1;min-width:0}
+.income-row-client{font-size:.9rem;font-weight:700;color:var(--black);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.income-row-desc{font-size:.76rem;color:var(--gray-5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.income-row-right{text-align:right;flex-shrink:0}
+.income-row-amt{font-size:.95rem;font-weight:800;color:var(--black);font-variant-numeric:tabular-nums}
+.income-row-date{font-size:.72rem;color:var(--gray-5);margin-top:2px}
+.income-empty{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:36px 24px;text-align:center;margin-top:4px}
+.income-empty-icon{font-size:2.2rem;margin-bottom:8px;opacity:.3}
+.income-empty-title{font-size:.95rem;font-weight:700;color:var(--black);margin-bottom:6px}
+.income-empty-sub{font-size:.83rem;color:var(--gray-5);line-height:1.5}
+/* Income add/edit sheet */
+.income-source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.income-src-btn{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:10px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent;transition:all .12s}
+.income-src-btn.active{background:var(--green-lt);border-color:var(--green)}
+.income-src-icon{font-size:18px}
+.income-src-label{font-size:.72rem;font-weight:600;color:var(--gray-7)}
+.income-src-btn.active .income-src-label{color:var(--green)}
 
 /* ── QUARTERS PANE ───────────────────────────────────────── */
 #quartersPane{display:none;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--gray-0)}
@@ -1037,6 +1070,7 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <!-- ── VIEW TABS ── -->
   <div class="view-tabs">
     <button class="view-tab vt-receipts active" id="vtReceipts" onclick="switchHomeTab('receipts')">Receipts</button>
+    <button class="view-tab vt-income" id="vtIncome" onclick="switchHomeTab('income')">Income</button>
     <button class="view-tab vt-quarters" id="vtQuarters" onclick="switchHomeTab('quarters')">Tax quarters</button>
   </div>
 
@@ -1183,8 +1217,8 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       </div>
       <div class="q-deadline" id="qDeadline"></div>
       <div class="q-kpis">
-        <div class="q-kpi"><div class="q-kpi-val blue" id="qTotal">—</div><div class="q-kpi-lbl">Total expenses</div></div>
-        <div class="q-kpi"><div class="q-kpi-val green" id="qCount">—</div><div class="q-kpi-lbl">Receipts</div></div>
+        <div class="q-kpi"><div class="q-kpi-val green" id="qIncomeKpi">—</div><div class="q-kpi-lbl">Income</div></div>
+        <div class="q-kpi"><div class="q-kpi-val blue" id="qTotal">—</div><div class="q-kpi-lbl">Expenses</div></div>
         <div class="q-kpi"><div class="q-kpi-val" id="qVat">—</div><div class="q-kpi-lbl">VAT recorded</div></div>
       </div>
       <div class="q-card">
@@ -1210,6 +1244,83 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div><!-- end quartersPane -->
 
+  <!-- ── INCOME PANE ── -->
+  <div id="incomePane">
+    <div class="income-body">
+      <!-- Add income button -->
+      <button onclick="openAddIncome()" style="background:var(--green);color:#fff;border:none;border-radius:var(--r);padding:11px 0;font-size:.9rem;font-weight:700;cursor:pointer;width:100%;letter-spacing:-.01em">+ Log income</button>
+      <!-- P&L strip -->
+      <div class="income-pl-card">
+        <div class="income-pl-title" id="incomePlTitle">Loading...</div>
+        <div class="income-pl-row">
+          <div class="income-pl-col">
+            <div class="income-pl-lbl">Income</div>
+            <div class="income-pl-val" id="incomePlIncome">—</div>
+          </div>
+          <div class="income-pl-col">
+            <div class="income-pl-lbl">Expenses</div>
+            <div class="income-pl-val red" id="incomePlExpenses">—</div>
+          </div>
+          <div class="income-pl-col">
+            <div class="income-pl-lbl">Profit</div>
+            <div class="income-pl-val green" id="incomePlProfit">—</div>
+          </div>
+        </div>
+      </div>
+      <!-- Entries list -->
+      <div id="incomeList"></div>
+    </div>
+  </div><!-- end incomePane -->
+
+</div>
+
+<!-- ═══ INCOME SHEET ═══════════════════════════════════════ -->
+<div class="sheet-bg" id="incomeSheet" onclick="if(event.target===this)closeIncomeSheet()">
+  <div class="sheet" style="max-height:92dvh;overflow-y:auto">
+    <div class="sheet-hdr">
+      <span id="incomeSheetTitle">Log income</span>
+      <button class="sheet-close" onclick="closeIncomeSheet()">✕</button>
+    </div>
+    <div style="padding:16px 20px 0">
+      <!-- Source picker -->
+      <label class="fl" style="margin-bottom:8px">Payment type</label>
+      <div class="income-source-grid" id="incomeSrcGrid">
+        <button class="income-src-btn active" data-src="invoice" onclick="selectIncomeSource(this)">
+          <span class="income-src-icon">📄</span><span class="income-src-label">Invoice</span>
+        </button>
+        <button class="income-src-btn" data-src="bank" onclick="selectIncomeSource(this)">
+          <span class="income-src-icon">🏦</span><span class="income-src-label">Bank transfer</span>
+        </button>
+        <button class="income-src-btn" data-src="cash" onclick="selectIncomeSource(this)">
+          <span class="income-src-icon">💷</span><span class="income-src-label">Cash</span>
+        </button>
+        <button class="income-src-btn" data-src="card" onclick="selectIncomeSource(this)">
+          <span class="income-src-icon">💳</span><span class="income-src-label">Card</span>
+        </button>
+        <button class="income-src-btn" data-src="platform" onclick="selectIncomeSource(this)">
+          <span class="income-src-icon">🌐</span><span class="income-src-label">Platform</span>
+        </button>
+        <button class="income-src-btn" data-src="other" onclick="selectIncomeSource(this)">
+          <span class="income-src-icon">•••</span><span class="income-src-label">Other</span>
+        </button>
+      </div>
+      <div><label class="fl">Client / Payer *</label><input class="ti" id="ifClient" placeholder="e.g. Acme Ltd" autocomplete="off"/></div>
+      <div style="height:10px"></div>
+      <div><label class="fl">Description</label><input class="ti" id="ifDesc" placeholder="e.g. Website project phase 2" autocomplete="off"/></div>
+      <div style="height:10px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><label class="fl">Amount (£) *</label><input class="ti" id="ifAmount" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+        <div><label class="fl">Date *</label><input class="ti" id="ifDate" type="date"/></div>
+      </div>
+      <div style="height:10px"></div>
+      <div><label class="fl">Reference / Invoice no.</label><input class="ti" id="ifRef" placeholder="e.g. INV-0042" autocomplete="off"/></div>
+      <div style="height:10px"></div>
+      <div class="amsg" id="incomeMsg"></div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-p" id="incomeSaveBtn" onclick="saveIncome()">Save income entry</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ SCAN ═══════════════════════════════════════════════ -->
@@ -1717,6 +1828,8 @@ var _expanded = null;
 var _editId   = null;
 var _saCat    = null;   // SA103 category from OCR
 var _catConf  = null;   // SA103 category confidence 0-100
+var _income   = [];     // income entries
+var _incomeEditId = null; // null = new, uuid = editing
 var _cameraOpen = false; // flag: true while camera/picker is open
 
 /* ── HELPERS ─────────────────────────────────────────── */
@@ -1964,6 +2077,7 @@ sb.auth.onAuthStateChange(function(event, session) {
     g('landingPage').classList.add('hidden');
     show('homeScreen');
     loadReceipts();
+    loadIncome();
     subscribeRealtime();
     updateMenuPinLabel();
     // Initialise scan count state
@@ -3067,32 +3181,210 @@ var _mtdQuarterIdx = 0; // which quarter is selected (0-3)
 /* Switch between Receipts and Tax quarters tabs */
 window.switchHomeTab = function(tab) {
   _activeHomeTab = tab;
-  var isQ = tab === 'quarters';
+  var isQ  = tab === 'quarters';
+  var isIn = tab === 'income';
+  var isR  = tab === 'receipts';
 
   // Toggle panes
-  g('receiptsPane').style.display = isQ ? 'none' : 'flex';
-  g('quartersPane').style.display = isQ ? 'flex' : 'none'; // flex so flex-direction:column applies
+  g('receiptsPane').style.display = isR  ? 'flex' : 'none';
+  g('incomePane').style.display   = isIn ? 'flex' : 'none';
+  g('quartersPane').style.display = isQ  ? 'flex' : 'none';
 
   // Toggle tab active states
-  g('vtReceipts').classList.toggle('active', !isQ);
+  g('vtReceipts').classList.toggle('active', isR);
+  g('vtIncome').classList.toggle('active', isIn);
   g('vtQuarters').classList.toggle('active', isQ);
 
-  // Hide/show the header export button (quarters has its own)
-  if (g('hdrExportBtn')) g('hdrExportBtn').style.display = isQ ? 'none' : '';
-
-  // Hide FAB and fwd-tip on quarters view — both are position:fixed and would float above
-  g('scanFab').style.display = isQ ? 'none' : '';
+  // Hide/show header export and FAB
+  if (g('hdrExportBtn')) g('hdrExportBtn').style.display = (isQ || isIn) ? 'none' : '';
+  g('scanFab').style.display = (isQ || isIn) ? 'none' : '';
   var tip = g('fwdTip');
   if (tip) {
-    if (isQ) {
+    if (isQ || isIn) {
       tip.classList.add('hidden');
     } else {
-      updateFwdTip(); // restore based on dismissed state
+      updateFwdTip();
     }
   }
 
-  if (isQ) renderMtdQuarters();
+  if (isQ)  renderMtdQuarters();
+  if (isIn) renderIncomePane();
 };
+
+// ═══════════════════════════════════════════════════════════
+// INCOME LOGGING
+// ═══════════════════════════════════════════════════════════
+
+var INCOME_SOURCE_ICONS = {
+  invoice:'📄', bank:'🏦', cash:'💷', card:'💳', platform:'🌐', other:'💰'
+};
+
+async function loadIncome() {
+  if (!_user) return;
+  var res = await sb.from('income')
+    .select('id,client,description,amount,currency,date,source,reference,created_at')
+    .eq('user_id', _user.id)
+    .order('date', {ascending:false});
+  if (res.error) { console.error('loadIncome error', res.error); return; }
+  _income = res.data || [];
+}
+
+function renderIncomePane() {
+  // P&L strip — current tax year
+  var now = new Date();
+  var sy  = getMtdTaxYearStart(now);
+  var qi  = _mtdQuarterIdx != null ? _mtdQuarterIdx : getCurrentMtdQuarter();
+  var b   = getQuarterBounds(sy, qi);
+  var labels = ['Q1','Q2','Q3','Q4'];
+
+  // Quarter income
+  var qIncome = _income.filter(function(r) {
+    var d = new Date(r.date);
+    return d >= b.start && d <= b.end && (!r.currency || r.currency === 'GBP');
+  });
+  var totalIncome = qIncome.reduce(function(s,r){ return s + parseFloat(r.amount||0); }, 0);
+
+  // Quarter expenses (from receipts)
+  var qReceipts = _receipts.filter(function(r) {
+    var d = new Date(r.date || r.created_at);
+    return d >= b.start && d <= b.end && (!r.currency || r.currency === 'GBP');
+  });
+  var totalExpenses = qReceipts.reduce(function(s,r){ return s + parseFloat(r.amount||0); }, 0);
+  var profit = totalIncome - totalExpenses;
+
+  g('incomePlTitle').textContent = labels[qi] + ' ' + sy + '/' + String(sy+1).slice(2) + ' snapshot';
+  g('incomePlIncome').textContent   = fmt(totalIncome);
+  g('incomePlExpenses').textContent = fmt(totalExpenses);
+  g('incomePlProfit').textContent   = fmt(profit);
+  g('incomePlProfit').className     = 'income-pl-val ' + (profit >= 0 ? 'green' : 'red');
+
+  // Income list
+  var listEl = g('incomeList');
+  if (!_income.length) {
+    listEl.innerHTML = '<div class="income-empty">'
+      + '<div class="income-empty-icon">💰</div>'
+      + '<div class="income-empty-title">No income logged yet</div>'
+      + '<div class="income-empty-sub">Tap <strong>+ Add</strong> to log your first payment. '
+      + 'Income is combined with your expenses in the Tax quarters view.</div>'
+      + '</div>';
+    return;
+  }
+
+  listEl.innerHTML = _income.map(function(r) {
+    var icon = INCOME_SOURCE_ICONS[r.source] || '💰';
+    return '<div class="income-row" onclick="openIncomeDetail('' + r.id + '')">'
+      + '<div class="income-row-icon">' + icon + '</div>'
+      + '<div class="income-row-info">'
+      + '<div class="income-row-client">' + esc(r.client) + '</div>'
+      + '<div class="income-row-desc">' + esc(r.description || r.source || '') + '</div>'
+      + '</div>'
+      + '<div class="income-row-right">'
+      + '<div class="income-row-amt">' + fmt(r.amount) + '</div>'
+      + '<div class="income-row-date">' + fmtDate(r.date) + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+window.openAddIncome = function() {
+  _incomeEditId = null;
+  g('incomeSheetTitle').textContent = 'Log income';
+  g('ifClient').value  = '';
+  g('ifDesc').value    = '';
+  g('ifAmount').value  = '';
+  g('ifDate').value    = new Date().toISOString().split('T')[0];
+  g('ifRef').value     = '';
+  g('incomeMsg').textContent = '';
+  g('incomeSaveBtn').textContent = 'Save income entry';
+  // Reset source to invoice
+  g('incomeSrcGrid').querySelectorAll('.income-src-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.src === 'invoice');
+  });
+  g('incomeSheet').classList.add('on');
+};
+
+window.openIncomeDetail = function(id) {
+  var r = _income.find(function(x){ return x.id === id; });
+  if (!r) return;
+  _incomeEditId = id;
+  g('incomeSheetTitle').textContent = 'Edit income';
+  g('ifClient').value  = r.client  || '';
+  g('ifDesc').value    = r.description || '';
+  g('ifAmount').value  = r.amount  || '';
+  g('ifDate').value    = r.date    || '';
+  g('ifRef').value     = r.reference || '';
+  g('incomeMsg').textContent = '';
+  g('incomeSaveBtn').textContent = 'Save changes';
+  g('incomeSrcGrid').querySelectorAll('.income-src-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.src === (r.source || 'invoice'));
+  });
+  g('incomeSheet').classList.add('on');
+};
+
+window.closeIncomeSheet = function() {
+  g('incomeSheet').classList.remove('on');
+  _incomeEditId = null;
+};
+
+window.selectIncomeSource = function(btn) {
+  g('incomeSrcGrid').querySelectorAll('.income-src-btn').forEach(function(b){
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+};
+
+window.saveIncome = async function() {
+  var client  = g('ifClient').value.trim();
+  var amount  = parseFloat(g('ifAmount').value);
+  var date    = g('ifDate').value;
+  var desc    = g('ifDesc').value.trim();
+  var ref     = g('ifRef').value.trim();
+  var srcBtn  = g('incomeSrcGrid').querySelector('.income-src-btn.active');
+  var source  = srcBtn ? srcBtn.dataset.src : 'other';
+
+  if (!client) { g('incomeMsg').textContent = 'Client / Payer is required'; return; }
+  if (!amount || isNaN(amount) || amount <= 0) { g('incomeMsg').textContent = 'Enter a valid amount'; return; }
+  if (!date)   { g('incomeMsg').textContent = 'Date is required'; return; }
+
+  g('incomeSaveBtn').textContent = 'Saving…';
+  g('incomeSaveBtn').disabled = true;
+
+  var payload = {
+    user_id:     _user.id,
+    client:      client,
+    description: desc || null,
+    amount:      amount,
+    currency:    'GBP',
+    date:        date,
+    source:      source,
+    reference:   ref || null,
+  };
+
+  var res;
+  if (_incomeEditId) {
+    res = await sb.from('income').update(payload).eq('id', _incomeEditId).eq('user_id', _user.id);
+  } else {
+    res = await sb.from('income').insert(payload);
+  }
+
+  g('incomeSaveBtn').disabled = false;
+
+  if (res.error) {
+    g('incomeMsg').textContent = 'Error saving — please try again';
+    g('incomeSaveBtn').textContent = _incomeEditId ? 'Save changes' : 'Save income entry';
+    return;
+  }
+
+  closeIncomeSheet();
+  await loadIncome();
+  renderIncomePane();
+  toast(_incomeEditId ? 'Income updated' : 'Income saved');
+};
+
+/* Return the current MTD quarter index based on today's date */
+// ═══════════════════════════════════════════════════════════
+// END INCOME LOGGING
+// ═══════════════════════════════════════════════════════════
 
 /* Return the tax year start year for a given date
    e.g. 2025 for any date in 2025/26 tax year */
@@ -3200,6 +3492,16 @@ function renderMtdQuarters() {
   g('qTotal').textContent = fmt(total);
   g('qCount').textContent = qRs.length;
   g('qVat').textContent   = vatTot > 0 ? fmt(vatTot) : '—';
+
+  // Income KPI — sum _income for this quarter
+  if (g('qIncomeKpi')) {
+    var qInc = (_income||[]).filter(function(r) {
+      var d = new Date(r.date);
+      return d >= b.start && d <= b.end && (!r.currency || r.currency === 'GBP');
+    });
+    var incTotal = qInc.reduce(function(s,r){ return s + parseFloat(r.amount||0); }, 0);
+    g('qIncomeKpi').textContent = incTotal > 0 ? fmt(incTotal) : '—';
+  }
 
   // Update export button label
   g('qExportBtn').textContent = 'Export ' + labels[qi] + ' CSV';
