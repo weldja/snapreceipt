@@ -1082,6 +1082,20 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <div id="receiptsPane" style="display:flex;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
   <!-- ── DASHBOARD ── -->
+  <div class="onboard-banner" id="onboardBanner" style="display:none">
+    <button class="onboard-dismiss" onclick="dismissOnboard()" title="Dismiss">✕</button>
+    <div class="onboard-title">👋 Welcome to SnapReceipt</div>
+    <div class="onboard-sub" style="margin-bottom:12px">Your free expense tracker for UK freelancers and sole traders. No app to download — it works right here in your browser.</div>
+    <div class="onboard-divider"></div>
+    <div class="onboard-feats">
+      <div class="onboard-feat"><span class="onboard-feat-icon">📸</span><span><strong>Scan any receipt</strong> — AI reads the merchant, amount, date and VAT automatically. No typing.</span></div>
+      <div class="onboard-feat"><span class="onboard-feat-icon">🏷️</span><span><strong>SA103 categories assigned</strong> — every expense is mapped to the correct HMRC box for your Self Assessment return.</span></div>
+      <div class="onboard-feat"><span class="onboard-feat-icon">💰</span><span><strong>Log your income</strong> — track payments alongside expenses to see your profit in real time.</span></div>
+      <div class="onboard-feat"><span class="onboard-feat-icon">📊</span><span><strong>MTD-ready quarterly totals</strong> — your figures are ready to submit whenever your Making Tax Digital deadline arrives.</span></div>
+    </div>
+    <button class="onboard-btn" onclick="openScan();dismissOnboard()">📸 Scan your first receipt</button>
+  </div>
+
   <div class="dash" id="dashboard">
 
     <!-- Always-visible summary row — tap to expand -->
@@ -1177,19 +1191,7 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
       <input class="search-input" id="searchInput" type="search" placeholder="Search receipts…" oninput="filterReceipts(this.value)"/>
     </div>
   </div>
-  <div class="onboard-banner" id="onboardBanner" style="display:none">
-    <button class="onboard-dismiss" onclick="dismissOnboard()" title="Dismiss">✕</button>
-    <div class="onboard-title">👋 Welcome to SnapReceipt</div>
-    <div class="onboard-sub" style="margin-bottom:12px">Your free expense tracker for UK freelancers and sole traders. No app to download — it works right here in your browser.</div>
-    <div class="onboard-divider"></div>
-    <div class="onboard-feats">
-      <div class="onboard-feat"><span class="onboard-feat-icon">📸</span><span><strong>Scan any receipt</strong> — AI reads the merchant, amount, date and VAT automatically. No typing.</span></div>
-      <div class="onboard-feat"><span class="onboard-feat-icon">🏷️</span><span><strong>SA103 categories assigned</strong> — every expense is mapped to the correct HMRC box for your Self Assessment return.</span></div>
-      <div class="onboard-feat"><span class="onboard-feat-icon">💰</span><span><strong>Log your income</strong> — track payments alongside expenses to see your profit in real time.</span></div>
-      <div class="onboard-feat"><span class="onboard-feat-icon">📊</span><span><strong>MTD-ready quarterly totals</strong> — your figures are ready to submit whenever your Making Tax Digital deadline arrives.</span></div>
-    </div>
-    <button class="onboard-btn" onclick="openScan();dismissOnboard()">📸 Scan your first receipt</button>
-  </div>
+
   <div id="rlist" class="rlist"></div>
   <button class="scan-fab" id="scanFab" onclick="openScan()">📸 Scan Receipt</button>
   <div class="fwd-tip" id="fwdTip">
