@@ -3272,7 +3272,7 @@ function renderIncomePane() {
 
   listEl.innerHTML = _income.map(function(r) {
     var icon = INCOME_SOURCE_ICONS[r.source] || '💰';
-    return '<div class="income-row" onclick="openIncomeDetail('' + r.id + '')">'
+    return '<div class="income-row" onclick="openIncomeDetail(\'' + r.id + '\')">'
       + '<div class="income-row-icon">' + icon + '</div>'
       + '<div class="income-row-info">'
       + '<div class="income-row-client">' + esc(r.client) + '</div>'
