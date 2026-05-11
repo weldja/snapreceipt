@@ -281,6 +281,13 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .fwd-tip-link{background:none;border:none;color:var(--blue);font-size:.78rem;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;-webkit-tap-highlight-color:transparent}
 .fwd-tip-dismiss{background:none;border:none;color:var(--gray-3);font-size:.85rem;cursor:pointer;padding:0 0 0 4px;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 
+/* ── MTD DEADLINE PILL ────────────────────────────────── */
+.mtd-pill-wrap{padding:8px 12px 0;flex-shrink:0}
+.mtd-pill-inner{display:flex;align-items:center;gap:8px;border-radius:20px;padding:7px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.mtd-pill-inner:active{opacity:.8}
+.mtd-pill-text{font-size:.72rem;font-weight:700;flex:1;line-height:1.3}
+.mtd-pill-dismiss{background:none;border:none;font-size:.8rem;cursor:pointer;padding:0;flex-shrink:0;line-height:1;-webkit-tap-highlight-color:transparent}
+
 
 /* ── SCAN LIMIT / UPGRADE PROMPT ────────────────────── */
 .upgrade-sheet-bg{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.5);display:none;align-items:flex-end}
@@ -1077,6 +1084,15 @@ select.ti{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <button class="view-tab vt-receipts active" id="vtReceipts" onclick="switchHomeTab('receipts')">Receipts</button>
     <button class="view-tab vt-income" id="vtIncome" onclick="switchHomeTab('income')">Income</button>
     <button class="view-tab vt-quarters" id="vtQuarters" onclick="switchHomeTab('quarters')">Tax quarters</button>
+  </div>
+
+  <!-- ── MTD DEADLINE PILL ── -->
+  <div id="mtdPill" class="mtd-pill-wrap" style="display:none">
+    <div id="mtdPillInner" class="mtd-pill-inner" onclick="switchHomeTab('quarters')">
+      <span style="font-size:.8rem;flex-shrink:0">📅</span>
+      <span id="mtdPillText" class="mtd-pill-text"></span>
+      <button id="mtdPillDismiss" class="mtd-pill-dismiss" onclick="event.stopPropagation();dismissMtdPill()" title="Dismiss">✕</button>
+    </div>
   </div>
 
   <!-- ── RECEIPTS PANE ── -->
@@ -2288,6 +2304,7 @@ function renderHome() {
   renderDashboard();
   renderList(_receipts);
   updateFwdTip();
+  renderMtdPill();
   var banner = g('onboardBanner');
   if (banner) {
     var dismissed = false;
@@ -2301,6 +2318,63 @@ function dismissOnboard() {
   var banner = g('onboardBanner');
   if (banner) banner.style.display = 'none';
 }
+
+/* ── MTD DEADLINE PILL ───────────────────────────────────── */
+function renderMtdPill() {
+  var pill = g('mtdPill');
+  if (!pill) return;
+  var now = new Date();
+  var sy  = getMtdTaxYearStart(now);
+  var qi  = getCurrentMtdQuarter();
+  var dl  = getQuarterDeadline(sy, qi);
+  var lbl = ['Q1','Q2','Q3','Q4'][qi];
+
+  // Per-quarter dismiss key — auto-resets next quarter
+  var dismissKey = 'sr_mtd_pill_' + sy + '_' + lbl;
+  var dismissed = false;
+  try { dismissed = !!localStorage.getItem(dismissKey); } catch(e) {}
+  if (dismissed) { pill.style.display = 'none'; return; }
+
+  var msPerDay = 1000 * 60 * 60 * 24;
+  var daysLeft = Math.ceil((dl - now) / msPerDay);
+  var isPast   = daysLeft < 0;
+
+  var inner = g('mtdPillInner');
+  var textEl = g('mtdPillText');
+  var dismissBtn = g('mtdPillDismiss');
+
+  if (isPast) {
+    inner.style.background  = 'var(--red-lt)';
+    inner.style.border      = '1px solid var(--red)';
+    textEl.style.color      = 'var(--red)';
+    dismissBtn.style.color  = 'var(--red)';
+    textEl.textContent      = '⚠ ' + lbl + ' deadline has passed — check your quarters';
+  } else if (daysLeft <= 14) {
+    inner.style.background  = '#fffbeb';
+    inner.style.border      = '1px solid #fde68a';
+    textEl.style.color      = '#b45309';
+    dismissBtn.style.color  = '#fbbf24';
+    textEl.textContent      = '⚠ ' + lbl + ' deadline in ' + daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' — review your figures';
+  } else {
+    inner.style.background  = '#eff6ff';
+    inner.style.border      = '1px solid #bfdbfe';
+    textEl.style.color      = '#1d4ed8';
+    dismissBtn.style.color  = '#93c5fd';
+    textEl.textContent      = lbl + ' deadline in ' + daysLeft + ' days — view your figures';
+  }
+
+  pill.style.display = 'block';
+}
+
+window.dismissMtdPill = function() {
+  var now = new Date();
+  var sy  = getMtdTaxYearStart(now);
+  var qi  = getCurrentMtdQuarter();
+  var lbl = ['Q1','Q2','Q3','Q4'][qi];
+  try { localStorage.setItem('sr_mtd_pill_' + sy + '_' + lbl, '1'); } catch(e) {}
+  var pill = g('mtdPill');
+  if (pill) pill.style.display = 'none';
+};
 
 /* ── DASHBOARD ───────────────────────────────────────────────── */
 var _dashPeriod = 30;
@@ -3268,6 +3342,8 @@ window.switchHomeTab = function(tab) {
 
   if (isQ)  renderMtdQuarters();
   if (isIn) renderIncomePane();
+  if (isR)  renderMtdPill();
+  else { var pill = g('mtdPill'); if (pill) pill.style.display = 'none'; }
 };
 
 // ═══════════════════════════════════════════════════════════
